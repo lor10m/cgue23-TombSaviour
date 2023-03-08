@@ -206,11 +206,11 @@ target_link_directories(${PROJECT_NAME} PRIVATE
 )
 
 if(CMAKE_BUILD_TYPE MATCHES "Debug")
-    target_link_directories(${PROJECT_NAME} PRIVATE "../external/lib/debug")
+    target_link_directories(${PROJECT_NAME} PRIVATE "../external/lib/PhysxDebug")
 endif()
 
 if(CMAKE_BUILD_TYPE MATCHES "Release")
-    target_link_directories(${PROJECT_NAME} PRIVATE "../external/lib/release")
+    target_link_directories(${PROJECT_NAME} PRIVATE "../external/lib/PhysxRelease")
 endif()
 
 ################################################################################
