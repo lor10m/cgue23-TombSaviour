@@ -36,8 +36,30 @@ find_package(OpenGL REQUIRED)
 # All_Sources is imported from SourcesList.cmake
 message(STATUS "All_Sources: ${All_Sources}")
 add_executable(${PROJECT_NAME} ${All_Sources} ../assets/settings.ini "src/PhysxMain.cpp")
+set(LIBRARY_OUTPUT_PATH "${CMAKE_BINARY_DIR}")
+set(EXECUTABLE_OUTPUT_PATH "${CMAKE_BINARY_DIR}")
 
 set(ROOT_NAMESPACE ${PROJECT_NAME})
+
+file(COPY "physx/PhysX_64.dll"
+    DESTINATION ${EXECUTABLE_OUTPUT_PATH})
+    
+file(COPY "physx/PhysXFoundation_64.dll"
+    DESTINATION ${EXECUTABLE_OUTPUT_PATH})
+    
+file(COPY "physx/PhysXCommon_64.dll"
+    DESTINATION ${EXECUTABLE_OUTPUT_PATH})
+    
+file(COPY "physx/PhysXCooking_64.dll"
+    DESTINATION ${EXECUTABLE_OUTPUT_PATH})
+   
+file(COPY "physx/PhysXDevice64.dll"
+    DESTINATION ${EXECUTABLE_OUTPUT_PATH})
+
+file(COPY "physx/PhysXGpu_64.dll"
+    DESTINATION ${EXECUTABLE_OUTPUT_PATH})
+
+    
 
 set_target_properties(${PROJECT_NAME} PROPERTIES
     VS_GLOBAL_KEYWORD "Win32Proj"
