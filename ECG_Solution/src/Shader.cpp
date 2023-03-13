@@ -48,7 +48,7 @@ GLuint Shader::compileShader(GLuint type, const std::string& path) const {
     glGetShaderiv(shaderId, GL_COMPILE_STATUS, &succeeded);
 
     if (succeeded == GL_FALSE) {
-        //Log auslesen und ausgeben
+      //Log auslesen und ausgeben
         GLint logSize;
         glGetShaderiv(shaderId, GL_INFO_LOG_LENGTH, &logSize);
         char* message = new char[logSize];
@@ -58,35 +58,6 @@ GLuint Shader::compileShader(GLuint type, const std::string& path) const {
     }
 
     return shaderId;
-}
-
-void Shader::setUniform4f(const std::string& name, float v1, float v2, float v3, float v4) {
-    activate();
-    glUniform4f(getUniformLocation(name), v1, v2, v3, v4);
-}
-
-void Shader::setUniform3f(const std::string& name, float v1, float v2, float v3) {
-    activate();
-    glUniform3f(getUniformLocation(name), v1, v2, v3);
-}
-
-void Shader::setUniform1f(const string &name, float v) {
-    activate();
-    glUniform1f(getUniformLocation(name), v);
-}
-
-void Shader::setUniform1i(const string &name, int v) {
-    activate();
-    glUniform1i(getUniformLocation(name), v);
-}
-
-void Shader::setUniformMatrix4fv(const std::string& name, int size, GLboolean transposed, glm::mat4 matrix) {
-    setUniformMatrix4fv(name, size, transposed, &matrix[0][0]);
-}
-
-void Shader::setUniformMatrix4fv(const std::string &name, int size, GLboolean transposed, GLfloat* matrix) {
-    activate();
-    glUniformMatrix4fv(getUniformLocation(name), size, transposed, matrix);
 }
 
 void Shader::addUniformPointLight(const std::string& name, PointLight pointLight) {
@@ -149,4 +120,33 @@ void Shader::loadTexture(const std::string &texturePath, int unit) {
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     glCompressedTexImage2D(GL_TEXTURE_2D, 0, ddsImage.format, ddsImage.width, ddsImage.height, 0, ddsImage.size, ddsImage.data);
     glGenerateMipmap(GL_TEXTURE_2D);
+}
+
+void Shader::setUniform4f(const std::string& name, float v1, float v2, float v3, float v4) {
+    activate();
+    glUniform4f(getUniformLocation(name), v1, v2, v3, v4);
+}
+
+void Shader::setUniform3f(const std::string& name, float v1, float v2, float v3) {
+    activate();
+    glUniform3f(getUniformLocation(name), v1, v2, v3);
+}
+
+void Shader::setUniform1f(const string& name, float v) {
+    activate();
+    glUniform1f(getUniformLocation(name), v);
+}
+
+void Shader::setUniform1i(const string& name, int v) {
+    activate();
+    glUniform1i(getUniformLocation(name), v);
+}
+
+void Shader::setUniformMatrix4fv(const std::string& name, int size, GLboolean transposed, glm::mat4 matrix) {
+    setUniformMatrix4fv(name, size, transposed, &matrix[0][0]);
+}
+
+void Shader::setUniformMatrix4fv(const std::string& name, int size, GLboolean transposed, GLfloat* matrix) {
+    activate();
+    glUniformMatrix4fv(getUniformLocation(name), size, transposed, matrix);
 }
