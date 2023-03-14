@@ -64,7 +64,7 @@ void PhysxObject::createObject(physx::PxMaterial* mMaterial, physx::PxPhysics* m
 	PxU32 size = 30;
 	PxTransform t(physx::PxVec3(0));
 
-	PxTransform localTm(physx::PxVec3(physx::PxReal(2) - physx::PxReal(1), physx::PxReal(3), 0) * halfExtent);
+	PxTransform localTm(physx::PxVec3(physx::PxReal(0) - physx::PxReal(0), physx::PxReal(0), 0) * halfExtent);
 	PxRigidDynamic* body = mPhysics->createRigidDynamic(t.transform(localTm));
 	body->attachShape(*shape);
 	PxRigidBodyExt::updateMassAndInertia(*body, 10.0f);

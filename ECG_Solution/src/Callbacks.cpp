@@ -25,6 +25,17 @@ void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods
             isBackfaceCullingActive = GL_TRUE;
         }
     }
+    if (key == GLFW_KEY_F5 && action == GLFW_PRESS) {       // Fullscreen
+        GLFWmonitor* monitor = glfwGetPrimaryMonitor();
+        const GLFWvidmode* videoMode = glfwGetVideoMode(monitor);
+        glfwSetWindowMonitor(window, monitor, 0, 0, videoMode->width, videoMode->height, videoMode->refreshRate);
+
+        int screenWidth, screenHeight;
+        glfwGetFramebufferSize(window, &screenWidth, &screenHeight);
+        glViewport(0, 0, screenWidth, screenHeight);
+        glm::mat4 projection = glm::perspective(glm::radians(45.0f), (float)screenWidth / (float)screenHeight, 0.1f, 100.0f);
+
+    }
 }
 
 void debugCallback(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const GLchar *message, const void *userParam) {

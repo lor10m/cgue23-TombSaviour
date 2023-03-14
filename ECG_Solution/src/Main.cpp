@@ -51,7 +51,7 @@ int main(int argc, char **argv) {
     // first param: section [window], second param: property name, third param: default value
     int window_width = reader.GetInteger("window", "width", 800);
     int window_height = reader.GetInteger("window", "height", 800);
-    std::string window_title = reader.Get("window", "title", "ECG 2022");
+    std::string window_title = reader.Get("window", "title", "Tomb Saviour");
 
     double camera_fov = reader.GetReal("camera", "fov", 60) * M_PI / 180.0;
     double camera_near = reader.GetReal("camera", "near", 0.1);
@@ -111,7 +111,7 @@ int main(int argc, char **argv) {
         Camera camera(window, camera_fov, (double)window_width / (double)window_height, camera_near, camera_far);
 
         Renderer renderer;
-        glm::mat4 viewMatrix;
+        //glm::mat4 viewMatrix{};
 
         //Cube cube(1.5f, 1.5f, 1.5f);
         PhysxObject box;
@@ -133,6 +133,7 @@ int main(int argc, char **argv) {
         Transform cubeTransform;
         //cubeTransform.translate(0, 0, 0);
         glm::vec3 pos = box.getPosition();
+        std::cout << "Box position: X " << pos.x << "Y: " << pos.y << "Z: " << pos.z;
         cubeTransform.translate(pos.x, pos.y, pos.z);
         Transform sphereTransform;
         sphereTransform.translate(0, 1.4f, 0);
@@ -160,6 +161,7 @@ int main(int argc, char **argv) {
 
             shaderManager.updateCameraValues(camera);
 
+            //std::cout << camera.cameraFront.x << camera.cameraFront.y << camera.cameraFront.z;
             //renderer.renderDrawable(*cubeShader, cube);
             cubeShader->activate();
             box.draw();
