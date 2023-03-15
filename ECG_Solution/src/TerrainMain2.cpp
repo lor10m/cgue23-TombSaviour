@@ -172,6 +172,7 @@
 //
 //    glPatchParameteri(GL_PATCH_VERTICES, NUM_PATCH_PTS);
 //
+//    bool print = true;
 //    // render loop
 //    // -----------
 //    while (!glfwWindowShouldClose(window))
@@ -199,6 +200,18 @@
 //        glm::mat4 view = camera.getTransformMatrix();
 //        tessHeightMapShader.setMat4("projection", projection);
 //        tessHeightMapShader.setMat4("view", view);
+//
+//        if (print) {
+//            for (int i = 0; i < 4; i++) {
+//                for (int j = 0; j < 4; j++) {
+//                    std::cout << view[i][j] << " ";
+//                    if (j == 3) {
+//                        print = false;
+//                    }
+//                }
+//                std::cout << std::endl;
+//            }
+//        }
 //
 //        // world transformation
 //        glm::mat4 model = glm::mat4(1.0f);
