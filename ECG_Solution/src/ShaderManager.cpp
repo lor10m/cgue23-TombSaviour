@@ -3,7 +3,8 @@
 void ShaderManager::updateCameraValues(Camera& camera) {
     for (auto * shader : shaders) {
         shader->setUniformMatrix4fv("viewMatrix", 1, GL_FALSE, camera.getTransformMatrix());
-        shader->setUniform3f("eyePos", camera.pos.x, camera.pos.y, camera.pos.z);
+        shader->setUniform3f("eyePos", camera.cameraPosition.x, camera.cameraPosition.y, camera.cameraPosition.z);
+        std::cout << "camerapos: " << camera.cameraPosition.x << " " << camera.cameraPosition.y << " " << camera.cameraPosition.z << std::endl;
     }
 }
 

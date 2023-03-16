@@ -1,11 +1,16 @@
 #include "Callbacks.h"
+#include "Camera.h"
+#include "GlobalVariables.h"
 
 static GLenum currentPolygonMode = GL_FILL;
 static GLboolean isBackfaceCullingActive = GL_TRUE;
+bool fullscreen = false;
+int oldWidth, oldHeight;
 
 void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods) {
     if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS) {
         glfwSetWindowShouldClose(window, GLFW_TRUE);
+        std::cout << "Close Window!";
     }
     if (key == GLFW_KEY_F1 && action == GLFW_PRESS) {
         if (currentPolygonMode == GL_FILL) {
@@ -24,6 +29,56 @@ void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods
             glEnable(GL_CULL_FACE);
             isBackfaceCullingActive = GL_TRUE;
         }
+    }
+    if (key == GLFW_KEY_F5 && action == GLFW_PRESS) {       // Fullscreen
+        if (!fullscreen) {
+            glfwGetWindowSize(window, &oldWidth, &oldHeight);
+            // Get the primary monitor
+            GLFWmonitor* primaryMonitor = glfwGetPrimaryMonitor();
+            // Get the video mode of the primary monitor
+            const GLFWvidmode* mode = glfwGetVideoMode(primaryMonitor);
+            // Get the width and height of the monitor in pixels
+            int monitorWidth = mode->width;
+            int monitorHeight = mode->height;
+
+            glfwSetWindowSize(window, monitorWidth, monitorHeight);
+
+            // Set window in the center:
+            int xPos = (mode->width - monitorWidth) / 2;
+            int yPos = (mode->height - monitorHeight) / 2;
+            glfwSetWindowPos(window, xPos, yPos);
+
+            std::cout << "Fullscreen!";
+            fullscreen = true;
+        }
+        else {
+            glfwSetWindowSize(window, oldWidth, oldHeight);
+
+            // Set window in the center:
+            int xPos = oldWidth / 2;
+            int yPos = oldWidth / 2;
+            glfwSetWindowPos(window, xPos, yPos);
+
+            std::cout << "End fullscreen!";
+            fullscreen = false;
+        }
+    }
+    // LIGHT:
+    
+    if (key == GLFW_KEY_J && action == GLFW_PRESS) {
+        setIllumination(glm::max(getIllumination() - 1, 0));
+        //illumination_multiplier = lightArray[lightIdx];
+        //std::cout << "illumination: " << illumination_multiplier;
+    }
+    if (key == GLFW_KEY_L && action == GLFW_PRESS) {
+        setIllumination(glm::max(getIllumination() + 1, 19));
+        //illumination_multiplier = lightArray[lightIdx];
+        //std::cout << "illumination: " << illumination_multiplier;
+    }
+
+    // character jump
+    if (key == GLFW_KEY_SPACE && action == GLFW_PRESS) {
+        // TODO sth
     }
 }
 
@@ -66,4 +121,12 @@ void debugCallback(GLenum source, GLenum type, GLuint id, GLenum severity, GLsiz
             "%s [ID: %u, Source: %s, Type: %s, Severity: %s]\n",
             message, id, sourceText.c_str(), typeText.c_str(), severityText.c_str()
     );
+}
+
+// check this - correct?
+void framebufferSizeCallback(GLFWwindow* window, int width, int height) {
+    glViewport(0, 0, width, height);
+    float aspectRatio = (float)width / (float)height;
+    Camera* camera = static_cast<Camera*>(glfwGetWindowUserPointer(window));
+    camera->updateProjectionMatrix(aspectRatio);
 }
