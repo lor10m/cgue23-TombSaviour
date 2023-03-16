@@ -26,6 +26,7 @@
 #include "ShaderManager.h"
 #include "Lights/SpotLight.h"
 #include "Drawables/PhysxObject.h"
+#include "GlobalVariables.h"
 
 /* --------------------------------------------- */
 // Prototypes
@@ -57,6 +58,10 @@ int main(int argc, char **argv) {
     double camera_fov = reader.GetReal("camera", "fov", 60) * M_PI / 180.0;
     double camera_near = reader.GetReal("camera", "near", 0.1);
     double camera_far = reader.GetReal("camera", "far", 100);
+
+    int brightnessIdx = reader.GetReal("global", "brightnessIdx", 10);
+    setIllumination(brightnessIdx);
+    std::cout << "Illumination: " << getIlluminationMultiplier() << "\n";
 
     /* --------------------------------------------- */
     // Init framework
@@ -166,7 +171,7 @@ int main(int argc, char **argv) {
                     AvgTimeBetweenFrames = 2 / (static_cast<double>(2) * nbFrames);
                     //oneUnit = AvgTimeBetweenFrames * nbFrames;        // always one //https://gamedev.stackexchange.com/questions/13484/framerate-independence
                     velocity = 10.0 / double(nbFrames) * 2;
-                    printf("%f ms/frame, %d frames, velocity: %f\n", 1000.0 / double(nbFrames), nbFrames, velocity);
+                    //printf("%f ms/frame, %d frames, velocity: %f\n", 1000.0 / double(nbFrames), nbFrames, velocity);
                     nbFrames = 0;
                     lastTime += 1.0;
                 }

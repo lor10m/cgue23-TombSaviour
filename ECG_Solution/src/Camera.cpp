@@ -71,22 +71,21 @@ void Camera::keyCallback(GLFWwindow* window, int key, int scancode, int action, 
 }
 */
 void Camera::pollInput(GLFWwindow* window) {
-    // if WASD should be solved with polling: (I wouldn't recommend this)
     if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) {
         cameraPosition += cameraSpeed * cameraFront;
-        std::cout << "W!";
+        //std::cout << "W!";
     }
     if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) {
         cameraPosition -= cameraSpeed * cameraFront;
-        std::cout << "S!";
+        //std::cout << "S!";
     }
     if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) {
         cameraPosition -= glm::normalize(glm::cross(cameraFront, up)) * cameraSpeed;
-        std::cout << "A!";
+        //std::cout << "A!";
     }
     if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) {
         cameraPosition += glm::normalize(glm::cross(cameraFront, up)) * cameraSpeed;
-        std::cout << "D!";
+        //std::cout << "D!";
     }
 }
 
@@ -211,7 +210,7 @@ void Camera::pollMousePosition(GLFWwindow* window) { // Polling Mouse Cursour
     double viewSpeedAdjusted = viewSpeed;
     if (dist > maxDist) {
         viewSpeedAdjusted = glm::min(viewSpeed*15, viewSpeedAdjusted *= (1.0 + (dist - maxDist) / maxDist));    //adjust this?
-        std::cout << viewSpeedAdjusted;
+        //std::cout << viewSpeedAdjusted;
     }
 
     // Calculate the delta values
@@ -343,6 +342,5 @@ glm::mat4 Camera::getFirstPersonCameraTransform() {
 }
 
 glm::mat4 Camera::getTransformMatrix() {
-    //return perspectiveMatrix * getOrbitCameraTransform();
     return perspectiveMatrix * getFirstPersonCameraTransform();
 }
