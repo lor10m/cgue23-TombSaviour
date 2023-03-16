@@ -35,7 +35,7 @@ find_package(OpenGL REQUIRED)
 ################################################################################
 # All_Sources is imported from SourcesList.cmake
 message(STATUS "All_Sources: ${All_Sources}")
-add_executable(${PROJECT_NAME} ${All_Sources} ../assets/settings.ini "src/PhysxMain.cpp" "src/Drawables/PhysxObject.cpp" "src/Drawables/PhysxObject.h" "src/TerrainMain.cpp" "src/TerrainShader.h" "src/stb_image.h" "src/stb_image.cpp" "src/TerrainCamera.h" "src/TerrainShader.cpp" "src/TerrainMain2.cpp")
+add_executable(${PROJECT_NAME} ${All_Sources} ../assets/settings.ini "src/PhysxMain.cpp" "src/Drawables/PhysxObject.cpp" "src/Drawables/PhysxObject.h" "src/GlobalVariables.cpp" "src/GlobalVariables.h")
 set(LIBRARY_OUTPUT_PATH "${CMAKE_BINARY_DIR}")
 set(EXECUTABLE_OUTPUT_PATH "${CMAKE_BINARY_DIR}")
 

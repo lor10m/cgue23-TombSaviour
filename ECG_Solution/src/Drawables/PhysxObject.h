@@ -14,12 +14,13 @@ private:
 	GLuint EBO;
 
 public:
-	PhysxObject();
+	PhysxObject(glm::vec3 location);
 	std::vector<glm::vec3> vertices;
 	std::vector<unsigned int> indices;
 	std::vector<glm::vec3> normals;
-	void initPhysics();
+	void initPhysics(glm::vec3 location);
+	void createObject(physx::PxMaterial* mMaterial, physx::PxPhysics* mPhysics, glm::vec3 location);
 	void draw();
-	void createObject(physx::PxMaterial* mMaterial, physx::PxPhysics* mPhysics);
+	//void createObject(physx::PxMaterial* mMaterial, physx::PxPhysics* mPhysics);
 	glm::vec3 getPosition();
 };

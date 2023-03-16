@@ -12,11 +12,11 @@ PxMaterial* mMaterial = NULL;
 PxPvd* mPvd = NULL;
 PxScene* mScene = NULL;
 
-PhysxObject::PhysxObject() {
-	initPhysics();
+PhysxObject::PhysxObject(glm::vec3 location) {
+	initPhysics(location);
 }
 
-void PhysxObject::initPhysics() {
+void PhysxObject::initPhysics(glm::vec3 location) {
 	// init physx
 	mFoundation = PxCreateFoundation(PX_PHYSICS_VERSION, mDefaultAllocatorCallback, mDefaultErrorCallback);
 	if (!mFoundation) throw("PxCreateFoundation failed!");
@@ -48,23 +48,22 @@ void PhysxObject::initPhysics() {
 	physx::PxRigidStatic* groundPlane = PxCreatePlane(*mPhysics, physx::PxPlane(0, 1, 0, 50), *mMaterial);
 	mScene->addActor(*groundPlane);
 
-	createObject(mMaterial, mPhysics);
+	createObject(mMaterial, mPhysics, location);
 
 	// run simulation
 	//while (1) {
 	//	mScene->simulate(1.0f / 60.0f);
 	//	mScene->fetchResults(true);
 	//}
-
 }
 
-void PhysxObject::createObject(physx::PxMaterial* mMaterial, physx::PxPhysics* mPhysics) {
+void PhysxObject::createObject(physx::PxMaterial* mMaterial, physx::PxPhysics* mPhysics, glm::vec3 location) {
 	float halfExtent = 1.0f;
 	PxShape* shape = mPhysics->createShape(physx::PxBoxGeometry(halfExtent, halfExtent, halfExtent), *mMaterial);
 	PxU32 size = 30;
 	PxTransform t(physx::PxVec3(0));
 
-	PxTransform localTm(physx::PxVec3(physx::PxReal(0) - physx::PxReal(0), physx::PxReal(0), 0) * halfExtent);
+	PxTransform localTm(physx::PxVec3(physx::PxReal(location.x) - physx::PxReal(location.y), physx::PxReal(location.z), 0) * halfExtent);
 	PxRigidDynamic* body = mPhysics->createRigidDynamic(t.transform(localTm));
 	body->attachShape(*shape);
 	PxRigidBodyExt::updateMassAndInertia(*body, 10.0f);
