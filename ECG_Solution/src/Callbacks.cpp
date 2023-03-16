@@ -59,7 +59,7 @@ void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods
             int yPos = oldWidth / 2;
             glfwSetWindowPos(window, xPos, yPos);
 
-            std::cout << "End fullscreen!";
+            std::cout << "End Fullscreen!";
             fullscreen = false;
         }
     }
