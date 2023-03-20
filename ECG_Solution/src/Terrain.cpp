@@ -100,10 +100,14 @@ void Terrain::genTerrainTexture(TerrainShader shader, const std::string& texture
 	DDSImage ddsImage = loadDDS(texturePath.c_str());
 	glGenTextures(1, &surfaceTexture);
 	glBindTexture(GL_TEXTURE_2D, surfaceTexture);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);	// set texture wrapping to GL_REPEAT (default wrapping method)
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	glCompressedTexImage2D(GL_TEXTURE_2D, 0, ddsImage.format, ddsImage.width, ddsImage.height, 0, ddsImage.size, ddsImage.data);
 	glGenerateMipmap(GL_TEXTURE_2D);
+
+	std::cout << glGetUniformLocation(shader.ID, "surfaceTexture") << std::endl;
 }
 
 void Terrain::render() {
