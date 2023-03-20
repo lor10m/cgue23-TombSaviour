@@ -71,7 +71,6 @@ void Camera::keyCallback(GLFWwindow* window, int key, int scancode, int action, 
 }
 */
 void Camera::pollInput(GLFWwindow* window) {
-    // if WASD should be solved with polling: (I wouldn't recommend this)
     if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) {
         cameraPosition += cameraSpeed * cameraFront;
         //std::cout << "W!";
@@ -343,6 +342,5 @@ glm::mat4 Camera::getFirstPersonCameraTransform() {
 }
 
 glm::mat4 Camera::getTransformMatrix() {
-    //return perspectiveMatrix * getOrbitCameraTransform();
     return perspectiveMatrix * getFirstPersonCameraTransform();
 }

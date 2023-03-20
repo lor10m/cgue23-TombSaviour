@@ -12,3 +12,8 @@ void setIllumination(int newLightIdx) {
 int getIllumination() {
     return lightIdx;
 }
+
+double getIlluminationMultiplier() {
+    return lightArray[lightIdx];
+}
+

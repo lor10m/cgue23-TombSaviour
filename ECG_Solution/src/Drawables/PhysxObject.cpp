@@ -257,9 +257,9 @@ glm::vec3 PhysxObject::getPosition() {
 			orientation = transform.q;
 		}
 	}
-	std::cout << position.x << std::endl;
-	std::cout << position.y << std::endl;
-	std::cout << position.z << std::endl;
+	//std::cout << position.x << std::endl;
+	//std::cout << position.y << std::endl;
+	//std::cout << position.z << std::endl;
 
 	return glm::vec3(position.x, position.y, position.z);
 }

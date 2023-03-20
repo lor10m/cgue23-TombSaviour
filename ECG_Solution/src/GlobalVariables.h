@@ -11,3 +11,5 @@ public:
 
 void setIllumination(int newLightIdx);
 int getIllumination();
+double getIlluminationMultiplier();
+
