@@ -51,8 +51,7 @@ int main(int argc, char **argv) {
     // first param: section [window], second param: property name, third param: default value
     int window_width = reader.GetInteger("window", "width", 800);
     int window_height = reader.GetInteger("window", "height", 800);
-    int refresh_rate = reader.GetInteger("window", "refresh_rate", 60);
-    std::string window_title = reader.Get("window", "title", "Tomb Saviour");
+    std::string window_title = reader.Get("window", "title", "ECG 2022");
 
     double camera_fov = reader.GetReal("camera", "fov", 60) * M_PI / 180.0;
     double camera_near = reader.GetReal("camera", "near", 0.1);
@@ -68,8 +67,6 @@ int main(int argc, char **argv) {
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 5);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-    // set refresh rate:
-    glfwWindowHint(GLFW_REFRESH_RATE, refresh_rate);
 
     #if _DEBUG
         glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, GL_TRUE);
@@ -110,15 +107,14 @@ int main(int argc, char **argv) {
 
         double lastTime = glfwGetTime();
         int nbFrames = 0;
-        double AvgTimeBetweenFrames, oneUnit, velocity = 0.0;
 
         Camera camera(window, camera_fov, (double)window_width / (double)window_height, camera_near, camera_far);
 
         Renderer renderer;
-        //glm::mat4 viewMatrix{};
+        glm::mat4 viewMatrix;
 
         //Cube cube(1.5f, 1.5f, 1.5f);
-        PhysxObject box = PhysxObject(glm::vec3(0.0, 0.0, 0.0));
+        PhysxObject box(glm::vec3(1.0f, 1.0f, 1.0f));
         box.getPosition();
         Sphere sphere(64, 32, 1.0f);
         //Cylinder cylinder(31, 1.3f, 1.0f);
@@ -137,7 +133,6 @@ int main(int argc, char **argv) {
         Transform cubeTransform;
         //cubeTransform.translate(0, 0, 0);
         glm::vec3 pos = box.getPosition();
-        std::cout << "Box position: X " << pos.x << "Y: " << pos.y << "Z: " << pos.z;
         cubeTransform.translate(pos.x, pos.y, pos.z);
         Transform sphereTransform;
         sphereTransform.translate(0, 1.4f, 0);
@@ -148,34 +143,16 @@ int main(int argc, char **argv) {
         sphereShader->setUniformMatrix4fv("modelMatrix", 1, GL_FALSE, sphereTransform.getMatrix());
         //cylinderShader->setUniformMatrix4fv("modelMatrix", 1, GL_FALSE, cylinderTransform.getMatrix());
 
-        // adjust wndow size callbacks
-        glfwSetWindowUserPointer(window, &camera);
-        glfwSetFramebufferSizeCallback(window, framebufferSizeCallback);
-
         while (!glfwWindowShouldClose(window)) {
+
             camera.pollInput(window);
             camera.pollMousePosition(window);
+
             renderer.clear();
             glfwPollEvents();
 
-            #if _DEBUG
-                double currentTime = glfwGetTime();
-                nbFrames++;
-                if ( currentTime - lastTime >= 1.0 ){ // If last prinf() was more than 1 sec ago
-                    // printf and reset timer
-                    AvgTimeBetweenFrames = 2 / (static_cast<double>(2) * nbFrames);
-                    //oneUnit = AvgTimeBetweenFrames * nbFrames;        // always one //https://gamedev.stackexchange.com/questions/13484/framerate-independence
-                    velocity = 10.0 / double(nbFrames) * 2;
-                    printf("%f ms/frame, %d frames, velocity: %f\n", 1000.0 / double(nbFrames), nbFrames, velocity);
-                    nbFrames = 0;
-                    lastTime += 1.0;
-                }
-            #endif
-            camera.cameraSpeed = velocity;   // not sure if this makes sense because it's always 1
-
             shaderManager.updateCameraValues(camera);
 
-            //std::cout << camera.cameraFront.x << camera.cameraFront.y << camera.cameraFront.z;
             //renderer.renderDrawable(*cubeShader, cube);
             cubeShader->activate();
             box.draw();
@@ -184,11 +161,6 @@ int main(int argc, char **argv) {
             //renderer.renderDrawable(*cylinderShader, cylinder);
 
             glfwSwapBuffers(window);
-            /* Gitlab CI automatic testing */
-            if (argc > 1 && std::string(argv[1]) == "--run_headless") {
-                saveScreenshot("screenshot", window_width, window_height);
-                break;
-            }
         }
     }
 
@@ -206,4 +178,3 @@ int main(int argc, char **argv) {
 
     return EXIT_SUCCESS;
 }
-

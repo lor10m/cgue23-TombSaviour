@@ -29,14 +29,19 @@ out vec4 color;
 
 uniform sampler2D diffuseTexture;
 uniform sampler2D specularTexture;
+
 // ambient lighting factor
 uniform float ka;
+
 // diffuse lighting factor
 uniform float kd;
+
 // specular lighting factor
 uniform float ks;
+
 // specular factor
 uniform int alpha;
+
 uniform vec3 eyePos;
 uniform PointLight pointLight[MAX_LIGHTS];
 uniform int amountOfPointLights;
@@ -56,6 +61,7 @@ vec3 normal;
 
 void main() {
     normal = normalize(fragNormal);
+
     // Ambient light
     vec3 lightIntensity = vec3(1, 1, 1) * ka;
     vec3 specularIntensity = {0, 0, 0};
