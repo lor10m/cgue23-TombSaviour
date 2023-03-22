@@ -1,5 +1,7 @@
 #include "TerrainShader.h"
 
+TerrainShader::TerrainShader(){}
+
 TerrainShader::TerrainShader(const char* vertexPath, const char* fragmentPath, const char* geometryPath,
     const char* tessControlPath, const char* tessEvalPath)
 {

@@ -14,7 +14,7 @@ public:
 	// ------------------------------------------------------------------------
 	TerrainShader(const char* vertexPath, const char* fragmentPath, const char* geometryPath,
 		const char* tessControlPath, const char* tessEvalPath);
-
+	TerrainShader();
 	// activate the shader
 	// ------------------------------------------------------------------------
 	void use();

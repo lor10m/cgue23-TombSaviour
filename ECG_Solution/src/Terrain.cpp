@@ -1,10 +1,14 @@
 #include "Terrain.h"
 
-Terrain::Terrain(TerrainShader tessHeightMapShader, const std::string& texturePath) {
+Terrain::Terrain(TerrainShader tessHeightMapShader, const char* texturePath, const char* heightmapPath) {
 
-	genHeatMap(tessHeightMapShader);
+	shader = tessHeightMapShader;
 
-	genTerrainTexture(tessHeightMapShader, texturePath);
+	surfaceTexture.genTexture(texturePath);
+	heightmapTexture.genTexture(heightmapPath);
+
+	height = heightmapTexture.height;
+	width = heightmapTexture.width;
 
 	// set up vertex data (and buffer(s)) and configure vertex attributes
 	// ------------------------------------------------------------------
@@ -60,57 +64,16 @@ Terrain::Terrain(TerrainShader tessHeightMapShader, const std::string& texturePa
 
 }
 
-void Terrain::genHeatMap(TerrainShader tessHeightMapShader) {
-
-	glGenTextures(1, &heightMapTexture);
-	glBindTexture(GL_TEXTURE_2D, heightMapTexture); // all upcoming GL_TEXTURE_2D operations now have effect on this texture object
-
-	unsigned char* data = stbi_load("assets/heightmaps/hm3.png", &width, &height, &nrChannels, 0);
-	if (data)
-	{
-		std::cout << height << " and " << width << " and " << nrChannels << std::endl;
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
-		glGenerateMipmap(GL_TEXTURE_2D);
-
-		tessHeightMapShader.setInt("heightMap", 0);
-		std::cout << "Loaded heightmap of size " << height << " x " << width << std::endl;
-	}
-	else
-	{
-		std::cout << "Failed to load texture" << std::endl;
-	}
-	stbi_image_free(data);
-
-	// Bind the heightmap texture to texture unit 0
-	glActiveTexture(GL_TEXTURE1);
-	glBindTexture(GL_TEXTURE_2D, heightMapTexture);
-
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);	// set texture wrapping to GL_REPEAT (default wrapping method)
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-}
-
-void Terrain::genTerrainTexture(TerrainShader shader, const std::string& texturePath) {
-
-	glActiveTexture(GL_TEXTURE0 + 1);
-	glBindTexture(GL_TEXTURE_2D, surfaceTexture);
-	glUniform1i(glGetUniformLocation(shader.ID, "surfaceTexture"), 1);
-
-	DDSImage ddsImage = loadDDS(texturePath.c_str());
-	glGenTextures(1, &surfaceTexture);
-	glBindTexture(GL_TEXTURE_2D, surfaceTexture);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);	// set texture wrapping to GL_REPEAT (default wrapping method)
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	glCompressedTexImage2D(GL_TEXTURE_2D, 0, ddsImage.format, ddsImage.width, ddsImage.height, 0, ddsImage.size, ddsImage.data);
-	glGenerateMipmap(GL_TEXTURE_2D);
-
-	std::cout << glGetUniformLocation(shader.ID, "surfaceTexture") << std::endl;
-}
-
 void Terrain::render() {
+
+	shader.use();
+
+	heightmapTexture.bind(0);
+	shader.setInt("heightMap", 0);
+
+	surfaceTexture.bind(1);
+	shader.setInt("surfaceTexture", 1);
+
 	glBindVertexArray(terrainVAO);
 	glDrawArrays(GL_PATCHES, 0, NUM_PATCH_PTS * rez * rez);
 }
