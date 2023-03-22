@@ -11,7 +11,6 @@ private:
     float distance;
     glm::vec3 targetPosition{};
     glm::mat4 perspectiveMatrix{};
-    glm::vec3 right{};
     glm::vec3 up { 0.0f, 1.0f, 0.0f };
     double pxpos = -1;
     double pypos = -1;
@@ -21,11 +20,13 @@ private:
     double fov, aspect_ratio, near, far = 0.0;
 
 public:
-    float cameraSpeed = 1.0;
+    float cameraSpeed = 0.01;
     double viewSpeed = 0.1;
     glm::vec3 cameraPosition{ 0.0f, 0.0f, 10.0f };
+    glm::vec3 right{};
     glm::vec3 cameraFront{ 0.0f, 0.0f, -1.0f};      //if not negative WASD would start in opposite directions
 
+    Camera::Camera();
     Camera(GLFWwindow* window, double fov, double aspect_ratio, double near, double far);
     void registerMovementCallbacks(GLFWwindow *window);
     static glm::mat4 getCameraTransform(glm::vec3 g, glm::vec3 e, glm::vec3 t);
