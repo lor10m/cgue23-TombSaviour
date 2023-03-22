@@ -28,6 +28,15 @@
 #include "Drawables/PhysxObject.h"
 #include "GlobalVariables.h"
 
+
+#include <assimp/Importer.hpp>
+#include <assimp/scene.h>
+#include <assimp/postprocess.h>
+//include <assimp/code/Common/Importer.cpp>
+
+#include "Drawables/Model.h"
+
+
 /* --------------------------------------------- */
 // Prototypes
 /* --------------------------------------------- */
@@ -44,6 +53,7 @@ int main(int argc, char **argv) {
     /* --------------------------------------------- */
     // Load settings.ini
     /* --------------------------------------------- */
+
 
     // init reader for ini files
     INIReader reader("assets/settings.ini");
@@ -157,6 +167,17 @@ int main(int argc, char **argv) {
         glfwSetWindowUserPointer(window, &camera);
         glfwSetFramebufferSizeCallback(window, framebufferSizeCallback);
 
+
+        string filename = "assets/cube.obj";
+        //string filename = "assets/settings.ini";
+        //loadAndRenderObject("objects/cube.obj");
+        //loadAndRenderObject("assets/settings.ini");
+
+        //Model model("assets/cube.obj");
+        //Model model_testing("assets/objects/cube.obj");
+        Model model_testCube(5.0f, 5.0f, 5.0f);
+        Model model_testObject("assets/objects/cube.obj");
+
         while (!glfwWindowShouldClose(window)) {
             camera.pollInput(window);
             camera.pollMousePosition(window);
@@ -183,9 +204,30 @@ int main(int argc, char **argv) {
             //std::cout << camera.cameraFront.x << camera.cameraFront.y << camera.cameraFront.z;
             //renderer.renderDrawable(*cubeShader, cube);
             cubeShader->activate();
-            box.draw();
             
-            renderer.renderDrawable(*sphereShader, sphere);
+            //box.draw();
+
+            //sphere.draw();
+
+            //model_testCube.draw();
+            model_testObject.draw();
+
+            /*
+            for (unsigned int i = 0; i < model_testing.num_meshes; ++i)
+            {
+                glBindTexture(GL_TEXTURE_2D, model_testing.mesh_list[i].tex_handle); // Bind texture for the current mesh.	
+
+                glBindVertexArray(model_testing.mesh_list[i].VAO);
+                glDrawElements(GL_TRIANGLES, (GLsizei)model_testing.mesh_list[i].vert_indices.size(), GL_UNSIGNED_INT, 0);
+                glBindVertexArray(0);
+            }
+            */
+            
+            //renderer.renderDrawable(*cubeShader, model_testCube);
+            renderer.renderDrawable(*cubeShader, model_testObject);
+
+            //renderer.renderDrawable(*sphereShader, sphere);
+            
             //renderer.renderDrawable(*cylinderShader, cylinder);
 
             glfwSwapBuffers(window);

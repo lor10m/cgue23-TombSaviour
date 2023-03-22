@@ -60,6 +60,7 @@ void PhysxObject::initPhysics(glm::vec3 location) {
 void PhysxObject::createObject(physx::PxMaterial* mMaterial, physx::PxPhysics* mPhysics, glm::vec3 location) {
 	float halfExtent = 1.0f;
 	PxShape* shape = mPhysics->createShape(physx::PxBoxGeometry(halfExtent, halfExtent, halfExtent), *mMaterial);
+//	PxShape* shape = mPhysics->createShape(physx::PxGeometry(halfExtent, halfExtent, halfExtent));
 	PxU32 size = 30;
 	PxTransform t(physx::PxVec3(0));
 

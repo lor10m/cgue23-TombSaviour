@@ -1,0 +1,13 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="17.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <CustomBuild Include="C:\Users\nikla\Documents\TU_Semester_2\UE_CG\Downloads_Zips\assimp-5.2.5\CMakeFiles\275e0148e469553881f3a620822f72d3\INSTALL_force.rule">
+      <Filter>CMake Rules</Filter>
+    </CustomBuild>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="CMake Rules">
+      <UniqueIdentifier>{EC804527-6497-3995-AE75-6A83267418A8}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>
