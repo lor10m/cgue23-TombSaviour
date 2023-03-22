@@ -74,7 +74,7 @@ int main()
    
     PhysxScene physxScene;
     physxScene.createTerrain("assets/heightmaps/hm3.png");
-    //physxScene.createPlayer(camera);
+    physxScene.createPlayer();
 
 
     glfwSetWindowUserPointer(window, &camera);
