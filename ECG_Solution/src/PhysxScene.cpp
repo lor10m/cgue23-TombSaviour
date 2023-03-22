@@ -79,25 +79,49 @@ void PhysxScene::createTerrain(const char* heightmapPath)
 	scene->addActor(*actor);
 }
 
-void PhysxScene::createPlayer(PhysxCamera playerCam)
+void PhysxScene::createPlayer()
 {
+	float halfExtent = 10.0f;
+	PxShape* shape = physics->createShape(PxBoxGeometry(halfExtent, halfExtent, halfExtent), *material);
+	PxU32 size = 30;
+
+	//// Set the collision filtering for the dynamic object
+	//PxFilterData filterData;
+	//filterData.word0 = 1 << 0;  // Set the collision group to bit 0
+	//filterData.word1 = 1 << 1;  // Set the collision mask to bit 1
+	//shape->setQueryFilterData(filterData);
+	//shape->setSimulationFilterData(filterData);
+
+	for (PxU32 i = 0; i < size; i++)
+	{
+		for (PxU32 j = 0; j < size - i; j++)
+		{
+			PxTransform t(PxVec3(0));
+			PxTransform localTm(PxVec3(PxReal(j * 2) - PxReal(size - i) + 10, PxReal(i * 2 + 1), 20) * halfExtent);
+			PxRigidDynamic* body = physics->createRigidDynamic(t.transform(localTm));
+			body->attachShape(*shape);
+			PxRigidBodyExt::updateMassAndInertia(*body, 10.0f);
+			scene->addActor(*body);
+		}
+	}
+	shape->release();
 	// create player actor
-	PxTransform playerTransform(PxVec3(0.0f, 50.0f, 0.0f));
-	PxBoxGeometry playerGeometry(PxVec3(1.0f, 2.0f, 1.0f));
-	playerActor = PxCreateDynamic(*physics, playerTransform, playerGeometry, *material, 1.0f);
-	playerActor->setAngularDamping(0.5f);
-	playerActor->setMass(10.0f);
-	scene->addActor(*playerActor);
+	//PxTransform playerTransform(PxVec3(0.0f, 50.0f, 0.0f));
+	//PxBoxGeometry playerGeometry(PxVec3(1.0f, 2.0f, 1.0f));
+	//playerActor = PxCreateDynamic(*physics, playerTransform, playerGeometry, *material, 1.0f);
+	//playerActor->setAngularDamping(0.5f);
+	//playerActor->setMass(10.0f);
+	//scene->addActor(*playerActor);
 
-	playerCamera = playerCam;
-	
-	//create cam offset
-	//attach camera to player
-	PxVec3 cameraOffset(0.0f, 1.5f, 0.0f);
-	PxTransform transform = playerTransform.transform(PxTransform(cameraOffset));
+	//playerCamera = playerCam;
+	//
+	////create cam offset
+	////attach camera to player
+	//PxVec3 cameraOffset(0.0f, 1.5f, 0.0f);
+	//PxTransform transform = playerTransform.transform(PxTransform(cameraOffset));
 
-	//transform camera
-	playerCamera.setTransform(playerTransform.transform(PxTransform(cameraOffset)));
+	////transform camera
+	//playerCamera.setTransform(playerTransform.transform(PxTransform(cameraOffset)));
 
 	//// create camera
 	//camera = new Camera();

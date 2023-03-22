@@ -35,5 +35,5 @@ public:
 	PhysxScene();
 	void simulate(GLFWwindow* window, float timeStep);
 	void createTerrain(const char* heightmapPath);
-	void createPlayer(PhysxCamera playerCam);
+	void createPlayer();
 };
