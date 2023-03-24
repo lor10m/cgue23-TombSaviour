@@ -79,6 +79,11 @@ void PhysxScene::createTerrain(const char* heightmapPath)
 	scene->addActor(*actor);
 }
 
+void PhysxScene::createModel(string path)
+{
+
+}
+
 void PhysxScene::createPlayer()
 {
 	float halfExtent = 10.0f;

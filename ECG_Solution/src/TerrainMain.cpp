@@ -10,6 +10,12 @@
 #include "PhysxScene.h"
 #include "PhysxCamera.h"
 
+#include "Drawables/Model.h"
+#include "Lights/PointLight.h"
+#include "Lights/DirectionalLight.h"
+#include "ShaderManager.h"
+#include "Transform.h"
+
 
 double camera_fov =  60 * 3.141592 / 180.0;
 double camera_near = 0.1;
@@ -67,6 +73,8 @@ int main()
 
     // build and compile our shader program
     // ------------------------------------
+
+    // TERRAIN
     TerrainShader tessHeightMapShader("assets/shaders/terrainVertex.vs", "assets/shaders/terrainFragment.fs", nullptr,            // if wishing to render as is
         "assets/shaders/terrain.tcs", "assets/shaders/terrain.tes");
 
@@ -76,6 +84,21 @@ int main()
     physxScene.createTerrain("assets/heightmaps/hm3.png");
     physxScene.createPlayer();
 
+    // OBJECT
+    PointLight pointLight1({ 0, 0, 0 }, { 1, 1, 1 }, { 1.0f, 0.4f, 0.1f });
+    DirectionalLight directionalLight1({ 0, -1, -1 }, { 0.8f, 0.8f, 0.8f });
+
+    ShaderManager shaderManager;
+    shaderManager.addPointLight(pointLight1);
+    shaderManager.addDirectionalLight(directionalLight1);
+
+    Shader* modelShader = shaderManager.createPhongShader("assets/textures/wood_texture.dds", "assets/textures/wood_texture_specular.dds", 0.1f, 0.7f, 0.1f, 2);
+    Transform cubeTransform;
+    cubeTransform.translate(0, 0, 0);
+    cubeTransform.scale(0.01, 0.01, 0.01);
+    modelShader->setUniformMatrix4fv("modelMatrix", 1, GL_FALSE, cubeTransform.getMatrix());
+
+    Model model_testObject("assets/objects/palm_tree.obj");
 
     glfwSetWindowUserPointer(window, &camera);
     glfwSetFramebufferSizeCallback(window, framebufferSizeCallback);
@@ -92,6 +115,7 @@ int main()
         glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+
         // render the terrain
         terrain.render();
         // view/projection transformations
@@ -105,6 +129,13 @@ int main()
         // world transformation
         glm::mat4 model = glm::mat4(1.0f);
         tessHeightMapShader.setMat4("model", model);
+
+
+        // render model
+        shaderManager.updateCameraValues(camera);
+        modelShader->activate();
+        model_testObject.draw();
+
 
         // glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
         glfwSwapBuffers(window);

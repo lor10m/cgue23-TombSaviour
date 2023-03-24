@@ -8,6 +8,8 @@
 #include "stb_image.h"
 #include "PhysxCamera.h"
 
+#include "Drawables/Model.h"
+
 using namespace physx;
 
 
@@ -35,5 +37,6 @@ public:
 	PhysxScene();
 	void simulate(GLFWwindow* window, float timeStep);
 	void createTerrain(const char* heightmapPath);
+	void createModel(string path);
 	void createPlayer();
 };
