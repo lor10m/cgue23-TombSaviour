@@ -27,6 +27,7 @@
 //#include "Lights/SpotLight.h"
 //#include "Drawables/PhysxObject.h"
 //#include "GlobalVariables.h"
+//#include "Drawables/Model.h"
 //
 ///* --------------------------------------------- */
 //// Prototypes
@@ -124,9 +125,9 @@
 //        //glm::mat4 viewMatrix{};
 //
 //        //Cube cube(1.5f, 1.5f, 1.5f);
-//        PhysxObject box = PhysxObject(glm::vec3(0.0, 0.0, 0.0));
-//        box.getPosition();
-//        Sphere sphere(64, 32, 1.0f);
+//        //PhysxObject box = PhysxObject(glm::vec3(0.0, 0.0, 0.0));
+//        //box.getPosition();
+//        //Sphere sphere(64, 32, 1.0f);
 //        //Cylinder cylinder(31, 1.3f, 1.0f);
 //
 //        PointLight pointLight1({ 0, 0, 0 }, { 1, 1, 1 }, { 1.0f, 0.4f, 0.1f });
@@ -138,25 +139,27 @@
 //
 //        Shader* cubeShader = shaderManager.createPhongShader("assets/textures/wood_texture.dds", "assets/textures/wood_texture_specular.dds", 0.1f, 0.7f, 0.1f, 2);
 //        //Shader* cylinderShader = shaderManager.createPhongShader("assets/textures/tiles_diffuse.dds", "assets/textures/tiles_specular.dds", 0.1f, 0.7f, 0.3f, 8);
-//        Shader* sphereShader = shaderManager.createPhongShader("assets/textures/tiles_diffuse.dds", "assets/textures/tiles_specular.dds", 0.1f, 0.7f, 0.3f, 8);
+//        //Shader* sphereShader = shaderManager.createPhongShader("assets/textures/tiles_diffuse.dds", "assets/textures/tiles_specular.dds", 0.1f, 0.7f, 0.3f, 8);
 //
 //        Transform cubeTransform;
-//        //cubeTransform.translate(0, 0, 0);
-//        glm::vec3 pos = box.getPosition();
-//        std::cout << "Box position: X " << pos.x << "Y: " << pos.y << "Z: " << pos.z;
-//        cubeTransform.translate(pos.x, pos.y, pos.z);
+//        cubeTransform.translate(0, 0, 0);
+//        //glm::vec3 pos = box.getPosition();
+//        //std::cout << "Box position: X " << pos.x << "Y: " << pos.y << "Z: " << pos.z;
+//        //cubeTransform.translate(pos.x, pos.y, pos.z);
 //        Transform sphereTransform;
 //        sphereTransform.translate(0, 1.4f, 0);
 //        Transform cylinderTransform;
 //        cylinderTransform.translate(1.4f, -1.0f, 0);
 //
 //        cubeShader->setUniformMatrix4fv("modelMatrix", 1, GL_FALSE, cubeTransform.getMatrix());
-//        sphereShader->setUniformMatrix4fv("modelMatrix", 1, GL_FALSE, sphereTransform.getMatrix());
+//        //sphereShader->setUniformMatrix4fv("modelMatrix", 1, GL_FALSE, sphereTransform.getMatrix());
 //        //cylinderShader->setUniformMatrix4fv("modelMatrix", 1, GL_FALSE, cylinderTransform.getMatrix());
 //
 //        // adjust wndow size callbacks
 //        glfwSetWindowUserPointer(window, &camera);
 //        glfwSetFramebufferSizeCallback(window, framebufferSizeCallback);
+//
+//        Model model_testObject("assets/objects/cube.obj");
 //
 //        while (!glfwWindowShouldClose(window)) {
 //            camera.pollInput(window);
@@ -164,16 +167,18 @@
 //            renderer.clear();
 //            glfwPollEvents();
 //
-//            camera.cameraSpeed = velocity;   // not sure if this makes sense because it's always 1
+//            //camera.cameraSpeed = velocity;   // not sure if this makes sense because it's always 1
 //
 //            shaderManager.updateCameraValues(camera);
 //
 //            //std::cout << camera.cameraFront.x << camera.cameraFront.y << camera.cameraFront.z;
 //            //renderer.renderDrawable(*cubeShader, cube);
 //            cubeShader->activate();
-//            box.draw();
+//            //box.draw();
 //
-//            renderer.renderDrawable(*sphereShader, sphere);
+//            model_testObject.draw();
+//
+//            //renderer.renderDrawable(*sphereShader, sphere);
 //            //renderer.renderDrawable(*cylinderShader, cylinder);
 //
 //            glfwSwapBuffers(window);

@@ -35,7 +35,7 @@ find_package(OpenGL REQUIRED)
 ################################################################################
 # All_Sources is imported from SourcesList.cmake
 message(STATUS "All_Sources: ${All_Sources}")
-add_executable(${PROJECT_NAME} ${All_Sources} ../assets/settings.ini "src/PhysxMain.cpp" "src/Drawables/PhysxObject.cpp" "src/Drawables/PhysxObject.h" "src/TerrainMain.cpp" "src/TerrainShader.h" "src/stb_image.h" "src/stb_image.cpp" "src/TerrainCamera.h" "src/TerrainShader.cpp"  "src/GlobalVariables.cpp" "src/GlobalVariables.h" "src/Terrain.h" "src/Terrain.cpp" "src/Texture.h" "src/Texture.cpp" "src/PhysxScene.h" "src/PhysxScene.cpp" "src/PhysxCamera.h" "src/PhysxCamera.cpp")
+add_executable(${PROJECT_NAME} ${All_Sources} ../assets/settings.ini "src/PhysxMain.cpp" "src/Drawables/PhysxObject.cpp" "src/Drawables/PhysxObject.h" "src/TerrainMain.cpp" "src/TerrainShader.h" "src/stb_image.h" "src/stb_image.cpp" "src/TerrainCamera.h" "src/TerrainShader.cpp"  "src/GlobalVariables.cpp" "src/GlobalVariables.h" "src/Terrain.h" "src/Terrain.cpp" "src/Texture.h" "src/Texture.cpp" "src/PhysxScene.h" "src/PhysxScene.cpp" "src/PhysxCamera.h" "src/PhysxCamera.cpp" "src/Drawables/Model.h" "src/Drawables/Model.cpp")
 set(LIBRARY_OUTPUT_PATH "${CMAKE_BINARY_DIR}")
 set(EXECUTABLE_OUTPUT_PATH "${CMAKE_BINARY_DIR}")
 
@@ -59,7 +59,10 @@ file(COPY "physx/PhysXDevice64.dll"
 file(COPY "physx/PhysXGpu_64.dll"
     DESTINATION ${EXECUTABLE_OUTPUT_PATH})
 
-    
+file(COPY "assimp/assimp-vc143-mt.dll"
+    DESTINATION ${EXECUTABLE_OUTPUT_PATH})
+file(COPY "assimp/assimp-vc143-mtd.dll"
+    DESTINATION ${EXECUTABLE_OUTPUT_PATH})
 
 set_target_properties(${PROJECT_NAME} PROPERTIES
     VS_GLOBAL_KEYWORD "Win32Proj"
@@ -94,6 +97,9 @@ target_include_directories(${PROJECT_NAME} PRIVATE
 )
 target_include_directories(${PROJECT_NAME} PRIVATE
     "../external/include/physx"
+)
+target_include_directories(${PROJECT_NAME} PRIVATE
+    "../external/include/assimp"
 )
 
 ################################################################################
@@ -189,6 +195,7 @@ if(WIN32)
         "PhysXExtensions_static_64.lib"
         "PhysXPvdSDK_static_64.lib"
         "PhysXCooking_64.lib"
+        "assimp-vc143-mt.lib"
     )
 else()
     set(GLEW_USE_STATIC_LIBS TRUE)
@@ -230,13 +237,29 @@ target_link_directories(${PROJECT_NAME} PRIVATE
 
 if(CMAKE_BUILD_TYPE MATCHES "Debug")
     target_link_directories(${PROJECT_NAME} PRIVATE "../external/lib/PhysxDebug")
+    target_link_directories(${PROJECT_NAME} PRIVATE "../external/lib/AssimpDebug")
+
+    file(COPY "assimp/assimp-vc143-mtd.dll"
+        DESTINATION ${EXECUTABLE_OUTPUT_PATH})
+    list(APPEND ADDITIONAL_LIBRARY_DEPENDENCIES     # this doesn't seem to do anything
+        "assimp-vc143-mtd.lib"
+    )
 endif()
 
 if(CMAKE_BUILD_TYPE MATCHES "Release")
     target_link_directories(${PROJECT_NAME} PRIVATE "../external/lib/PhysxRelease")
+    target_link_directories(${PROJECT_NAME} PRIVATE "../external/lib/AssimpRelease")
+
+    file(COPY "assimp/assimp-vc143-mt.dll"
+        DESTINATION ${EXECUTABLE_OUTPUT_PATH})
+
+    list(APPEND ADDITIONAL_LIBRARY_DEPENDENCIES # this doesn't seem to do anything
+        "assimp-vc143-mt.lib"
+    )
 endif()
 
 ################################################################################
 # Assets handling
 ################################################################################
 file(COPY "../assets" DESTINATION .) # Copy assets to current binary directory via "."
+file(COPY "../assets/objects" DESTINATION .)
