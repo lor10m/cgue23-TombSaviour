@@ -8,24 +8,15 @@ glm::mat4 Transform::getMatrix() const {
     return *viewTransform * transformMatrix;
 }
 
-Transform& Transform::translate(float x, float y, float z) {
-    transformMatrix = glm::transpose(glm::mat4({
-        1.0f, 0.0f, 0.0f, x,
-        0.0f, 1.0f, 0.0f, y,
-        0.0f, 0.0f, 1.0f, z,
-        0.0f, 0.0f, 0.0f, 1.0f,
-    })) * transformMatrix;
+Transform& Transform::translate(glm::vec3 translationVec) {
+    transformMatrix = glm::translate(transformMatrix, translationVec);
     return *this;
 }
 
-Transform& Transform::rotateY(float degrees) {
-    double rad = degrees * M_PI / 180.0f;
-    transformMatrix = glm::transpose(glm::mat4({
-        cos(rad), 0.0f, sin(rad), 0.0f,
-        0.0f, 1.0f, 0.0f, 0.0f,
-        -sin(rad), 0.0f, cos(rad), 0.0f,
-        0.0f, 0.0f, 0.0f, 1.0f,
-    })) * transformMatrix;
+Transform& Transform::rotate(glm::vec3 rotationVec) {
+    transformMatrix = glm::rotate(transformMatrix, rotationVec.z, glm::vec3(0.0, 0.0, 1.0)) * transformMatrix;
+    transformMatrix = glm::rotate(transformMatrix, rotationVec.y, glm::vec3(0.0, 1.0, 0.0)) * transformMatrix;
+    transformMatrix = glm::rotate(transformMatrix, rotationVec.x, glm::vec3(1.0, 0.0, 0.0)) * transformMatrix;
     return *this;
 }
 
@@ -34,12 +25,7 @@ Transform& Transform::setViewTransform(glm::mat4* viewTransformMatrix) {
     return *this;
 }
 
-Transform& Transform::scale(float x, float y, float z) {
-    transformMatrix = glm::transpose(glm::mat4({
-        x, 0.0f, 0.0f, 0.0f,
-        0.0f, y, 0.0f, 0.0f,
-        0.0f, 0.0f, z, 0.0f,
-        0.0f, 0.0f, 0.0f, 1.0f,
-    })) * transformMatrix;
+Transform& Transform::scale(glm::vec3 scalingVec) {
+    transformMatrix = glm::scale(transformMatrix, scalingVec);
     return *this;
 }
