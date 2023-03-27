@@ -94,11 +94,25 @@ int main()
 
     Shader* modelShader = shaderManager.createPhongShader("assets/textures/wood_texture.dds", "assets/textures/wood_texture_specular.dds", 0.1f, 0.7f, 0.1f, 2);
     Transform cubeTransform;
-    cubeTransform.translate(0, 0, 0);
-    cubeTransform.scale(0.01, 0.01, 0.01);
-    modelShader->setUniformMatrix4fv("modelMatrix", 1, GL_FALSE, cubeTransform.getMatrix());
+    //cubeTransform.translate(0, 0, 0);
+    //cubeTransform.scale(0.01, 0.01, 0.01);
 
-    Model model_testObject("assets/objects/palm_tree.obj");
+
+    // Palm tree:
+    //cubeTransform.translate(glm::vec3(0.0, 0.0, 0.0));
+    //cubeTransform.rotate(glm::vec3(glm::radians(-90.0), 0.0, 0.0));
+    //cubeTransform.scale(glm::vec3(0.01, 0.01, 0.01));
+    //
+    //Model model_testObject("assets/objects/palm_tree.obj");
+    
+    
+    // Pyramid: 
+    cubeTransform.translate(glm::vec3(0.0, 0.0, 0.0));
+    cubeTransform.rotate(glm::vec3(glm::radians(-90.0), 0.0, 0.0));
+    cubeTransform.scale(glm::vec3(1, 1, 1));
+    Model model_testObject("assets/objects/pyramid1.obj");
+
+    modelShader->setUniformMatrix4fv("modelMatrix", 1, GL_FALSE, cubeTransform.getMatrix());
 
     physxScene.createModel(model_testObject.indices, model_testObject.vertices, model_testObject.normals, glm::vec3(0.01, 0.01, 0.01));
 

@@ -16,7 +16,7 @@ private:
 public:
     glm::mat4 getMatrix() const;
     Transform& setViewTransform(glm::mat4* viewTransformMatrix);
-    Transform& translate(float x, float y, float z);
-    Transform& scale(float x, float y, float z);
-    Transform& rotateY(float degrees);
+    Transform& translate(glm::vec3 translationVec);
+    Transform& scale(glm::vec3 scalingVec);
+    Transform& rotate(glm::vec3 rotationVec);
 };
