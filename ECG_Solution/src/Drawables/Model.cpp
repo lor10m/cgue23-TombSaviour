@@ -24,8 +24,8 @@ void Model::generateModel(string path)
 void Model::processNode(aiNode* node, const aiScene* scene)
 {
 	for (unsigned int i = 0; i < node->mNumMeshes; i++) {
-		aiMesh* mesh = scene->mMeshes[node->mMeshes[i]];
-		processMesh(mesh, scene);
+		mesh = scene->mMeshes[node->mMeshes[i]];
+		processMesh(scene);
 	}
 
 	for (unsigned int i = 0; i < node->mNumChildren; i++) {
@@ -33,7 +33,7 @@ void Model::processNode(aiNode* node, const aiScene* scene)
 	}
 }
 
-void Model::processMesh(aiMesh* mesh, const aiScene* scene) {
+void Model::processMesh(const aiScene* scene) {
 
 	for (unsigned int i = 0; i < mesh->mNumVertices; i++) {
 		aiVector3D vertex = mesh->mVertices[i];

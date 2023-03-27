@@ -82,7 +82,7 @@ int main()
    
     PhysxScene physxScene;
     physxScene.createTerrain("assets/heightmaps/hm3.png");
-    physxScene.createPlayer();
+    //physxScene.createPlayer();
 
     // OBJECT
     PointLight pointLight1({ 0, 0, 0 }, { 1, 1, 1 }, { 1.0f, 0.4f, 0.1f });
@@ -99,6 +99,8 @@ int main()
     modelShader->setUniformMatrix4fv("modelMatrix", 1, GL_FALSE, cubeTransform.getMatrix());
 
     Model model_testObject("assets/objects/palm_tree.obj");
+
+    physxScene.createModel(model_testObject.indices, model_testObject.vertices, model_testObject.normals, glm::vec3(0.01, 0.01, 0.01));
 
     glfwSetWindowUserPointer(window, &camera);
     glfwSetFramebufferSizeCallback(window, framebufferSizeCallback);
