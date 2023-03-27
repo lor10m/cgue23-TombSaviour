@@ -38,7 +38,7 @@ public:
 	PhysxScene();
 	void simulate(GLFWwindow* window, float timeStep);
 	void createTerrain(const char* heightmapPath);
-	void createModel(std::vector<unsigned int> indices,std::vector<glm::vec3> vertices, std::vector<glm::vec3> normals, glm::vec3 scale);
+	void createModel(std::vector<unsigned int> indices,std::vector<glm::vec3> vertices, std::vector<glm::vec3> normals, glm::vec3 scale, glm::vec3 rotate);
 	void createPlayer();
 	PxScene* getScene();
 };
