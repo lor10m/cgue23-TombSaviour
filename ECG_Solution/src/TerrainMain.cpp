@@ -69,13 +69,12 @@ int main()
     }
 
     Camera camera(window, camera_fov, (double)800 / (double)800, camera_near, camera_far);
-    //PhysxCamera camera(45.0f, 1.33f, 0.1f, 1000.0f);
 
     // build and compile our shader program
     // ------------------------------------
 
     // TERRAIN
-    TerrainShader tessHeightMapShader("assets/shaders/terrainVertex.vs", "assets/shaders/terrainFragment.fs", nullptr,            // if wishing to render as is
+    TerrainShader tessHeightMapShader("assets/shaders/terrainVertex.vs", "assets/shaders/terrainFragment.fs", nullptr,
         "assets/shaders/terrain.tcs", "assets/shaders/terrain.tes");
 
     Terrain terrain(tessHeightMapShader, "assets/textures/sand.png", "assets/heightmaps/hm3.png");
@@ -92,29 +91,38 @@ int main()
     shaderManager.addPointLight(pointLight1);
     shaderManager.addDirectionalLight(directionalLight1);
 
-    Shader* modelShader = shaderManager.createPhongShader("assets/textures/wood_texture.dds", "assets/textures/wood_texture_specular.dds", 0.1f, 0.7f, 0.1f, 2);
-    Transform cubeTransform;
-    //cubeTransform.translate(0, 0, 0);
-    //cubeTransform.scale(0.01, 0.01, 0.01);
-
-
     // Palm tree:
-    //cubeTransform.translate(glm::vec3(0.0, 0.0, 0.0));
-    //cubeTransform.rotate(glm::vec3(glm::radians(-90.0), 0.0, 0.0));
-    //cubeTransform.scale(glm::vec3(0.01, 0.01, 0.01));
-    //
-    //Model model_testObject("assets/objects/palm_tree.obj");
+    Shader* palmTreeShader = shaderManager.createPhongShader("assets/textures/wood_texture.dds", "assets/textures/wood_texture_specular.dds", 0.1f, 0.7f, 0.1f, 2);
+
+    glm::vec3 palmRotate = glm::vec3(glm::radians(-90.0), 0.0, 0.0);
+    glm::vec3 palmScale = glm::vec3(0.01, 0.01, 0.01);
+    Transform palmTransform;
+    palmTransform.translate(glm::vec3(0.0, 0.0, 0.0));
+    palmTransform.rotate(palmRotate);
+    palmTransform.scale(palmScale);
+
+    Model model_palmTree("assets/objects/palm_tree.obj");
+
+    palmTreeShader->setUniformMatrix4fv("modelMatrix", 1, GL_FALSE, palmTransform.getMatrix());
+
+    physxScene.createModel(model_palmTree.indices, model_palmTree.vertices, model_palmTree.normals, palmScale, palmRotate);
     
     
     // Pyramid: 
-    cubeTransform.translate(glm::vec3(0.0, 0.0, 0.0));
-    cubeTransform.rotate(glm::vec3(glm::radians(-90.0), 0.0, 0.0));
-    cubeTransform.scale(glm::vec3(1, 1, 1));
-    Model model_testObject("assets/objects/pyramid1.obj");
+    Shader* pyramidShader = shaderManager.createPhongShader("assets/textures/wood_texture.dds", "assets/textures/wood_texture_specular.dds", 0.1f, 0.7f, 0.1f, 2);
 
-    modelShader->setUniformMatrix4fv("modelMatrix", 1, GL_FALSE, cubeTransform.getMatrix());
+    glm::vec3 pyramidRotate = glm::vec3(glm::radians(-90.0), 0.0, 0.0);
+    glm::vec3 pyramidScale = glm::vec3(1, 1, 1);
+    Transform pyramidTransform;
+    pyramidTransform.translate(glm::vec3(0.0, 0.0, 0.0));
+    pyramidTransform.rotate(pyramidRotate);
+    pyramidTransform.scale(pyramidScale);
+    Model model_pyramid("assets/objects/pyramid1.obj");
 
-    physxScene.createModel(model_testObject.indices, model_testObject.vertices, model_testObject.normals, glm::vec3(0.01, 0.01, 0.01));
+    pyramidShader->setUniformMatrix4fv("modelMatrix", 1, GL_FALSE, pyramidTransform.getMatrix());
+
+    physxScene.createModel(model_pyramid.indices, model_pyramid.vertices, model_pyramid.normals, pyramidScale, pyramidRotate);
+
 
     glfwSetWindowUserPointer(window, &camera);
     glfwSetFramebufferSizeCallback(window, framebufferSizeCallback);
@@ -134,9 +142,7 @@ int main()
 
         // render the terrain
         terrain.render();
-        // view/projection transformations
         glm::mat4 projection = glm::mat4(1.0f);
-        //glm::mat4 view = camera.getViewMatrix();
         glm::mat4 view = camera.getTransformMatrix();
        
         tessHeightMapShader.setMat4("projection", projection);
@@ -149,8 +155,12 @@ int main()
 
         // render model
         shaderManager.updateCameraValues(camera);
-        modelShader->activate();
-        model_testObject.draw();
+
+        pyramidShader->activate();
+        model_pyramid.draw();
+
+        palmTreeShader->activate();
+        model_palmTree.draw();
 
 
         // glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)

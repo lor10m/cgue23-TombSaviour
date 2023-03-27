@@ -67,8 +67,6 @@ void Model::processMesh(const aiScene* scene) {
 	}
 	//TODO Material
 
-	//TODO load in physx
-
 	//create Vertex Array Object and bind it
 	glGenVertexArrays(1, &vao);
 	glBindVertexArray(vao);
