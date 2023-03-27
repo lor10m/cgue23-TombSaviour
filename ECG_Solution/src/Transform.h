@@ -17,6 +17,6 @@ public:
     glm::mat4 getMatrix() const;
     Transform& setViewTransform(glm::mat4* viewTransformMatrix);
     Transform& translate(glm::vec3 translationVec);
-    Transform& scale(glm::vec3 scalingVec);
     Transform& rotate(glm::vec3 rotationVec);
+    Transform& scale(glm::vec3 scalingVec);
 };
