@@ -94,7 +94,7 @@ int main()
     // Palm tree:
     Shader* palmTreeShader = shaderManager.createPhongShader("assets/textures/wood_texture.dds", "assets/textures/wood_texture_specular.dds", 0.1f, 0.7f, 0.1f, 2);
 
-    glm::vec3 palmRotate = glm::vec3(glm::radians(-90.0), 0.0, 0.0);
+    glm::vec3 palmRotate = glm::vec3(glm::radians(-90.0f), glm::radians(0.0f), glm::radians(0.0f));
     glm::vec3 palmScale = glm::vec3(0.01, 0.01, 0.01);
     Transform palmTransform;
     palmTransform.translate(glm::vec3(0.0, 0.0, 0.0));
@@ -111,7 +111,7 @@ int main()
     // Pyramid: 
     Shader* pyramidShader = shaderManager.createPhongShader("assets/textures/wood_texture.dds", "assets/textures/wood_texture_specular.dds", 0.1f, 0.7f, 0.1f, 2);
 
-    glm::vec3 pyramidRotate = glm::vec3(glm::radians(-90.0), 0.0, 0.0);
+    glm::vec3 pyramidRotate = glm::vec3(glm::radians(-90.0f), glm::radians(90.0f), glm::radians(0.0f));
     glm::vec3 pyramidScale = glm::vec3(1, 1, 1);
     Transform pyramidTransform;
     pyramidTransform.translate(glm::vec3(0.0, 0.0, 0.0));
@@ -122,7 +122,6 @@ int main()
     pyramidShader->setUniformMatrix4fv("modelMatrix", 1, GL_FALSE, pyramidTransform.getMatrix());
 
     physxScene.createModel(model_pyramid.indices, model_pyramid.vertices, model_pyramid.normals, pyramidScale, pyramidRotate);
-
 
     glfwSetWindowUserPointer(window, &camera);
     glfwSetFramebufferSizeCallback(window, framebufferSizeCallback);

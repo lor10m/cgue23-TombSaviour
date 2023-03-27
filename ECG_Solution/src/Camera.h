@@ -20,7 +20,7 @@ private:
     double fov, aspect_ratio, near, far = 0.0;
 
 public:
-    float cameraSpeed = 1;
+    float cameraSpeed = 0.8;
     double viewSpeed = 0.5;
     glm::vec3 cameraPosition{ 0.0f, 0.0f, 10.0f };
     glm::vec3 right{};

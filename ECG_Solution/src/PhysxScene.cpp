@@ -103,12 +103,16 @@ void PhysxScene::createModel(std::vector<unsigned int> indices, std::vector<glm:
 	}
 	PxDefaultMemoryInputData readBuffer(writeBuffer.getData(), writeBuffer.getSize());
 	PxTriangleMesh* triangleMesh = physics->createTriangleMesh(readBuffer);
-	PxMeshScale pxMeshScale;
-	pxMeshScale.scale = PxVec3(scale.x, scale.y, scale.z);
-	pxMeshScale.rotation = PxQuat(90.0f, PxVec3(1.0f,0.0f,0.0f));
-	PxTriangleMeshGeometry geometry(triangleMesh, pxMeshScale);
 
-	//TODO ROTATE
+	PxMeshScale pxMeshScale;
+	PxQuat quatX(rotate.x, PxVec3(1.0f, 0.0f, 0.0f));
+	PxQuat quatY(rotate.y, PxVec3(0.0f, 1.0f, 0.0f));
+	PxQuat quatZ(rotate.z, PxVec3(0.0f, 0.0f, 1.0f));
+	PxQuat combinedQuat = quatZ * quatY * quatX;		// rotation order: x,y,z
+	pxMeshScale.rotation = PxQuat(combinedQuat);
+	pxMeshScale.scale = PxVec3(scale.x, scale.y, scale.z);
+
+	PxTriangleMeshGeometry geometry(triangleMesh, pxMeshScale);
 
 	PxMaterial* material = physics->createMaterial(0.5f, 0.5f, 0.1f);
 	PxShape* shape = physics->createShape(geometry, *material);
