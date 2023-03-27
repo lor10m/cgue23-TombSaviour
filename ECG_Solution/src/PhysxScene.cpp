@@ -1,4 +1,7 @@
 #include "PhysxScene.h"
+#include <postprocess.h>
+#include <assimp/Importer.hpp>
+#include <assimp/scene.h>
 
 PhysxScene::PhysxScene()
 {
@@ -33,7 +36,7 @@ PhysxScene::PhysxScene()
 
 	// create simulation
 	material = physics->createMaterial(0.5f, 0.5f, 0.6f);
-	physx::PxRigidStatic* groundPlane = PxCreatePlane(*physics, physx::PxPlane(0, 1, 0, 50), *material);
+	PxRigidStatic* groundPlane = PxCreatePlane(*physics, PxPlane(0, 1, 0, 50), *material);
 	scene->addActor(*groundPlane);
 
 	cooking = PxCreateCooking(PX_PHYSICS_VERSION, *foundation, PxCookingParams(PxTolerancesScale()));
@@ -79,9 +82,41 @@ void PhysxScene::createTerrain(const char* heightmapPath)
 	scene->addActor(*actor);
 }
 
-void PhysxScene::createModel(string path)
-{
+void PhysxScene::createModel(std::vector<unsigned int> indices, std::vector<glm::vec3> vertices, std::vector<glm::vec3> normals, glm::vec3 scale)
+{	
+	PxTriangleMeshDesc meshDesc;
 
+	meshDesc.points.count = vertices.size();
+	meshDesc.points.stride = sizeof(glm::vec3);
+	meshDesc.points.data = vertices.data();
+	meshDesc.triangles.count = indices.size() / 3;
+	meshDesc.triangles.stride = sizeof(unsigned int) * 3;
+	meshDesc.triangles.data = indices.data();
+	
+	PxDefaultMemoryOutputStream writeBuffer;
+	PxTriangleMeshCookingResult::Enum result;
+	bool status = cooking->cookTriangleMesh(meshDesc, writeBuffer, &result);
+	if (!status)
+	{
+		std::cout << "Cooking error" << std::endl;
+		return;
+	}
+	PxDefaultMemoryInputData readBuffer(writeBuffer.getData(), writeBuffer.getSize());
+	PxTriangleMesh* triangleMesh = physics->createTriangleMesh(readBuffer);
+	PxTriangleMeshGeometry geometry(triangleMesh);
+	
+	geometry.scale.scale = PxVec3(scale.x, scale.y, scale.z);
+
+	PxMaterial* material = physics->createMaterial(0.5f, 0.5f, 0.1f);
+	PxShape* shape = physics->createShape(geometry, *material);
+	
+	PxRigidActor* staticActor = physics->createRigidStatic(PxTransform(PxIdentity));
+	staticActor->attachShape(*shape);
+
+	// Set position and orientation of the static actor
+	PxTransform transform = staticActor->getGlobalPose();
+	staticActor->setGlobalPose(physx::PxTransform(physx::PxIdentity));
+	scene->addActor(*staticActor);
 }
 
 void PhysxScene::createPlayer()
@@ -167,4 +202,9 @@ void PhysxScene::simulate(GLFWwindow* window, float timeStep)
 	//playerCamera.setTransform(playerTransform.transform(PxTransform(cameraOffset)));
 	//playerCamera.lookAt(playerTransform.p + playerCamera.getForwardVector() * 10.0f, playerTransform.p + PxVec3(0.0f, 1.5f, 0.0f));
 
+}
+
+PxScene* PhysxScene::getScene()
+{
+	return scene;
 }
