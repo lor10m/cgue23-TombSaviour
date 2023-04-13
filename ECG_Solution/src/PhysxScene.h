@@ -25,8 +25,8 @@ private:
 	PxFoundation* foundation = NULL;
 	PxPhysics* physics = NULL;
 	
-	PxMaterial* material = NULL;
-	PxScene* scene = NULL;
+	
+	
 	PxCooking* cooking = NULL;
 
 	PxPvd* pvd = NULL;
@@ -35,6 +35,9 @@ private:
 	PhysxCamera playerCamera;
 
 public:
+	PxMaterial* material = NULL;
+	PxScene* scene = NULL;
+
 	PhysxScene();
 	void simulate(GLFWwindow* window, float timeStep);
 	void createTerrain(const char* heightmapPath);
