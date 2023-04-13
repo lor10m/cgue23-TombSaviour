@@ -37,31 +37,12 @@ void Camera::updateProjectionMatrix(float aspect_ration_new) {
 	perspectiveMatrix = (glm::mat4)glm::perspective(fov, aspect_ratio, near, far);
 }
 
-void Camera::pollInput(GLFWwindow* window) {
-	if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) {
-		cameraPosition += cameraSpeed * cameraFront;
-		//std::cout << "W!";
-	}
-	if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) {
-		cameraPosition -= cameraSpeed * cameraFront;
-		//std::cout << "S!";
-	}
-	if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) {
-		cameraPosition -= glm::normalize(glm::cross(cameraFront, up)) * cameraSpeed;
-		//std::cout << "A!";
-	}
-	if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) {
-		cameraPosition += glm::normalize(glm::cross(cameraFront, up)) * cameraSpeed;
-		//std::cout << "D!";
-	}
-}
-
 void Camera::pollMousePosition(GLFWwindow* window) { // Polling Mouse Cursour
 
 	double xpos, ypos;
 	glfwGetCursorPos(window, &xpos, &ypos);
 
-	// Check if the cursor is outside the window boundaries
+	// Check if cursor is outside window boundaries (stop moving/viewing movement)
 	int width, height;
 	glfwGetWindowSize(window, &width, &height);
 	if (xpos < 0 || xpos >= width || ypos < 0 || ypos >= height) {
@@ -74,18 +55,18 @@ void Camera::pollMousePosition(GLFWwindow* window) { // Polling Mouse Cursour
 		firstMouse = false;
 	}
 
-	// Calculate the center of the window
+	// Calculate center of window
 	double centerX = width / 2.0;
 	double centerY = height / 2.0;
 
-	// Calculate the distance of the cursor from the center of the window
+	// distance of cursor from center of window
 	double dx = xpos - centerX;
 	double dy = ypos - centerY;
 
-	// Calculate the maximum distance from the center of the window
+	// maximum distance from center of window
 	double maxDist = glm::min(centerX, centerY);
 
-	// Calculate the view speed based on the distance from the center of the window
+	// view speed based on distance from center of the window
 	double dist = sqrt(dx * dx + dy * dy);
 	double viewSpeedAdjusted = viewSpeed;
 	if (dist > maxDist) {
@@ -93,7 +74,6 @@ void Camera::pollMousePosition(GLFWwindow* window) { // Polling Mouse Cursour
 		//std::cout << viewSpeedAdjusted;
 	}
 
-	// Calculate the delta values
 	double deltaX = (xpos - lastX) * viewSpeedAdjusted;
 	double deltaY = (ypos - lastY) * viewSpeedAdjusted;
 
@@ -116,8 +96,8 @@ void Camera::pollMousePosition(GLFWwindow* window) { // Polling Mouse Cursour
 	lastX = xpos;
 	lastY = ypos;
 
-	// If the cursor is near the edge of the window, adjust the yaw and pitch values
-	double edgeDist = glm::min(200.0, width * 0.075);       // adjust here the edge
+	// If cursor is near the edge of the window => adjust yaw + pitch
+	double edgeDist = glm::min(200.0, width * 0.075);       // adjust the edge here
 	double pitchAdjustment = 0.0;
 	double yawAdjustment = 0.0;
 
@@ -142,25 +122,7 @@ void Camera::pollMousePosition(GLFWwindow* window) { // Polling Mouse Cursour
 
 // get back to start position with Scrolling
 void Camera::scrollCallback(GLFWwindow* window, double xoffset, double yoffset) {
-	cameraPosition = { 0.0f, 0.0f, 10.0f };
-}
-
-glm::mat4 Camera::getOrbitCameraTransform() {
-	{
-		using namespace glm;
-		double radPitch = pitch * M_PI / 180.0;
-		double radYaw = yaw * M_PI / 180.0;
-
-		// Calculate necessary angles and positions for the camera transform
-		vec3 direction = { cos(radPitch) * cos(radYaw), sin(radPitch), cos(radPitch) * sin(radYaw) };
-		right = normalize(cross(direction, vec3(0.0, 1.0, 0.0)));
-		up = normalize(cross(right, direction));
-
-		//cameraPosition = (-direction * distance) + targetPosition;
-		cameraPosition = cameraPosition;
-
-		return Camera::getCameraTransform(direction, cameraPosition, up);
-	}
+	cameraPosition = { 0.0f, 0.0f, 0.0f };
 }
 
 glm::mat4 Camera::getFirstPersonCameraTransform() {
@@ -179,3 +141,40 @@ glm::mat4 Camera::getFirstPersonCameraTransform() {
 glm::mat4 Camera::getTransformMatrix() {
 	return perspectiveMatrix * getFirstPersonCameraTransform();
 }
+
+
+// for player character: 
+void Camera::setCameraPosition(glm::vec3 newPosition)
+{
+	cameraPosition = { newPosition.x, newPosition.y, newPosition.z };
+}
+
+glm::vec3 Camera::getCameraPosition()
+{
+	return cameraPosition;
+}
+
+glm::vec2 Camera::getRotation()
+{
+	return glm::vec2(yaw, pitch);
+}
+
+glm::vec3 Camera::getDirection()
+{
+	glm::vec3 dir = cameraFront;
+	if (cameraFront.x > 1) {
+		dir.x = 1;
+	}	
+	if (cameraFront.x < -1) {
+		dir.x = -1;
+	}
+	if (cameraFront.z > 1) {
+		dir.z = 1;
+	}
+	if (cameraFront.z < -1) {
+		dir.z = -1;
+	}
+	return dir;
+}
+
+

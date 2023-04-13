@@ -35,7 +35,7 @@ find_package(OpenGL REQUIRED)
 ################################################################################
 # All_Sources is imported from SourcesList.cmake
 message(STATUS "All_Sources: ${All_Sources}")
-add_executable(${PROJECT_NAME} ${All_Sources} ../assets/settings.ini "src/PhysxMain.cpp" "src/Drawables/PhysxObject.cpp" "src/Drawables/PhysxObject.h" "src/TerrainMain.cpp" "src/TerrainShader.h" "src/stb_image.h" "src/stb_image.cpp" "src/TerrainCamera.h" "src/TerrainShader.cpp"  "src/GlobalVariables.cpp" "src/GlobalVariables.h" "src/Terrain.h" "src/Terrain.cpp" "src/Texture.h" "src/Texture.cpp" "src/PhysxScene.h" "src/PhysxScene.cpp" "src/PhysxCamera.h" "src/PhysxCamera.cpp" "src/Drawables/Model.h" "src/Drawables/Model.cpp")
+add_executable(${PROJECT_NAME} ${All_Sources} ../assets/settings.ini "src/PhysxMain.cpp" "src/Drawables/PhysxObject.cpp" "src/Drawables/PhysxObject.h" "src/TerrainMain.cpp" "src/TerrainShader.h" "src/stb_image.h" "src/stb_image.cpp" "src/TerrainCamera.h" "src/TerrainShader.cpp"  "src/GlobalVariables.cpp" "src/GlobalVariables.h" "src/Terrain.h" "src/Terrain.cpp" "src/Texture.h" "src/Texture.cpp" "src/PhysxScene.h" "src/PhysxScene.cpp" "src/PhysxCamera.h" "src/PhysxCamera.cpp" "src/Drawables/Model.h" "src/Drawables/Model.cpp" "src/Character.h" "src/Character.cpp")
 set(LIBRARY_OUTPUT_PATH "${CMAKE_BINARY_DIR}")
 set(EXECUTABLE_OUTPUT_PATH "${CMAKE_BINARY_DIR}")
 
@@ -196,6 +196,7 @@ if(WIN32)
         "PhysXPvdSDK_static_64.lib"
         "PhysXCooking_64.lib"
         "assimp-vc143-mt.lib"
+        "PhysXCharacterKinematic_static_64.lib"
     )
 else()
     set(GLEW_USE_STATIC_LIBS TRUE)

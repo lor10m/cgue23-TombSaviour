@@ -5,10 +5,12 @@
 #include "Callbacks.h"
 #include <iostream>
 #include <vector>
+#include "PxPhysicsAPI.h"
 #include "Camera.h"
 #include "Terrain.h"
 #include "PhysxScene.h"
 #include "PhysxCamera.h"
+#include "Character.h"
 
 #include "Drawables/Model.h"
 #include "Lights/PointLight.h"
@@ -16,10 +18,12 @@
 #include "ShaderManager.h"
 #include "Transform.h"
 
+using namespace physx;
+
 
 double camera_fov =  60 * 3.141592 / 180.0;
 double camera_near = 0.1;
-double camera_far = 100;
+double camera_far = 1000;
 
 bool polygonMode = false;
 
@@ -69,7 +73,7 @@ int main()
     }
 
     Camera camera(window, camera_fov, (double)800 / (double)800, camera_near, camera_far);
-
+    
     // build and compile our shader program
     // ------------------------------------
 
@@ -77,11 +81,28 @@ int main()
     TerrainShader tessHeightMapShader("assets/shaders/terrainVertex.vs", "assets/shaders/terrainFragment.fs", nullptr,
         "assets/shaders/terrain.tcs", "assets/shaders/terrain.tes");
 
-    Terrain terrain(tessHeightMapShader, "assets/textures/sand.png", "assets/heightmaps/hm3.png");
-   
+    const char* terrain_path = "assets/heightmaps/hm4_dark.png";
+    Terrain terrain(tessHeightMapShader, "assets/textures/sand.png", terrain_path);
+
     PhysxScene physxScene;
-    physxScene.createTerrain("assets/heightmaps/hm3.png");
+    physxScene.createTerrain(terrain_path);
     //physxScene.createPlayer();
+
+    // create Player: 
+    PxControllerManager* gManager = PxCreateControllerManager(*physxScene.scene);
+    PxCapsuleControllerDesc cDesc;
+    cDesc.position = PxExtendedVec3{ 0.0f, 30.0f, 0.0f };
+    cDesc.contactOffset = 0.05f;
+    cDesc.height = 6.0f;
+    cDesc.radius = 1.0f;
+    cDesc.stepOffset = 0.2f;
+    cDesc.slopeLimit = 0.2f;
+    cDesc.upDirection = PxVec3(0.0f, 1.0f, 0.0f);
+    cDesc.material = physxScene.material;
+    PxController* pxChar = gManager->createController(cDesc);
+    pxChar->getActor()->setName("mummy");
+
+    Character mummy(&camera, pxChar);
 
     // OBJECT
     PointLight pointLight1({ 0, 0, 0 }, { 1, 1, 1 }, { 1.0f, 0.4f, 0.1f });
@@ -131,11 +152,17 @@ int main()
     while (!glfwWindowShouldClose(window))
     {
         physxScene.simulate(window, 1.0f / 60.0f);
-        camera.pollInput(window);
+        //camera.pollInput(window);
         camera.pollMousePosition(window);
 
+        // Character: 
+        float dt = 0.08;
+        mummy.pollInput(window, dt);
+        //mummy.move(glm::vec3(0.0f, 0.0f, 0.0f), dt);
+
+
         // render
-        glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
+        glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 
@@ -165,6 +192,7 @@ int main()
         // glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
         glfwSwapBuffers(window);
         glfwPollEvents();
+
     }
 
     terrain.deleteTerrain();
