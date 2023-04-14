@@ -209,8 +209,6 @@ void Model::getBoneTransforms(float timeInSeconds, glm::mat4 globalTransform, st
 		float timeInTicks = timeInSeconds * ticksPerSecond;
 		float animationTimeTicks = fmod(timeInTicks, scene->mAnimations[0]->mDuration);
 
-		//std::cout << "timeinTicks: " << timeInTicks << " duration:" << scene->mAnimations[0]->mDuration << " animtimeticks: " << animationTimeTicks << std::endl;
-
 		std::cout << scene->mRootNode->mChildren[1]->mName.data << std::endl;
 		readNodeHierachy(animationTimeTicks, scene->mRootNode, glm::mat4(1.0f));
 
@@ -237,18 +235,15 @@ void Model::readNodeHierachy(float animationTimeTicks, const aiNode* node, glm::
 
 	const aiAnimation* animation = scene->mAnimations[0];
 	const aiNodeAnim* nodeAnim = findNodeAnim(animation, nodeName);
-	std::cout << nodeName << " ";
 	if (nodeAnim) {
-		std::cout << "hasAnim" << std::endl;
 		glm::mat4 scale = CalcInterpolatedScaling(animationTimeTicks, nodeAnim);
 		glm::mat4 rotation = CalcInterpolatedRotation(animationTimeTicks, nodeAnim);
 		glm::mat4 translation = CalcInterpolatedPosition(animationTimeTicks, nodeAnim);
 		nodeTransform = translation * rotation * scale;
 
-		//Add last Position to Animation if animation restarts
+		//Add last Position to Animation if animation restarts(But only to the first node that has meshes e.g. the root node of the first mesh). TODO maybe?
 		if (at > animationTimeTicks) {
 			at = 0.0f;
-			std::cout << "next" << std::endl;
 			lastTransformation[nodeName] *= currTransformation[nodeName];
 		}
 
@@ -260,16 +255,6 @@ void Model::readNodeHierachy(float animationTimeTicks, const aiNode* node, glm::
 
 
 	glm::mat4 globalTransform = parentTransform * nodeTransform;
-
-	//if (node == scene->mRootNode->mChildren[0]) {
-	//	for (int i = 0; i < 4; i++) {
-	//		for (int j = 0; j < 4; j++) {
-	//			std::cout << globalTransform[i][j] << " ";
-	//		}
-	//		std::cout << std::endl;
-	//	}
-	//	std::cout << std::endl;
-	//}
 
 	if (boneInfoMap.find(nodeName) != boneInfoMap.end()) {
 		int index = boneInfoMap[nodeName].id;
