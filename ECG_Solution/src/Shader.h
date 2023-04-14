@@ -8,6 +8,7 @@
 #include <sstream>
 #include <fstream>
 #include <unordered_map>
+#include <matrix4x4.h>
 
 class Shader {
 private:
@@ -30,6 +31,7 @@ public:
     void setUniform1i(const std::string& name, int v);
     void setUniformMatrix4fv(const std::string& name, int size, GLboolean transposed, glm::mat4 matrix);
     void setUniformMatrix4fv(const std::string& name, int size, GLboolean transposed, GLfloat* matrix);
+    //void setUniformMatrix4fv(const std::string& name, int size, GLboolean transposed, const aiMatrix4x4 matrix);
     void addUniformPointLight(const std::string& name, PointLight pointLight);
     void addUniformDirectionalLight(const std::string& name, DirectionalLight directionalLight);
     void addUniformSpotLight(const std::string& name, SpotLight spotLight);

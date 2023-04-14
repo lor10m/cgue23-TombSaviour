@@ -20,8 +20,8 @@ private:
     double fov, aspect_ratio, near, far = 0.0;
 
 public:
-    float cameraSpeed = 1;
-    double viewSpeed = 0.5;
+    float cameraSpeed = 0.1;
+    double viewSpeed = 1;
     glm::vec3 cameraPosition{ 0.0f, 0.0f, 10.0f };
     glm::vec3 right{};
     glm::vec3 cameraFront{ 0.0f, 0.0f, -1.0f};      //if not negative WASD would start in opposite directions
