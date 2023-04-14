@@ -132,3 +132,27 @@ Shader *ShaderManager::createPhongShader(const std::string& diffuseTexture, cons
     shaders.push_back(shader);
     return shader;
 }
+
+Shader *ShaderManager::createPhongShader(float ka, float kd, float ks, int alpha) {
+    Shader* shader = new Shader("assets/shaders/phong.vsh", "assets/shaders/phong.fsh");
+    shader->activate();
+    shader->setUniform1f("ka", ka);
+    shader->setUniform1f("kd", kd);
+    shader->setUniform1f("ks", ks);
+    shader->setUniform1i("alpha", alpha);
+
+    for (const auto & pointLight : pointLights) {
+        shader->addUniformPointLight("pointLight", pointLight);
+    }
+
+    for (const auto & directionalLight : directionalLights) {
+        shader->addUniformDirectionalLight("directionalLight", directionalLight);
+    }
+
+    for (const auto & spotLight : spotLights) {
+        shader->addUniformSpotLight("spotLight", spotLight);
+    }
+
+    shaders.push_back(shader);
+    return shader;
+}

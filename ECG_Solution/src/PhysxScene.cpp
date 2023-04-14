@@ -76,7 +76,7 @@ void PhysxScene::createTerrain(const char* heightmapPath)
 	PxHeightFieldGeometry heightFieldGeom(heightField, PxMeshGeometryFlags(), 1.0f, 1.0f, 1.0f);
 
 	// Create a PhysX actor
-	PxTransform transform(PxVec3(0.0f, 0.0f, 0.0f), PxQuat(PxIdentity));
+	PxTransform transform(PxVec3(-width, 0.0f, 0.0f), PxQuat(PxIdentity));
 	PxRigidActor* actor = PxCreateStatic(*physics, transform, heightFieldGeom, *material);
 
 	scene->addActor(*actor);

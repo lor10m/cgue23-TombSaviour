@@ -18,6 +18,7 @@ public:
     bool addSpotLight(SpotLight spotLight);
     Shader* createGouraudShader(glm::vec4 color, float ka, float kd, float ks, int alpha);
     Shader* createPhongShader(glm::vec4 color, float ka, float kd, float ks, int alpha);
+    Shader* createPhongShader(float ka, float kd, float ks, int alpha);
     Shader* createPhongShader(const std::string& diffuseTexture, const std::string& specularTexture, float ka, float kd, float ks, int alpha);
     Shader* createCookTorranceShader(glm::vec4 color, float ka, float kd, float roughness, float ior);
     Shader* createShader(glm::vec4 color, float ka, float kd, float roughness, float ior);

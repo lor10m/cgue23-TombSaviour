@@ -146,6 +146,10 @@ void Shader::setUniformMatrix4fv(const std::string& name, int size, GLboolean tr
     setUniformMatrix4fv(name, size, transposed, &matrix[0][0]);
 }
 
+//void Shader::setUniformMatrix4fv(const std::string& name, int size, GLboolean transposed, const aiMatrix4x4 matrix) {
+//    setUniformMatrix4fv(name, size, transposed, &matrix[0][0]);
+//}
+
 void Shader::setUniformMatrix4fv(const std::string& name, int size, GLboolean transposed, GLfloat* matrix) {
     activate();
     glUniformMatrix4fv(getUniformLocation(name), size, transposed, matrix);
