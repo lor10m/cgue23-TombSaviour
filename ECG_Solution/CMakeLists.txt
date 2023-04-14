@@ -196,6 +196,7 @@ if(WIN32)
         "PhysXPvdSDK_static_64.lib"
         "PhysXCooking_64.lib"
         "assimp-vc143-mt.lib"
+        "PhysXCharacterKinematic_static_64.lib"
     )
 else()
     set(GLEW_USE_STATIC_LIBS TRUE)

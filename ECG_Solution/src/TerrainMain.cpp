@@ -4,10 +4,12 @@
 #include "TerrainCamera.h"
 #include <iostream>
 #include <vector>
+#include "PxPhysicsAPI.h"
 #include "Camera.h"
 #include "Terrain.h"
 #include "PhysxScene.h"
 #include "PhysxCamera.h"
+#include "Character.h"
 
 #include "Drawables/Model.h"
 #include "Lights/PointLight.h"
@@ -19,6 +21,7 @@
 #include "Drawables/Animator.h"
 #include "Callbacks.h"
 
+using namespace physx;
 
 double camera_fov = 60 * 3.141592 / 180.0;
 double camera_near = 0.1;
@@ -74,24 +77,41 @@ int main()
 		glDisable(GL_CULL_FACE);
 	}
 
-	Camera camera(window, camera_fov, (double)800 / (double)800, camera_near, camera_far);
-
-	// build and compile our shader program
-	// ------------------------------------
+    Camera camera(window, camera_fov, (double)800 / (double)800, camera_near, camera_far);
+    
+    // build and compile our shader program
+    // ------------------------------------
 
 	// TERRAIN
 	TerrainShader tessHeightMapShader("assets/shaders/terrainVertex.vs", "assets/shaders/terrainFragment.fs", nullptr,
 		"assets/shaders/terrain.tcs", "assets/shaders/terrain.tes");
 
-	Terrain terrain(tessHeightMapShader, "assets/textures/sand2.jpg", "assets/heightmaps/hm3-darkk.png");
+    const char* terrain_path = "assets/heightmaps/hm4_dark.png";
+    Terrain terrain(tessHeightMapShader, "assets/textures/sand.png", terrain_path);
 
-	PhysxScene physxScene;
-	physxScene.createTerrain("assets/heightmaps/hm3-darkk.png");
-	//physxScene.createPlayer();
+    PhysxScene physxScene;
+    physxScene.createTerrain(terrain_path);
+    //physxScene.createPlayer();
 
-	// OBJECT
-	PointLight pointLight1({ 0, 0, 0 }, { 1, 1, 1 }, { 1.0f, 0.4f, 0.1f });
-	DirectionalLight directionalLight1({ 0, -1, -1 }, { 0.8f, 0.8f, 0.8f });
+    // create Player: 
+    PxControllerManager* gManager = PxCreateControllerManager(*physxScene.scene);
+    PxCapsuleControllerDesc cDesc;
+    cDesc.position = PxExtendedVec3{ 0.0f, 30.0f, 0.0f };
+    cDesc.contactOffset = 0.05f;
+    cDesc.height = 6.0f;
+    cDesc.radius = 1.0f;
+    cDesc.stepOffset = 0.2f;
+    cDesc.slopeLimit = 0.2f;
+    cDesc.upDirection = PxVec3(0.0f, 1.0f, 0.0f);
+    cDesc.material = physxScene.material;
+    PxController* pxChar = gManager->createController(cDesc);
+    pxChar->getActor()->setName("mummy");
+
+    Character mummy(&camera, pxChar);
+
+    // OBJECT
+    PointLight pointLight1({ 0, 0, 0 }, { 1, 1, 1 }, { 1.0f, 0.4f, 0.1f });
+    DirectionalLight directionalLight1({ 0, -1, -1 }, { 0.8f, 0.8f, 0.8f });
 
 	ShaderManager shaderManager;
 	shaderManager.addPointLight(pointLight1);
@@ -118,12 +138,12 @@ int main()
 	// Palm tree:
 	Shader* palmTreeShader = shaderManager.createPhongShader("assets/textures/wood_texture.dds", "assets/textures/wood_texture_specular.dds", 0.1f, 0.7f, 0.1f, 2);
 
-	glm::vec3 palmRotate = glm::vec3(glm::radians(-90.0), 0.0, 0.0);
-	glm::vec3 palmScale = glm::vec3(0.01, 0.01, 0.01);
-	Transform palmTransform;
-	palmTransform.translate(glm::vec3(0.0, 0.0, 0.0));
-	palmTransform.rotate(palmRotate);
-	palmTransform.scale(palmScale);
+    glm::vec3 palmRotate = glm::vec3(glm::radians(-90.0f), glm::radians(0.0f), glm::radians(0.0f));
+    glm::vec3 palmScale = glm::vec3(0.01, 0.01, 0.01);
+    Transform palmTransform;
+    palmTransform.translate(glm::vec3(0.0, 0.0, 0.0));
+    palmTransform.rotate(palmRotate);
+    palmTransform.scale(palmScale);
 
 	Model model_palmTree("assets/objects/palm_tree.obj");
 
@@ -135,13 +155,13 @@ int main()
 	// Pyramid: 
 	Shader* pyramidShader = shaderManager.createPhongShader("assets/textures/wood_texture.dds", "assets/textures/wood_texture_specular.dds", 0.1f, 0.7f, 0.1f, 2);
 
-	glm::vec3 pyramidRotate = glm::vec3(glm::radians(-90.0), 0.0, 0.0);
-	glm::vec3 pyramidScale = glm::vec3(1, 1, 1);
-	Transform pyramidTransform;
-	pyramidTransform.translate(glm::vec3(0.0, 0.0, 0.0));
-	pyramidTransform.rotate(pyramidRotate);
-	pyramidTransform.scale(pyramidScale);
-	Model model_pyramid("assets/objects/pyramid1.obj");
+    glm::vec3 pyramidRotate = glm::vec3(glm::radians(-90.0f), glm::radians(90.0f), glm::radians(0.0f));
+    glm::vec3 pyramidScale = glm::vec3(1, 1, 1);
+    Transform pyramidTransform;
+    pyramidTransform.translate(glm::vec3(0.0, 0.0, 0.0));
+    pyramidTransform.rotate(pyramidRotate);
+    pyramidTransform.scale(pyramidScale);
+    Model model_pyramid("assets/objects/pyramid1.obj");
 
 	glm::mat4 animTransform = glm::mat4(1.0f);
 
@@ -149,9 +169,8 @@ int main()
 
 	physxScene.createModel(model_pyramid.indices, model_pyramid.vertices, model_pyramid.normals, pyramidScale, pyramidRotate);
 
-
-	glfwSetWindowUserPointer(window, &camera);
-	glfwSetFramebufferSizeCallback(window, framebufferSizeCallback);
+    glfwSetWindowUserPointer(window, &camera);
+    glfwSetFramebufferSizeCallback(window, framebufferSizeCallback);
 
 	float animationTimeTicks = 0.0f;
 	float ticksPerSecond = model_animated.getTicksPerSecond();
@@ -180,9 +199,15 @@ int main()
 		camera.pollInput(window);
 		camera.pollMousePosition(window);
 
-		// render
-		glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        // Character: 
+        float dt = 0.08;
+        mummy.pollInput(window, dt);
+        //mummy.move(glm::vec3(0.0f, 0.0f, 0.0f), dt);
+
+
+        // render
+        glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 
 		// render the terrain
@@ -230,10 +255,11 @@ int main()
 		model_animated.draw(animatedModelShader);
 
 
-		// glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
-		glfwSwapBuffers(window);
-		glfwPollEvents();
-	}
+        // glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
+        glfwSwapBuffers(window);
+        glfwPollEvents();
+
+    }
 
 	terrain.deleteTerrain();
 

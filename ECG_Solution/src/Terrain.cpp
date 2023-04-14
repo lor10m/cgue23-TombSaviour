@@ -20,26 +20,26 @@ Terrain::Terrain(TerrainShader tessHeightMapShader, const char* texturePath, con
 			vertices.push_back(-width / 2.0f + width * i / (float)rez); // v.x
 			vertices.push_back(0.0f); // v.y
 			vertices.push_back(-height / 2.0f + height * j / (float)rez); // v.z
-			vertices.push_back(i / (float)rez); // u
 			vertices.push_back(j / (float)rez); // v
+			vertices.push_back(i / (float)rez); // u
 
 			vertices.push_back(-width / 2.0f + width * (i + 1) / (float)rez); // v.x
 			vertices.push_back(0.0f); // v.y
 			vertices.push_back(-height / 2.0f + height * j / (float)rez); // v.z
-			vertices.push_back((i + 1) / (float)rez); // u
 			vertices.push_back(j / (float)rez); // v
+			vertices.push_back((i + 1) / (float)rez); // u
 
 			vertices.push_back(-width / 2.0f + width * i / (float)rez); // v.x
 			vertices.push_back(0.0f); // v.y
 			vertices.push_back(-height / 2.0f + height * (j + 1) / (float)rez); // v.z
-			vertices.push_back(i / (float)rez); // u
 			vertices.push_back((j + 1) / (float)rez); // v
+			vertices.push_back(i / (float)rez); // u
 
 			vertices.push_back(-width / 2.0f + width * (i + 1) / (float)rez); // v.x
 			vertices.push_back(0.0f); // v.y
 			vertices.push_back(-height / 2.0f + height * (j + 1) / (float)rez); // v.z
-			vertices.push_back((i + 1) / (float)rez); // u
 			vertices.push_back((j + 1) / (float)rez); // v
+			vertices.push_back((i + 1) / (float)rez); // u
 		}
 	}
 	std::cout << "Loaded " << rez * rez << " patches of 4 control points each" << std::endl;

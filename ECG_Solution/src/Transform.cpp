@@ -1,4 +1,6 @@
 #include "Transform.h"
+#include <glm/ext/quaternion_trigonometric.hpp>
+#include <glm/gtc/quaternion.hpp>
 
 glm::mat4 Transform::getMatrix() const {
     return transformMatrix;
@@ -14,9 +16,14 @@ Transform& Transform::translate(glm::vec3 translationVec) {
 }
 
 Transform& Transform::rotate(glm::vec3 rotationVec) {
-    transformMatrix = glm::rotate(transformMatrix, rotationVec.z, glm::vec3(0.0, 0.0, 1.0)) * transformMatrix;
-    transformMatrix = glm::rotate(transformMatrix, rotationVec.y, glm::vec3(0.0, 1.0, 0.0)) * transformMatrix;
-    transformMatrix = glm::rotate(transformMatrix, rotationVec.x, glm::vec3(1.0, 0.0, 0.0)) * transformMatrix;
+    glm::quat quatX = glm::angleAxis(rotationVec.x, glm::vec3(1.0, 0.0, 0.0));
+    glm::quat quatY = glm::angleAxis(rotationVec.y, glm::vec3(0.0, 1.0, 0.0));
+    glm::quat quatZ = glm::angleAxis(rotationVec.z, glm::vec3(0.0, 0.0, 1.0));
+    glm::quat combinedQuat = quatZ * quatY * quatX;
+
+    glm::mat4 rotationMatrix = glm::mat4_cast(combinedQuat);
+    transformMatrix = transformMatrix * rotationMatrix;
+    
     return *this;
 }
 
