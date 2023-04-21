@@ -21,7 +21,7 @@ private:
 	aiMesh* mesh;
 
 public:
-
+	Model();
 	Model(string path);
 	void generateModel(string path);
 	void processNode(aiNode* node, const aiScene* scene);

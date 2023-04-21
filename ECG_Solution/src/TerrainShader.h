@@ -15,6 +15,7 @@ public:
 	TerrainShader(const char* vertexPath, const char* fragmentPath, const char* geometryPath,
 		const char* tessControlPath, const char* tessEvalPath);
 	TerrainShader();
+	TerrainShader(std::string vs, std::string fs);
 	// activate the shader
 	// ------------------------------------------------------------------------
 	void use();

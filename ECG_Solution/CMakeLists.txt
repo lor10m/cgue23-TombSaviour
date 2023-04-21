@@ -35,7 +35,9 @@ find_package(OpenGL REQUIRED)
 ################################################################################
 # All_Sources is imported from SourcesList.cmake
 message(STATUS "All_Sources: ${All_Sources}")
-add_executable(${PROJECT_NAME} ${All_Sources} ../assets/settings.ini "src/PhysxMain.cpp" "src/Drawables/PhysxObject.cpp" "src/Drawables/PhysxObject.h" "src/TerrainMain.cpp" "src/TerrainShader.h" "src/stb_image.h" "src/stb_image.cpp" "src/TerrainCamera.h" "src/TerrainShader.cpp"  "src/GlobalVariables.cpp" "src/GlobalVariables.h" "src/Terrain.h" "src/Terrain.cpp" "src/Texture.h" "src/Texture.cpp" "src/PhysxScene.h" "src/PhysxScene.cpp" "src/PhysxCamera.h" "src/PhysxCamera.cpp" "src/Drawables/Model.h" "src/Drawables/Model.cpp" "src/Character.h" "src/Character.cpp")
+add_executable(${PROJECT_NAME} ${All_Sources} ../assets/settings.ini "src/stb_image.h" "src/stb_image.cpp" "src/PhysxMain.cpp" "src/Drawables/PhysxObject.cpp" "src/Drawables/PhysxObject.h" "src/TerrainMain.cpp" "src/TerrainShader.h"   "src/TerrainCamera.h" "src/TerrainShader.cpp"  "src/GlobalVariables.cpp" "src/GlobalVariables.h" "src/Terrain.h" "src/Terrain.cpp" "src/Texture.h" "src/Texture.cpp" "src/PhysxScene.h" "src/PhysxScene.cpp" "src/PhysxCamera.h" "src/PhysxCamera.cpp" "src/Drawables/Model.h" "src/Drawables/Model.cpp" "src/Character.h" "src/Character.cpp" "src/HDU_textRenderer.h" "src/HDU_textRenderer.cpp"  "src/Hdu.h" "src/Hdu.cpp")
+# "src/ShaderText.h" "src/ShaderText.cpp"
+
 set(LIBRARY_OUTPUT_PATH "${CMAKE_BINARY_DIR}")
 set(EXECUTABLE_OUTPUT_PATH "${CMAKE_BINARY_DIR}")
 
@@ -62,6 +64,11 @@ file(COPY "physx/PhysXGpu_64.dll"
 file(COPY "assimp/assimp-vc143-mt.dll"
     DESTINATION ${EXECUTABLE_OUTPUT_PATH})
 file(COPY "assimp/assimp-vc143-mtd.dll"
+    DESTINATION ${EXECUTABLE_OUTPUT_PATH})
+
+file(COPY "freetype/freetype.dll"
+    DESTINATION ${EXECUTABLE_OUTPUT_PATH})
+file(COPY "freetype/freetyped.dll"
     DESTINATION ${EXECUTABLE_OUTPUT_PATH})
 
 set_target_properties(${PROJECT_NAME} PROPERTIES
@@ -100,6 +107,9 @@ target_include_directories(${PROJECT_NAME} PRIVATE
 )
 target_include_directories(${PROJECT_NAME} PRIVATE
     "../external/include/assimp"
+)
+target_include_directories(${PROJECT_NAME} PRIVATE
+    "../external/include/freetype"
 )
 
 ################################################################################
@@ -197,6 +207,8 @@ if(WIN32)
         "PhysXCooking_64.lib"
         "assimp-vc143-mt.lib"
         "PhysXCharacterKinematic_static_64.lib"
+        "freetype.lib"
+
     )
 else()
     set(GLEW_USE_STATIC_LIBS TRUE)
@@ -239,24 +251,33 @@ target_link_directories(${PROJECT_NAME} PRIVATE
 if(CMAKE_BUILD_TYPE MATCHES "Debug")
     target_link_directories(${PROJECT_NAME} PRIVATE "../external/lib/PhysxDebug")
     target_link_directories(${PROJECT_NAME} PRIVATE "../external/lib/AssimpDebug")
+    target_link_directories(${PROJECT_NAME} PRIVATE "../external/lib/FreeTypeDebug")
 
     file(COPY "assimp/assimp-vc143-mtd.dll"
         DESTINATION ${EXECUTABLE_OUTPUT_PATH})
     list(APPEND ADDITIONAL_LIBRARY_DEPENDENCIES     # this doesn't seem to do anything
         "assimp-vc143-mtd.lib"
     )
+
+    file(COPY "freetype/freetyped.dll"
+        DESTINATION ${EXECUTABLE_OUTPUT_PATH})
+
 endif()
 
 if(CMAKE_BUILD_TYPE MATCHES "Release")
     target_link_directories(${PROJECT_NAME} PRIVATE "../external/lib/PhysxRelease")
     target_link_directories(${PROJECT_NAME} PRIVATE "../external/lib/AssimpRelease")
+    target_link_directories(${PROJECT_NAME} PRIVATE "../external/lib/FreeTypeRelease")
 
     file(COPY "assimp/assimp-vc143-mt.dll"
         DESTINATION ${EXECUTABLE_OUTPUT_PATH})
-
     list(APPEND ADDITIONAL_LIBRARY_DEPENDENCIES # this doesn't seem to do anything
         "assimp-vc143-mt.lib"
     )
+
+    file(COPY "freetype/freetype.dll"
+        DESTINATION ${EXECUTABLE_OUTPUT_PATH})
+
 endif()
 
 ################################################################################

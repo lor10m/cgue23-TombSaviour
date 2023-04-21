@@ -17,9 +17,10 @@
 #include "Lights/DirectionalLight.h"
 #include "ShaderManager.h"
 #include "Transform.h"
+#include "Hdu.h"
+
 
 using namespace physx;
-
 
 double camera_fov =  60 * 3.141592 / 180.0;
 double camera_near = 0.1;
@@ -72,8 +73,9 @@ int main()
         glDisable(GL_CULL_FACE);
     }
 
-    Camera camera(window, camera_fov, (double)800 / (double)800, camera_near, camera_far);
-    
+    Camera camera(window, camera_fov, (double)800 / (double)800, camera_near, camera_far, false);
+    Hdu hdu(window, camera);
+
     // build and compile our shader program
     // ------------------------------------
 
@@ -87,7 +89,7 @@ int main()
     PhysxScene physxScene;
     physxScene.createTerrain(terrain_path);
     //physxScene.createPlayer();
-
+    
     // create Player: 
     PxControllerManager* gManager = PxCreateControllerManager(*physxScene.scene);
     PxCapsuleControllerDesc cDesc;
@@ -102,7 +104,7 @@ int main()
     PxController* pxChar = gManager->createController(cDesc);
     pxChar->getActor()->setName("mummy");
 
-    Character mummy(&camera, pxChar);
+    Character mummy(&camera, pxChar, window);
 
     // OBJECT
     PointLight pointLight1({ 0, 0, 0 }, { 1, 1, 1 }, { 1.0f, 0.4f, 0.1f });
@@ -114,38 +116,55 @@ int main()
 
     // Palm tree:
     Shader* palmTreeShader = shaderManager.createPhongShader("assets/textures/wood_texture.dds", "assets/textures/wood_texture_specular.dds", 0.1f, 0.7f, 0.1f, 2);
-
+    glm::vec3 palmPosition = glm::vec3(30.0, 30.0, 30.0);
     glm::vec3 palmRotate = glm::vec3(glm::radians(-90.0f), glm::radians(0.0f), glm::radians(0.0f));
     glm::vec3 palmScale = glm::vec3(0.01, 0.01, 0.01);
     Transform palmTransform;
-    palmTransform.translate(glm::vec3(0.0, 0.0, 0.0));
+    palmTransform.translate(palmPosition);
     palmTransform.rotate(palmRotate);
     palmTransform.scale(palmScale);
 
     Model model_palmTree("assets/objects/palm_tree.obj");
-
     palmTreeShader->setUniformMatrix4fv("modelMatrix", 1, GL_FALSE, palmTransform.getMatrix());
-
-    physxScene.createModel(model_palmTree.indices, model_palmTree.vertices, model_palmTree.normals, palmScale, palmRotate);
-    
+    physxScene.createModel(model_palmTree.indices, model_palmTree.vertices, model_palmTree.normals, palmPosition,  palmScale, palmRotate);
     
     // Pyramid: 
     Shader* pyramidShader = shaderManager.createPhongShader("assets/textures/wood_texture.dds", "assets/textures/wood_texture_specular.dds", 0.1f, 0.7f, 0.1f, 2);
-
+    glm::vec3 pyramidPosition = glm::vec3(30.0, 30.0, 30.0);
     glm::vec3 pyramidRotate = glm::vec3(glm::radians(-90.0f), glm::radians(90.0f), glm::radians(0.0f));
     glm::vec3 pyramidScale = glm::vec3(1, 1, 1);
     Transform pyramidTransform;
-    pyramidTransform.translate(glm::vec3(0.0, 0.0, 0.0));
+    pyramidTransform.translate(pyramidPosition);
     pyramidTransform.rotate(pyramidRotate);
     pyramidTransform.scale(pyramidScale);
     Model model_pyramid("assets/objects/pyramid1.obj");
-
     pyramidShader->setUniformMatrix4fv("modelMatrix", 1, GL_FALSE, pyramidTransform.getMatrix());
+    physxScene.createModel(model_pyramid.indices, model_pyramid.vertices, model_pyramid.normals, pyramidPosition, pyramidScale, pyramidRotate);
 
-    physxScene.createModel(model_pyramid.indices, model_pyramid.vertices, model_pyramid.normals, pyramidScale, pyramidRotate);
+    // Spike: 
+    Shader* spikeShader = shaderManager.createPhongShader("assets/textures/wood_texture.dds", "assets/textures/wood_texture_specular.dds", 0.1f, 0.7f, 0.1f, 2);
+    glm::vec3 spikePosition = glm::vec3(0.0, 30.0, 0.0);
+    glm::vec3 spikeRotate = glm::vec3(glm::radians(-90.0f), glm::radians(90.0f), glm::radians(0.0f));
+    glm::vec3 spikeScale = glm::vec3(1, 1, 1);
+    Transform spikeTransform;
+    spikeTransform.translate(spikePosition);
+    spikeTransform.rotate(spikeRotate);
+    spikeTransform.scale(spikeScale);
+    Model model_spike("assets/objects/shoot_spike.obj");
+    spikeShader->setUniformMatrix4fv("modelMatrix", 1, GL_FALSE, spikeTransform.getMatrix());
+    physxScene.createModel(model_spike.indices, model_spike.vertices, model_spike.normals, spikePosition, spikeScale, spikeRotate);
 
     glfwSetWindowUserPointer(window, &camera);
     glfwSetFramebufferSizeCallback(window, framebufferSizeCallback);
+
+    glm::vec3 curCameraPos = camera.getCameraPosition();
+    glm::vec3 prevCameraPos = glm::vec3(0,0,0);
+
+    /* ------------------------------------------- */
+    // Init HUD
+    /* ------------------------------------------- */
+
+
 
     // render loop
     // -----------
@@ -158,8 +177,6 @@ int main()
         // Character: 
         float dt = 0.08;
         mummy.pollInput(window, dt);
-        //mummy.move(glm::vec3(0.0f, 0.0f, 0.0f), dt);
-
 
         // render
         glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
@@ -188,6 +205,8 @@ int main()
         palmTreeShader->activate();
         model_palmTree.draw();
 
+        shaderManager.updateCameraValues(hdu.hduCamera);
+        hdu.drawHDU();
 
         // glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
         glfwSwapBuffers(window);

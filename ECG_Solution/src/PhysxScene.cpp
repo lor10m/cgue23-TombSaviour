@@ -82,7 +82,7 @@ void PhysxScene::createTerrain(const char* heightmapPath)
 	scene->addActor(*actor);
 }
 
-void PhysxScene::createModel(std::vector<unsigned int> indices, std::vector<glm::vec3> vertices, std::vector<glm::vec3> normals, glm::vec3 scale, glm::vec3 rotate)
+void PhysxScene::createModel(std::vector<unsigned int> indices, std::vector<glm::vec3> vertices, std::vector<glm::vec3> normals, glm::vec3 translate, glm::vec3 scale, glm::vec3 rotate)
 {	
 	PxTriangleMeshDesc meshDesc;
 
@@ -117,12 +117,13 @@ void PhysxScene::createModel(std::vector<unsigned int> indices, std::vector<glm:
 	PxMaterial* material = physics->createMaterial(0.5f, 0.5f, 0.1f);
 	PxShape* shape = physics->createShape(geometry, *material);
 
-	PxTransform transform = PxTransform(PxIdentity);
+	PxVec3 translatePx(translate.x,translate.y,translate.z);
+	PxTransform transform(translatePx, PxIdentity);
 	PxRigidActor* staticActor = physics->createRigidStatic(transform);
 	staticActor->attachShape(*shape);
 
 	// Set position and orientation of the static actor
-	//staticActor->setGlobalPose(physx::PxTransform(physx::PxIdentity));
+	staticActor->setGlobalPose(transform);
 	scene->addActor(*staticActor);
 }
 

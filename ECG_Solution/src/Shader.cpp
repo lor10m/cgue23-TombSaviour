@@ -1,5 +1,7 @@
 #include "Shader.h"
 
+Shader::Shader(){}
+
 void Shader::activate() {
     glUseProgram(shader);
     if (diffuseTexture != 0) {
@@ -150,3 +152,13 @@ void Shader::setUniformMatrix4fv(const std::string& name, int size, GLboolean tr
     activate();
     glUniformMatrix4fv(getUniformLocation(name), size, transposed, matrix);
 }
+
+
+void Shader::changeShader(std::shared_ptr<Camera> camera)
+{
+    /*use();
+    setUniform("viewProjectionMat", camera->getViewProjMat());
+    setUniform("cameraWorld", camera->getWorldPosition());
+    setUniform("brightness", GlobalManager::get().getBrightness());*/
+}
+

@@ -20,6 +20,7 @@ private:
     std::unordered_map<std::string, GLint> uniformLocationMap;
 public:
     Shader(const std::string& vertexShaderPath, const std::string& fragmentShaderPath);
+    Shader();
     ~Shader();
     GLuint compileShader(GLuint type, const std::string& path) const;
     void activate();
@@ -30,8 +31,10 @@ public:
     void setUniform1i(const std::string& name, int v);
     void setUniformMatrix4fv(const std::string& name, int size, GLboolean transposed, glm::mat4 matrix);
     void setUniformMatrix4fv(const std::string& name, int size, GLboolean transposed, GLfloat* matrix);
+    void changeShader(std::shared_ptr<Camera> camera);
     void addUniformPointLight(const std::string& name, PointLight pointLight);
     void addUniformDirectionalLight(const std::string& name, DirectionalLight directionalLight);
     void addUniformSpotLight(const std::string& name, SpotLight spotLight);
     GLint getUniformLocation(const std::string& name);
+
 };

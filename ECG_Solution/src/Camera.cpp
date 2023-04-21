@@ -3,15 +3,34 @@
 
 Camera::Camera(){}
 
-Camera::Camera(GLFWwindow* window, double fovStart, double aspect_ratioStart, double nearStart, double farStart) {
+Camera::Camera(GLFWwindow* window, double fovStart, double aspect_ratioStart, double nearStart, double farStart, bool hdu) {
 	pitch = 0;
 	yaw = -90;
 	fov = fovStart;
 	aspect_ratio = aspect_ratioStart;
 	near = nearStart;
 	far = farStart;
-	perspectiveMatrix = (glm::mat4)glm::perspective(fov, aspect_ratio, near, far);
+	if (!hdu) {
+		perspectiveMatrix = (glm::mat4)glm::perspective(fov, aspect_ratio, near, far);
+	}
+	else {
+		calculateOrthogonalProjection(window);
+	}
+
 	registerMovementCallbacks(window);
+}
+
+void Camera::calculateOrthogonalProjection(GLFWwindow* window) {
+	int width, height;
+	glfwGetWindowSize(window, &width, &height);
+	glMatrixMode(GL_PROJECTION);
+	glLoadIdentity();
+	glOrtho(0, width, 0, height, -1, 1);
+	GLfloat projectionMatrix[16];
+	glGetFloatv(GL_PROJECTION_MATRIX, projectionMatrix);
+	for (int i = 0; i < 16; i++) {
+		projectionMatrixHDU[i % 4][i / 4] = projectionMatrix[i];			// correct??
+	}
 }
 
 glm::mat4 Camera::getCameraTransform(glm::vec3 g, glm::vec3 e, glm::vec3 t) {
@@ -120,6 +139,105 @@ void Camera::pollMousePosition(GLFWwindow* window) { // Polling Mouse Cursour
 	yaw = glm::mod(yaw, 360.0);
 }
 
+/*
+camera center try => not well working
+void Camera::pollMousePosition(GLFWwindow* window) { // Polling Mouse Cursour
+
+	double xpos, ypos;
+	glfwGetCursorPos(window, &xpos, &ypos);
+
+	// Check if cursor is outside window boundaries (stop moving/viewing movement)
+	int width, height;
+	glfwGetWindowSize(window, &width, &height);
+	if (xpos < 0 || xpos >= width || ypos < 0 || ypos >= height) {
+		return;
+	}
+
+	if (firstMouse) {
+		lastX = xpos;
+		lastY = ypos;
+		firstMouse = false;
+	}
+
+	// Calculate center of window
+	double centerX = width / 2.0;
+	double centerY = height / 2.0;
+
+	// distance of cursor from center of window
+	double dx = xpos - centerX;
+	double dy = ypos - centerY;
+
+	// maximum distance from center of window
+	double maxDist = glm::min(centerX, centerY);
+
+	// view speed based on distance from center of the window
+	double dist = sqrt(dx * dx + dy * dy);
+	double viewSpeedAdjusted = viewSpeed;
+	if (dist > maxDist) {
+		viewSpeedAdjusted = glm::min(viewSpeed * 15, viewSpeedAdjusted *= (1.0 + (dist - maxDist) / maxDist));    //adjust this?
+		//std::cout << viewSpeedAdjusted;
+	}
+
+	double deltaX = (xpos - lastX) * viewSpeedAdjusted;
+	double deltaY = (ypos - lastY) * viewSpeedAdjusted;
+
+	pitch -= deltaY;
+	pitch = glm::clamp(pitch, -89.999, 89.999);
+	yaw += deltaX;
+
+	if (yaw > 360.0) {
+		yaw -= 360.0;
+	}
+	else if (yaw < 0.0) {
+		yaw += 360.0;
+	}
+
+	double radPitch = pitch * M_PI / 180.0;
+	double radYaw = yaw * M_PI / 180.0;
+
+	cameraFront = normalize(glm::vec3(cos(radPitch) * cos(radYaw), sin(radPitch), cos(radPitch) * sin(radYaw)));
+
+	lastX = xpos;
+	lastY = ypos;
+
+	// If cursor is near the edge of the window => adjust yaw + pitch
+	double edgeDist = glm::min(200.0, width * 0.075);       // adjust the edge here
+	double pitchAdjustment = 0.0;
+	double yawAdjustment = 0.0;
+
+	// Check if cursor is close to the edge
+	edgeDist = glm::min(200.0, width * 0.075); // adjust the edge distance here
+	if (xpos < edgeDist || xpos > width - edgeDist || ypos < edgeDist || ypos > height - edgeDist) {
+		// Set cursor position to the center of the window
+		glfwSetCursorPos(window, centerX, centerY);
+
+		// Calculate the change in cursor position from the center of the window
+		double deltaX = (xpos - centerX) * viewSpeedAdjusted;
+		double deltaY = (ypos - centerY) * viewSpeedAdjusted;
+
+		pitch -= deltaY;
+		pitch = glm::clamp(pitch, -89.999, 89.999);
+		yaw += deltaX;
+
+		if (yaw > 360.0) {
+			yaw -= 360.0;
+		}
+		else if (yaw < 0.0) {
+			yaw += 360.0;
+		}
+
+		radPitch = pitch * M_PI / 180.0;
+		radYaw = yaw * M_PI / 180.0;
+
+		cameraFront = normalize(glm::vec3(cos(radPitch) * cos(radYaw), sin(radPitch), cos(radPitch) * sin(radYaw)));
+
+		// Update lastX and lastY to the center of the window
+		lastX = centerX;
+		lastY = centerY;
+	}
+}
+*/
+
 // get back to start position with Scrolling
 void Camera::scrollCallback(GLFWwindow* window, double xoffset, double yoffset) {
 	cameraPosition = { 0.0f, 0.0f, 0.0f };
@@ -157,6 +275,13 @@ glm::vec3 Camera::getCameraPosition()
 glm::vec2 Camera::getRotation()
 {
 	return glm::vec2(yaw, pitch);
+}
+
+glm::vec3 Camera::getRotationDirection() {
+	double radPitch = pitch * M_PI / 180.0;
+	double radYaw = yaw * M_PI / 180.0;
+	glm::vec3 rotationDirection = { cos(radPitch) * cos(radYaw), sin(radPitch), cos(radPitch) * sin(radYaw) };
+	return rotationDirection;
 }
 
 glm::vec3 Camera::getDirection()

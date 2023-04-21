@@ -16,17 +16,21 @@ private:
     double lastX, lastY;
     bool firstMouse = true;
 
-    double fov, aspect_ratio, near, far = 0.0;
+    glm::mat4 projectionMatrixHDU;
 
 public:
+    double fov, aspect_ratio, near, far = 0.0;
     double viewSpeed = 0.5;
     glm::vec3 cameraPosition{ 0.0f, 30.0f, 0.0f };
     glm::vec3 cameraFront{ 0.0f, 0.0f, -1.0f};      //if not negative WASD would start in opposite directions
     glm::vec3 right{};
+    bool resetCursor = false;
 
     Camera::Camera();
-    Camera(GLFWwindow* window, double fov, double aspect_ratio, double near, double far);
+    Camera(GLFWwindow* window, double fov, double aspect_ratio, double near, double far, bool hdu);
     
+    void calculateOrthogonalProjection(GLFWwindow* window);
+
     static glm::mat4 getCameraTransform(glm::vec3 g, glm::vec3 e, glm::vec3 t);
     glm::mat4 getFirstPersonCameraTransform();
     glm::mat4 getTransformMatrix();
@@ -38,6 +42,7 @@ public:
     void setCameraPosition(glm::vec3 newPosition);
 
     glm::vec2 Camera::getRotation();
+    glm::vec3 getRotationDirection();
     glm::vec3 Camera::getDirection();
     glm::vec3 Camera::getCameraPosition();
 };

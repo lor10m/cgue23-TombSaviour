@@ -1,6 +1,8 @@
 #include "Model.h"
 #include <postprocess.h>
 
+Model::Model(){}
+
 Model::Model(string path)
 {
 	vertexCount = 0;
