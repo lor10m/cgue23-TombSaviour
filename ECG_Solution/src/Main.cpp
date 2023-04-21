@@ -1,206 +1,128 @@
-///*
-//* Copyright 2021 Vienna University of Technology.
-//* Institute of Computer Graphics and Algorithms.
-//* This file is part of the ECG Lab Framework and must not be redistributed.
-//*/
-//#pragma once
-//
-//#define _USE_MATH_DEFINES
-//#include <cmath>
-//#include <fstream>
-//#include <sstream>
-//#include <glm/gtc/type_ptr.hpp>
-//#include "Utils.h"
-//#include "Callbacks.h"
-//#include "Renderer.h"
-//#include "Shader.h"
-//#include "Transform.h"
-//#include "Camera.h"
-//#include "Drawables/Sphere.h"
-//#include "Drawables/Cylinder.h"
-//#include "Drawables/Cube.h"
-//#include "Drawables/Torus.h"
-//#include "Vertex.h"
-//#include "Lights/PointLight.h"
-//#include "Lights/DirectionalLight.h"
-//#include "ShaderManager.h"
-//#include "Lights/SpotLight.h"
-//#include "Drawables/PhysxObject.h"
-//#include "GlobalVariables.h"
-//#include "Drawables/Model.h"
-//
-///* --------------------------------------------- */
-//// Prototypes
-///* --------------------------------------------- */
-//
-///* --------------------------------------------- */
-//// Global variables
-///* --------------------------------------------- */
-//
-///* --------------------------------------------- */
-//// Main
-///* --------------------------------------------- */
-//
-//int main(int argc, char** argv) {
-//    /* --------------------------------------------- */
-//    // Load settings.ini
-//    /* --------------------------------------------- */
-//
-//    
-//    // init reader for ini files
-//    INIReader reader("assets/settings.ini");
-//
-//    // load values from ini file
-//    // first param: section [window], second param: property name, third param: default value
-//    int window_width = reader.GetInteger("window", "width", 800);
-//    int window_height = reader.GetInteger("window", "height", 800);
-//    int refresh_rate = reader.GetInteger("window", "refresh_rate", 60);
-//    std::string window_title = reader.Get("window", "title", "Tomb Saviour");
-//
-//    double camera_fov = reader.GetReal("camera", "fov", 60) * M_PI / 180.0;
-//    double camera_near = reader.GetReal("camera", "near", 0.1);
-//    double camera_far = reader.GetReal("camera", "far", 100);
-//
-//    int brightnessIdx = reader.GetReal("global", "brightnessIdx", 10);
-//    setIllumination(brightnessIdx);
-//    std::cout << "Illumination: " << getIlluminationMultiplier() << "\n";
-//
-//    /* --------------------------------------------- */
-//    // Init framework
-//    /* --------------------------------------------- */
-//
-//    if (!glfwInit()) {
-//        EXIT_WITH_ERROR("Failed to init GLFW");
-//    }
-//    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
-//    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 5);
-//    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-//    // set refresh rate:
-//    glfwWindowHint(GLFW_REFRESH_RATE, refresh_rate);
-//
-//#if _DEBUG
-//    glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, GL_TRUE);
-//#endif
-//
-//    GLFWwindow* window = glfwCreateWindow(window_width, window_height, window_title.c_str(), nullptr, nullptr);
-//    if (!window) {
-//        EXIT_WITH_ERROR("Failed to init window");
-//    }
-//    glfwMakeContextCurrent(window);
-//    glfwSwapInterval(1);
-//    glEnable(GL_DEPTH_TEST);
-//    glEnable(GL_CULL_FACE);
-//
-//    glewExperimental = true;
-//    if (GLEW_OK != glewInit()) {
-//        EXIT_WITH_ERROR("Failed to init GLEW");
-//    }
-//
-//    glfwSetKeyCallback(window, keyCallback);
-//#if _DEBUG
-//    // Register your callback function.
-//    glDebugMessageCallback(debugCallback, nullptr);
-//    // Enable synchronous callback. This ensures that your callback function is called
-//    // right after an error has occurred.
-//    glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
-//#endif
-//
-//    if (!initFramework()) {
-//        EXIT_WITH_ERROR("Failed to init framework");
-//    }
-//
-//    /* --------------------------------------------- */
-//    // Initialize scene and draw loop
-//    /* --------------------------------------------- */
-//    {
-//        glClearColor(1, 1, 1, 1);
-//
-//        double lastTime = glfwGetTime();
-//        int nbFrames = 0;
-//        double AvgTimeBetweenFrames, oneUnit, velocity = 0.0;
-//
-//        Camera camera(window, camera_fov, (double)window_width / (double)window_height, camera_near, camera_far);
-//
-//        Renderer renderer;
-//        //glm::mat4 viewMatrix{};
-//
-//        //Cube cube(1.5f, 1.5f, 1.5f);
-//        //PhysxObject box = PhysxObject(glm::vec3(0.0, 0.0, 0.0));
-//        //box.getPosition();
-//        //Sphere sphere(64, 32, 1.0f);
-//        //Cylinder cylinder(31, 1.3f, 1.0f);
-//
-//        PointLight pointLight1({ 0, 0, 0 }, { 1, 1, 1 }, { 1.0f, 0.4f, 0.1f });
-//        DirectionalLight directionalLight1({ 0, -1, -1 }, { 0.8f, 0.8f, 0.8f });
-//
-//        ShaderManager shaderManager;
-//        shaderManager.addPointLight(pointLight1);
-//        shaderManager.addDirectionalLight(directionalLight1);
-//
-//        Shader* cubeShader = shaderManager.createPhongShader("assets/textures/wood_texture.dds", "assets/textures/wood_texture_specular.dds", 0.1f, 0.7f, 0.1f, 2);
-//        //Shader* cylinderShader = shaderManager.createPhongShader("assets/textures/tiles_diffuse.dds", "assets/textures/tiles_specular.dds", 0.1f, 0.7f, 0.3f, 8);
-//        //Shader* sphereShader = shaderManager.createPhongShader("assets/textures/tiles_diffuse.dds", "assets/textures/tiles_specular.dds", 0.1f, 0.7f, 0.3f, 8);
-//
-//        Transform cubeTransform;
-//        cubeTransform.translate(0, 0, 0);
-//        //glm::vec3 pos = box.getPosition();
-//        //std::cout << "Box position: X " << pos.x << "Y: " << pos.y << "Z: " << pos.z;
-//        //cubeTransform.translate(pos.x, pos.y, pos.z);
-//        Transform sphereTransform;
-//        sphereTransform.translate(0, 1.4f, 0);
-//        Transform cylinderTransform;
-//        cylinderTransform.translate(1.4f, -1.0f, 0);
-//
-//        cubeShader->setUniformMatrix4fv("modelMatrix", 1, GL_FALSE, cubeTransform.getMatrix());
-//        //sphereShader->setUniformMatrix4fv("modelMatrix", 1, GL_FALSE, sphereTransform.getMatrix());
-//        //cylinderShader->setUniformMatrix4fv("modelMatrix", 1, GL_FALSE, cylinderTransform.getMatrix());
-//
-//        // adjust wndow size callbacks
-//        glfwSetWindowUserPointer(window, &camera);
-//        glfwSetFramebufferSizeCallback(window, framebufferSizeCallback);
-//
-//        Model model_testObject("assets/objects/cube.obj");
-//
-//        while (!glfwWindowShouldClose(window)) {
-//            camera.pollInput(window);
-//            camera.pollMousePosition(window);
-//            renderer.clear();
-//            glfwPollEvents();
-//
-//            //camera.cameraSpeed = velocity;   // not sure if this makes sense because it's always 1
-//
-//            shaderManager.updateCameraValues(camera);
-//
-//            //std::cout << camera.cameraFront.x << camera.cameraFront.y << camera.cameraFront.z;
-//            //renderer.renderDrawable(*cubeShader, cube);
-//            cubeShader->activate();
-//            //box.draw();
-//
-//            model_testObject.draw();
-//
-//            //renderer.renderDrawable(*sphereShader, sphere);
-//            //renderer.renderDrawable(*cylinderShader, cylinder);
-//
-//            glfwSwapBuffers(window);
-//            /* Gitlab CI automatic testing */
-//            if (argc > 1 && std::string(argv[1]) == "--run_headless") {
-//                saveScreenshot("screenshot", window_width, window_height);
-//                break;
-//            }
-//        }
-//    }
-//
-//    /* --------------------------------------------- */
-//    // Destroy framework
-//    /* --------------------------------------------- */
-//
-//    destroyFramework();
-//
-//    /* --------------------------------------------- */
-//    // Destroy context and exit
-//    /* --------------------------------------------- */
-//
-//    glfwTerminate();
-//
-//    return EXIT_SUCCESS;
-//}
+#include "Utils/Utils.h"
+#include "Utils/stb_image.h"
+#include <iostream>
+#include <vector>
+#include "PxPhysicsAPI.h"
+#include "Camera.h"
+#include "Terrain.h"
+#include "PhysxScene.h"
+#include "Character.h"
+#include "Enemy.h"
+
+#include "Drawables/Model.h"
+#include "Lights/PointLight.h"
+#include "Lights/DirectionalLight.h"
+#include "ShaderManager.h"
+#include "Utils/Transform.h"
+#include "Utils/Callbacks.h"
+#include "Objects.h"
+
+using namespace physx;
+
+double camera_fov = 60 * 3.141592 / 180.0;
+double camera_near = 0.1;
+double camera_far = 1000;
+
+bool polygonMode = false;
+
+
+int main()
+{
+	// glfw: initialize and configure
+	// ------------------------------
+	if (!glfwInit()) {
+		EXIT_WITH_ERROR("Failed to init GLFW");
+	}
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 5);
+	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+
+#if _DEBUG
+	glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, GL_TRUE);
+#endif
+
+	// glfw window creation
+	// --------------------
+	INIReader reader("assets/settings.ini");
+	GLFWwindow* window = glfwCreateWindow(reader.GetInteger("window", "width", 800), ("window", "height", 800), "LearnOpenGL: Terrain GPU", nullptr, nullptr);
+	if (window == NULL)
+	{
+		std::cout << "Failed to create GLFW window" << std::endl;
+		glfwTerminate();
+		return -1;
+	}
+	glfwMakeContextCurrent(window);
+	glfwSetKeyCallback(window, keyCallback);
+
+	glewExperimental = true;
+	if (GLEW_OK != glewInit()) {
+		EXIT_WITH_ERROR("Failed to init GLEW");
+	}
+
+	if (!initFramework()) {
+		EXIT_WITH_ERROR("Failed to init framework");
+	}
+
+	glEnable(GL_DEPTH_TEST);
+
+	if (polygonMode) {
+		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+		glDisable(GL_CULL_FACE);
+	}
+
+    Camera camera(window, camera_fov, (double)800 / (double)800, camera_near, camera_far);
+    
+    // build and compile our shader program
+    // ------------------------------------
+	
+	// OBJECTS
+	PhysxScene physxScene;
+	Objects objects(&camera, &physxScene);
+
+    glfwSetWindowUserPointer(window, &camera);
+    glfwSetFramebufferSizeCallback(window, framebufferSizeCallback);
+
+
+	// -----------
+	// render loop
+	// -----------
+	while (!glfwWindowShouldClose(window))
+	{
+		float currentFrame = glfwGetTime();
+		float lastFrame = 0.0f;
+		float deltaTime = currentFrame - lastFrame;
+		lastFrame = currentFrame;
+
+		camera.pollMousePosition(window);
+
+		// render
+		glClearColor(0.5f, 0.5f, 0.5f, 1.0f);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+		// render objects
+		objects.render(window, deltaTime);
+
+        // glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
+        glfwSwapBuffers(window);
+        glfwPollEvents();
+
+    }
+
+
+	objects.deleteObjects();
+
+	glfwTerminate();
+	return 0;
+}
+
+glm::mat4 aiMatrix4x4ToGlm(aiMatrix4x4 from)
+{
+	glm::mat4 to;
+
+	to[0][0] = (GLfloat)from.a1; to[0][1] = (GLfloat)from.b1;  to[0][2] = (GLfloat)from.c1; to[0][3] = (GLfloat)from.d1;
+	to[1][0] = (GLfloat)from.a2; to[1][1] = (GLfloat)from.b2;  to[1][2] = (GLfloat)from.c2; to[1][3] = (GLfloat)from.d2;
+	to[2][0] = (GLfloat)from.a3; to[2][1] = (GLfloat)from.b3;  to[2][2] = (GLfloat)from.c3; to[2][3] = (GLfloat)from.d3;
+	to[3][0] = (GLfloat)from.a4; to[3][1] = (GLfloat)from.b4;  to[3][2] = (GLfloat)from.c4; to[3][3] = (GLfloat)from.d4;
+
+	return to;
+}

@@ -1,8 +1,10 @@
 #version 450 core
 
-uniform mat4 transformMatrix;
+uniform mat4 viewMatrix;
+uniform mat4 modelMatrix;
 in vec3 position;
 
 void main() {
-    gl_Position = transformMatrix * vec4(position, 1.0);
+    vec4 vertexPos = modelMatrix * vec4(position, 1.0);
+    gl_Position = viewMatrix * vertexPos;
 }

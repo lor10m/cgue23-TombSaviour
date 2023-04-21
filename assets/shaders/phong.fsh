@@ -87,9 +87,8 @@ void main() {
         specularIntensity += calculateSpecularFromSpotLight(spotLight[i]);
     }
 
-    //color = texture(diffuseTexture, fragTexCoordinate) * vec4(lightIntensity, 1.0f) + texture(specularTexture, fragTexCoordinate) * vec4(specularIntensity, 1.0f);
+    color = texture(diffuseTexture, fragTexCoordinate) * vec4(lightIntensity, 1.0f) + texture(specularTexture, fragTexCoordinate) * vec4(specularIntensity, 1.0f);
 
-    color = texture(diffuseTexture, fragTexCoordinate);
 }
 
 vec3 calculateDiffuseFromDirectionalLight(DirectionalLight directionalLight) {

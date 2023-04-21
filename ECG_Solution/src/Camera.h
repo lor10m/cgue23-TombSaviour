@@ -1,7 +1,7 @@
 #pragma once
 
 #define _USE_MATH_DEFINES
-#include "Utils.h"
+#include "Utils/Utils.h"
 #include <cmath>
 
 class Camera {

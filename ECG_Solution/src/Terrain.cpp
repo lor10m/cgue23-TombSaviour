@@ -1,9 +1,12 @@
 #include "Terrain.h"
 
-Terrain::Terrain(TerrainShader tessHeightMapShader, const char* texturePath, const char* heightmapPath) {
+Terrain::Terrain(){}
+
+Terrain::Terrain(Shader* tessHeightMapShader, const char* texturePath, const char* heightmapPath) {
 
 	shader = tessHeightMapShader;
 
+	shader->activate();
 	surfaceTexture.genTexture(texturePath);
 	heightmapTexture.genTexture(heightmapPath);
 
@@ -66,13 +69,13 @@ Terrain::Terrain(TerrainShader tessHeightMapShader, const char* texturePath, con
 
 void Terrain::render() {
 
-	shader.use();
+	shader->activate();
 
 	heightmapTexture.bind(0);
-	shader.setInt("heightMap", 0);
+	shader->setUniform1i("heightMap", 0);
 
 	surfaceTexture.bind(1);
-	shader.setInt("surfaceTexture", 1);
+	shader->setUniform1i("surfaceTexture", 1);
 
 	glBindVertexArray(terrainVAO);
 	glDrawArrays(GL_PATCHES, 0, NUM_PATCH_PTS * rez * rez);
