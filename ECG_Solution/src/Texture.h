@@ -1,7 +1,7 @@
 #pragma once
 
-#include "Utils.h"
-#include "stb_image.h"
+#include "Utils/Utils.h"
+#include "Utils/stb_image.h"
 
 class Texture 
 {

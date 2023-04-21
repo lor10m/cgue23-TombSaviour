@@ -1,6 +1,9 @@
+#pragma once
 
 #include <PxPhysicsAPI.h>
 #include "Camera.h"
+#include "PhysxScene.h"
+
 using namespace physx;
 
 
@@ -15,10 +18,11 @@ public:
 	glm::vec3 direction;
 	glm::vec3 up = glm::vec3(0, 1, 0);
 	double mummyHeight;
-	float  charSpeed = 4;
+	float  charSpeed = 2;
 	bool superSpeed = false;
 
-	Character(Camera* camera, PxController* pxChar);
+	Character() {};
+	Character(Camera* camera, PhysxScene* physxScene, glm::vec3 position);
 	glm::vec3 getPosition();
 
 	void move(glm::vec3 dir, float dt);

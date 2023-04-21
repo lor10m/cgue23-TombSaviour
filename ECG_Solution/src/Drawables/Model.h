@@ -1,35 +1,28 @@
 #pragma once
 
-#include "..\Utils.h"
+#include "../Utils/Utils.h"
 #include "../Texture.h"
 #include "../Shader.h"
 #include <cmath>
-#include <Importer.hpp>
 #include <assimp/postprocess.h>
-#include <mesh.h>
 #include <vector>
-#include <scene.h>
 #include <array>
 #include <glm/gtx/quaternion.hpp>
+#include <assimp/Importer.hpp>
+#include <assimp/mesh.h>
+#include <assimp/material.h>
+#include <assimp/anim.h>
+#include <assimp/scene.h>
+
 
 struct BoneInfo
 {
-	int id;/*id is index in finalBoneMatrices*/
-	glm::mat4 offset; /*offset matrix transforms vertex from model space to bone space*/
-	glm::mat4 finalTransformation;/* = glm::mat4(0.0f);*/
+	int id;
+	glm::mat4 offset;
+	glm::mat4 finalTransformation;
 };
 
-struct BoneInfo2
-{
-	glm::mat4 offset; /*offset matrix transforms vertex from model space to bone space*/
-	glm::mat4 finalTranformation;
-
-	BoneInfo2(const glm::mat4 offsetMatrix) {
-		offset = offsetMatrix;
-		finalTranformation = glm::mat4(0.0f); /*glm::zero<glm::mat4>();*/
-	}
-};
-
+//TODO use existing Vertex struct
 struct Vertex
 {
 	glm::vec3 position;
@@ -49,8 +42,6 @@ struct BoneData
 				return;
 			}
 		}
-
-		//assert(0);
 	}
 };
 
@@ -83,24 +74,22 @@ class Model
 {
 private:
 
+
 	Assimp::Importer importer;
 	const aiScene* scene = NULL;
 
+	unsigned int boneCounter = 0;
 	unsigned int numNodes;
+	unsigned int numVertices;
+	unsigned int numIndices;
 
 	std::vector<Mesh> modelMeshes;
-	int numVertices;
-	int numIndices;
-
-	std::vector<BoneInfo2> boneInfo;
 	std::map<string, BoneInfo> boneInfoMap;
-	int boneCounter = 0;
-
 	std::vector<Texture> textures;
-
 	aiMatrix4x4 globalInverseTransform;
+	std::vector<glm::mat4> finalBoneMatrices;
 
-	void generateModel(string path);
+
 	void processNode(aiNode* node);
 	void processMesh(aiMesh* mesh, unsigned int meshIndex);
 	void processBones(aiMesh* mesh, unsigned int meshIndex);
@@ -121,36 +110,21 @@ private:
 
 	glm::mat4 convertAiMatrixToGlm(const aiMatrix4x4& from);
 
-	std::map<string, glm::mat4> lastTransformation;
-	std::map<string, glm::mat4> currTransformation;
-
 
 public:
 
-	Model(string path);
-	
-	void draw(Shader* shader);
-
-	void getBoneTransforms(float timeInSeconds, glm::mat4 globalTransform, std::vector<glm::mat4>& transforms);
-
-	float getAnimationDuration();
-	float getTicksPerSecond();
-
 	//indices, vertices and normals from all meshes
 	std::vector<unsigned int> indices;
-	std::vector<glm::vec3> vertices;
 	std::vector<glm::vec3> normals;
+	std::vector<glm::vec3> vertices;
 
-	std::vector<glm::mat4> finalBoneMatrices;
+	glm::vec3 physxTransform = glm::vec3(0.0f);
+	glm::mat4 physxRotate = glm::mat4(1.0f);
 
-	aiNode* getRootBoneNode(aiNode* node);
-
-	glm::mat4 tr = glm::mat4(1.0f);
-	glm::mat4 xu = glm::mat4(1.0f);
-
-	float at = 0.0f;
-
-	int ajaj = 0;
-
-	glm::mat4 yh;
+	Model();
+	void generateModel(string path);
+	void draw(Shader* shader);
+	void getBoneTransforms(float timeInSeconds, glm::mat4 globalTransform, std::vector<glm::mat4>& transforms);
+	float getAnimationDuration();
+	float getTicksPerSecond();
 };

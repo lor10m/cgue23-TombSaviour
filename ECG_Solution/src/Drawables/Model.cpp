@@ -7,12 +7,8 @@
 #define TEX_COORD_LOCATION   2
 #define BONE_ID_LOCATION     3
 #define BONE_WEIGHT_LOCATION 4
-//TODO
 
-
-Model::Model(string path)
-{
-	generateModel(path);
+Model::Model() {
 }
 
 void Model::generateModel(string path)
@@ -56,9 +52,6 @@ void Model::generateModel(string path)
 
 void Model::processNode(aiNode* node)
 {
-	lastTransformation[node->mName.data] = glm::mat4(1.0f);
-	currTransformation[node->mName.data] = glm::mat4(1.0f);
-
 	for (unsigned int i = 0; i < node->mNumMeshes; i++) {
 		processMesh(scene->mMeshes[node->mMeshes[i]], i);
 	}
@@ -119,13 +112,8 @@ void Model::initMaterials(aiMesh* mesh, unsigned int meshIndex)
 {
 	aiMaterial* material = scene->mMaterials[mesh->mMaterialIndex];
 
-
 	loadTextures(meshIndex, material, aiTextureType_DIFFUSE, "diffuseTexture");
 	loadTextures(meshIndex, material, aiTextureType_SPECULAR, "specularTexture");
-
-	//for(unsigned int i = 0; i < aiTextureType_UNKNOWN; ++i) {
-	//	loadTextures(meshIndex, material, static_cast<aiTextureType>(i), ); //TODO maybe only diffuse, specular
-	//}
 }
 
 void Model::loadTextures(unsigned int meshIndex, aiMaterial* material, enum aiTextureType type, string typeName)
@@ -149,11 +137,11 @@ void Model::loadTextures(unsigned int meshIndex, aiMaterial* material, enum aiTe
 		material->GetTexture(type, i, &str);
 		bool alreadyLoaded = false;
 		std::string x = "assets/" + std::string(str.C_Str());
-		std::cout << x << std::endl;
 
 		for (unsigned int j = 0; j < textures.size(); j++) {
 			if (textures[j].path == ("assets/" + std::string(str.C_Str()))) {
 				modelMeshes[meshIndex].textures.push_back(textures[j]);
+				textures.push_back(textures[j]);
 				alreadyLoaded = true;
 				break;
 			}
@@ -196,12 +184,15 @@ void Model::processBones(aiMesh* mesh, unsigned int meshIndex)
 			float weight = weights[j].mWeight;
 			int globalVertexID = modelMeshes[meshIndex].baseVertexIndex + vertexId;
 			modelMeshes[meshIndex].boneData[globalVertexID].addBoneData(boneID, weight);
+
+			modelMeshes[meshIndex].boneData[globalVertexID].addBoneData(boneInfoMap[boneName].id, weight);
 		}
 	}
 }
 
 void Model::getBoneTransforms(float timeInSeconds, glm::mat4 globalTransform, std::vector<glm::mat4>& transforms)
 {
+
 	transforms.resize(finalBoneMatrices.size());
 
 	if (scene->mNumAnimations > 0) {
@@ -209,7 +200,6 @@ void Model::getBoneTransforms(float timeInSeconds, glm::mat4 globalTransform, st
 		float timeInTicks = timeInSeconds * ticksPerSecond;
 		float animationTimeTicks = fmod(timeInTicks, scene->mAnimations[0]->mDuration);
 
-		std::cout << scene->mRootNode->mChildren[1]->mName.data << std::endl;
 		readNodeHierachy(animationTimeTicks, scene->mRootNode, glm::mat4(1.0f));
 
 		for (unsigned int i = 0; i < finalBoneMatrices.size(); i++) {
@@ -222,10 +212,6 @@ void Model::getBoneTransforms(float timeInSeconds, glm::mat4 globalTransform, st
 		}
 	}
 
-	//aiNode* n = getRootBoneNode(scene->mRootNode);
-	//std::cout << "rootbonenodename: " << getRootBoneNode(scene->mRootNode)->mName.data << std::endl;
-	//std::cout << scene->mRootNode->mChildren[0]->mName.data << std::endl;
-
 }
 
 void Model::readNodeHierachy(float animationTimeTicks, const aiNode* node, glm::mat4& parentTransform)
@@ -235,26 +221,20 @@ void Model::readNodeHierachy(float animationTimeTicks, const aiNode* node, glm::
 
 	const aiAnimation* animation = scene->mAnimations[0];
 	const aiNodeAnim* nodeAnim = findNodeAnim(animation, nodeName);
+
 	if (nodeAnim) {
 		glm::mat4 scale = CalcInterpolatedScaling(animationTimeTicks, nodeAnim);
 		glm::mat4 rotation = CalcInterpolatedRotation(animationTimeTicks, nodeAnim);
 		glm::mat4 translation = CalcInterpolatedPosition(animationTimeTicks, nodeAnim);
 		nodeTransform = translation * rotation * scale;
-
-		//Add last Position to Animation if animation restarts(But only to the first node that has meshes e.g. the root node of the first mesh). TODO maybe?
-		if (at > animationTimeTicks) {
-			at = 0.0f;
-			lastTransformation[nodeName] *= currTransformation[nodeName];
-		}
-
-		parentTransform *= lastTransformation[nodeName];
-		currTransformation[nodeName] = nodeTransform * boneInfoMap[nodeName].offset;
-
-		at = animationTimeTicks;
 	}
 
-
 	glm::mat4 globalTransform = parentTransform * nodeTransform;
+
+	if (node == scene->mRootNode->mChildren[1]) {
+		glm::mat4 combined = glm::translate(glm::mat4(1.0f), physxTransform) * physxRotate;
+		globalTransform = parentTransform * combined;
+	}
 
 	if (boneInfoMap.find(nodeName) != boneInfoMap.end()) {
 		int index = boneInfoMap[nodeName].id;
@@ -265,6 +245,7 @@ void Model::readNodeHierachy(float animationTimeTicks, const aiNode* node, glm::
 	for (unsigned int i = 0; i < node->mNumChildren; i++) {
 		readNodeHierachy(animationTimeTicks, node->mChildren[i], globalTransform);
 	}
+
 }
 
 const aiNodeAnim* Model::findNodeAnim(const aiAnimation* animation, const string& nodeName)
@@ -290,8 +271,6 @@ glm::mat4 Model::CalcInterpolatedScaling(float AnimationTime, const aiNodeAnim* 
 
 	unsigned int ScalingIndex = FindScaling(AnimationTime, pNodeAnim);
 	unsigned int NextScalingIndex = ScalingIndex + 1;
-	//std::cout << pNodeAnim->mNumScalingKeys << std::endl;
-	//std::cout << ScalingIndex << " " << NextScalingIndex << std::endl,
 	assert(NextScalingIndex < pNodeAnim->mNumScalingKeys);
 
 	float t1 = (float)pNodeAnim->mScalingKeys[ScalingIndex].mTime;
@@ -314,7 +293,6 @@ glm::mat4 Model::CalcInterpolatedRotation(float AnimationTime, const aiNodeAnim*
 {
 	// we need at least two values to interpolate...
 	if (pNodeAnim->mNumRotationKeys == 1) {
-		std::cout << "todo rotation" << std::endl;
 		return glm::mat4(1.0f);
 	}
 
@@ -342,7 +320,6 @@ glm::mat4 Model::CalcInterpolatedPosition(float AnimationTime, const aiNodeAnim*
 {
 	// we need at least two values to interpolate...
 	if (pNodeAnim->mNumPositionKeys == 1) {
-		std::cout << "todo posi" << std::endl;
 		return glm::mat4(1.0f);
 	}
 
@@ -407,26 +384,19 @@ unsigned int Model::FindPosition(float AnimationTime, const aiNodeAnim* pNodeAni
 
 void Model::draw(Shader* shader)
 {
-
 	for (unsigned int i = 0; i < modelMeshes.size(); i++) {
-		int diffuseNr = 1;
-		int normalNr = 1;
-		int specularNr = 1;
+
 		for (unsigned int i = 0; i < textures.size(); i++) {
+
 			std::string name = textures[i].type;
+
 			int x = 0;
-			if (name == "specularTexture") { x = 1; }
+			if (name == "specularTexture") x = 1;
+
 			glActiveTexture(GL_TEXTURE0 + x);
 			glBindTexture(GL_TEXTURE_2D, textures[i].handle);
 			shader->setUniform1i(name, x);
-		}
 
-		if (modelMeshes[i].ambient != -1) {
-			shader->setUniform1f("ka", modelMeshes[i].ambient);
-			shader->setUniform1f("kd", modelMeshes[i].diffuse);
-			shader->setUniform1f("ks", modelMeshes[i].specular);
-			shader->setUniform1i("alpha", modelMeshes[i].alpha);
-			//std::cout << modelMeshes[i].ambient << " " << modelMeshes[i].diffuse << " " << modelMeshes[i].specular << " " << modelMeshes[i].alpha << std::endl;
 		}
 
 		glBindVertexArray(modelMeshes[i].vao);
@@ -472,9 +442,6 @@ void Model::initBuffer()
 		glEnableVertexAttribArray(0); //0 = position of VA
 		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)0); //configure it so that opengl knows how to read it
 
-		//glGenBuffers(1, &texCoordsVBO);
-		//glBindBuffer(GL_ARRAY_BUFFER, texCoordsVBO);
-		//glBufferData(GL_ARRAY_BUFFER, texCoords.size() * sizeof(glm::vec2), texCoords.data(), GL_STATIC_DRAW);
 		glEnableVertexAttribArray(TEX_COORD_LOCATION);
 		glVertexAttribPointer(TEX_COORD_LOCATION, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)sizeof(glm::vec3));
 
@@ -505,27 +472,4 @@ void Model::initBuffer()
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 	}
 
-}
-
-aiNode* Model::getRootBoneNode(aiNode* node)
-{
-	// Check if this node has an associated bone.
-	if (node->mNumMeshes > 0 && node->mMeshes[0] >= 0) {
-		aiMesh* mesh = scene->mMeshes[node->mMeshes[0]];
-		if (mesh->mNumBones > 0) {
-			return node;
-		}
-	}
-
-	// Recursively search for the first bone node in the subtree.
-	for (unsigned int i = 0; i < node->mNumChildren; ++i) {
-		aiNode* childNode = node->mChildren[i];
-		aiNode* boneNode = getRootBoneNode(childNode);
-		if (boneNode != nullptr) {
-			return boneNode;
-		}
-	}
-
-	// No bone node found in the subtree.
-	return nullptr;
 }
