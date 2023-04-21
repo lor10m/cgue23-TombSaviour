@@ -1,10 +1,22 @@
 #include "Character.h"
 
 
-Character::Character(Camera* playerCamera2, PxController* pxChar2, GLFWwindow* window)
+Character::Character(Camera* playerCamera2, PhysxScene* physxScene, glm::vec3 position)
 {
+	PxControllerManager* gManager = PxCreateControllerManager(*physxScene->scene);
+	PxCapsuleControllerDesc cDesc;
+	cDesc.position = PxExtendedVec3{ position.x, position.y, position.z };
+	cDesc.contactOffset = 0.05f;
+	cDesc.height = 3.0f;
+	cDesc.radius = 1.0f;
+	cDesc.stepOffset = 0.2f;
+	cDesc.slopeLimit = 0.2f;
+	cDesc.upDirection = PxVec3(0.0f, 1.0f, 0.0f);
+	cDesc.material = physxScene->material;
+	pxChar = gManager->createController(cDesc);
+	pxChar->getActor()->setName("mummy");
+
 	playerCamera = playerCamera2;
-	pxChar = pxChar2;
 	setPosition();
 	registerMouseClickCallbacks(window);
 }
@@ -68,12 +80,14 @@ void Character::mouseButtonCallback(int button, int action, int mods) {
 
 
 void Character::setPosition() {
-	physx::PxExtendedVec3 pos = pxChar->getPosition();
+	physx::PxExtendedVec3 pos = pxChar->getPosition(); //getFootPosition()
 	charPosition.x = pos.x;
 	charPosition.y = pos.y;
 	charPosition.z = pos.z;
 
 	playerCamera->setCameraPosition(glm::vec3(charPosition.x, charPosition.y, charPosition.z));
+
+	//printPosition();
 }
 
 glm::vec3 Character::getPosition() {

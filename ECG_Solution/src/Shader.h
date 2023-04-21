@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Utils.h"
+#include "Utils/Utils.h"
 #include "Lights/PointLight.h"
 #include "Lights/DirectionalLight.h"
 #include "Camera.h"
@@ -19,9 +19,14 @@ private:
     GLuint specularTexture = 0;
     std::unordered_map<std::string, GLint> uniformLocationMap;
 public:
-    Shader(const std::string& vertexShaderPath, const std::string& fragmentShaderPath);
     Shader();
     ~Shader();
+
+    void createPhongShader(const std::string& diffuseTexture, const std::string& specularTexture, glm::mat4 modelMatrix, float ka, float kd, float ks, int alpha);
+    void createPhongShader(float ka, float kd, float ks, int alpha);
+    void createTerrainShader();
+    void createSimpleShader(glm::vec3 color, glm::mat4 modelMatrix);
+ 
     GLuint compileShader(GLuint type, const std::string& path) const;
     void activate();
     void loadTexture(const std::string& texturePath, int unit);

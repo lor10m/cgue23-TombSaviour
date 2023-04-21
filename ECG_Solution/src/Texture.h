@@ -1,14 +1,14 @@
 #pragma once
 
-#include "Utils.h"
+#include "Utils/Utils.h"
+#include "Utils/stb_image.h"
 
 
 class Texture 
 {
 
 private:
-	GLuint handle;
-
+	
 public:
 
 	Texture();
@@ -16,6 +16,8 @@ public:
 	//Texture(const char* texturePath);
 	void genTexture(const char* texturePath);
 	void bind(int location);
+	std::string type;
+	std::string path;
 	static GLuint getHDUTexHandlerFromPath(const char* path);
 	std::shared_ptr<Texture> Texture::getHDUTexture(const std::string& texName);
 	std::shared_ptr<Texture> loadTexture(const std::string& name);
@@ -27,4 +29,5 @@ public:
 
 	GLuint getHDUTexHandlerFromPath(const std::string path);
 
+	GLuint handle;
 };

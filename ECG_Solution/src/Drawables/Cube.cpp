@@ -1,10 +1,8 @@
 #include "Cube.h"
 #include "unordered_map"
-#include "../Vertex.h"
+#include "../Utils/Vertex.h"
 
-Cube::Cube(float width, float height, float depth) {
-    generateCube(width, height, depth);
-}
+Cube::Cube() {}
 
 void Cube::generateCube(float width, float height, float depth) {
     int vertexCount = 8 * 3;

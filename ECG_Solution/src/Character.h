@@ -1,6 +1,9 @@
+#pragma once
 
 #include <PxPhysicsAPI.h>
 #include "Camera.h"
+#include "PhysxScene.h"
+
 using namespace physx;
 
 
@@ -18,6 +21,8 @@ public:
 	float  charSpeed = 2;
 	bool superSpeed = false;
 
+	Character() {};
+	Character(Camera* camera, PhysxScene* physxScene, glm::vec3 position);
 	float moveX = 0.0f;
 	float moveZ = 0.0f;
 	physx::PxVec3 disp;

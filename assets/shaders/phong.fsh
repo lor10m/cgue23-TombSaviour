@@ -25,6 +25,9 @@ in vec3 fragPos;
 in vec3 fragNormal;
 in vec2 fragTexCoordinate;
 
+flat in ivec4 boneIDs0;
+in vec4 weights0;
+
 out vec4 color;
 
 uniform sampler2D diffuseTexture;
@@ -85,6 +88,7 @@ void main() {
     }
 
     color = texture(diffuseTexture, fragTexCoordinate) * vec4(lightIntensity, 1.0f) + texture(specularTexture, fragTexCoordinate) * vec4(specularIntensity, 1.0f);
+
 }
 
 vec3 calculateDiffuseFromDirectionalLight(DirectionalLight directionalLight) {
