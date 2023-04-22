@@ -3,24 +3,25 @@
 
 Camera::Camera(){}
 
-Camera::Camera(GLFWwindow* window, double fovStart, double aspect_ratioStart, double nearStart, double farStart, bool hdu) {
+Camera::Camera(GLFWwindow* inputWindow, double fovStart, double aspect_ratioStart, double nearStart, double farStart, bool hdu) {
 	pitch = 0;
 	yaw = -90;
 	fov = fovStart;
 	aspect_ratio = aspect_ratioStart;
 	near = nearStart;
 	far = farStart;
+	window = inputWindow;
 	if (!hdu) {
 		perspectiveMatrix = (glm::mat4)glm::perspective(fov, aspect_ratio, near, far);
 	}
 	else {
-		calculateOrthogonalProjection(window);
+		calculateOrthogonalProjection();
 	}
 
 	registerMovementCallbacks(window);
 }
 
-void Camera::calculateOrthogonalProjection(GLFWwindow* window) {
+void Camera::calculateOrthogonalProjection() {
 	int width, height;
 	glfwGetWindowSize(window, &width, &height);
 	glMatrixMode(GL_PROJECTION);
@@ -31,6 +32,11 @@ void Camera::calculateOrthogonalProjection(GLFWwindow* window) {
 	for (int i = 0; i < 16; i++) {
 		projectionMatrixHDU[i % 4][i / 4] = projectionMatrix[i];			// correct??
 	}
+}
+
+glm::mat4 Camera::getProjectionMatrixHDU() {
+	calculateOrthogonalProjection();
+	return projectionMatrixHDU;
 }
 
 glm::mat4 Camera::getCameraTransform(glm::vec3 g, glm::vec3 e, glm::vec3 t) {

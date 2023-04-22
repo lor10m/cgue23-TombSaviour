@@ -231,6 +231,24 @@ void Shader::setUniformMatrix4fv(const std::string& name, int size, GLboolean tr
 	glUniformMatrix4fv(getUniformLocation(name), size, transposed, matrix);
 }
 
+void Shader::createHDUShader(const std::string& texturePath)
+{
+	shader = glCreateProgram();
+
+	GLuint vertexShader = compileShader(GL_VERTEX_SHADER, "assets/shaders/guiShader.vsh");
+	GLuint fragmentShader = compileShader(GL_FRAGMENT_SHADER, "assets/shaders/guiShader.fsh");
+
+	glAttachShader(shader, vertexShader);
+	glAttachShader(shader, fragmentShader);
+	glLinkProgram(shader);
+	glValidateProgram(shader);
+
+	glDeleteShader(vertexShader);
+	glDeleteShader(fragmentShader);
+
+	loadTexture(texturePath, 0);
+}
+
 
 void Shader::changeShader(std::shared_ptr<Camera> camera)
 {

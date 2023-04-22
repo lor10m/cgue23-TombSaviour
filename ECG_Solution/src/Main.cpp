@@ -1,4 +1,6 @@
 #include "Utils/Utils.h"
+#define _USE_MATH_DEFINES
+#include <cmath>
 #include "Utils/stb_image.h"
 #include <iostream>
 #include <vector>
@@ -8,7 +10,6 @@
 #include "PhysxScene.h"
 #include "Character.h"
 #include "Enemy.h"
-
 #include "Drawables/Model.h"
 #include "Lights/PointLight.h"
 #include "Lights/DirectionalLight.h"
@@ -16,6 +17,7 @@
 #include "Utils/Transform.h"
 #include "Utils/Callbacks.h"
 #include "Objects.h"
+#include "Hdu.h"
 
 using namespace physx;
 
@@ -28,6 +30,16 @@ bool polygonMode = false;
 
 int main()
 {
+	// get values from ini file
+	INIReader reader("assets/settings.ini");
+	int window_width = reader.GetInteger("window", "width", 800);
+	int window_height = reader.GetInteger("window", "height", 800);
+	int refresh_rate = reader.GetInteger("window", "refresh_rate", 60);
+	std::string window_title = reader.Get("window", "title", "Tomb Saviour");
+	double camera_fov = reader.GetReal("camera", "fov", 60) * M_PI / 180.0;
+	double camera_near = reader.GetReal("camera", "near", 0.1);
+	double camera_far = reader.GetReal("camera", "far", 100);
+
 	// glfw: initialize and configure
 	// ------------------------------
 	if (!glfwInit()) {
@@ -37,13 +49,15 @@ int main()
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 5);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
+	// set refresh rate:
+	glfwWindowHint(GLFW_REFRESH_RATE, refresh_rate);
+
 #if _DEBUG
 	glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, GL_TRUE);
 #endif
 
 	// glfw window creation
 	// --------------------
-	INIReader reader("assets/settings.ini");
 	GLFWwindow* window = glfwCreateWindow(reader.GetInteger("window", "width", 800), ("window", "height", 800), "LearnOpenGL: Terrain GPU", nullptr, nullptr);
 	if (window == NULL)
 	{
@@ -54,7 +68,15 @@ int main()
 	glfwMakeContextCurrent(window);
 	glfwSetKeyCallback(window, keyCallback);
 
-	glewExperimental = true;
+	/*
+	// TODO BEIDE: besprechen wie Illumination einfügen (dann N umsetzen) in Main mal lassen
+	int brightnessIdx = reader.GetReal("global", "brightnessIdx", 10);
+	setIllumination(brightnessIdx);
+	std::cout << "Illumination: " << getIlluminationMultiplier() << "\n";
+	// https://github.com/lor10m/cgue23-TombSaviour/blob/CameraEtc/ECG_Solution/src/GlobalVariables.cpp
+	*/
+
+	//glewExperimental = true;
 	if (GLEW_OK != glewInit()) {
 		EXIT_WITH_ERROR("Failed to init GLEW");
 	}
@@ -70,14 +92,15 @@ int main()
 		glDisable(GL_CULL_FACE);
 	}
 
-    Camera camera(window, camera_fov, (double)800 / (double)800, camera_near, camera_far);
-    
+    Camera camera(window, camera_fov, (double)800 / (double)800, camera_near, camera_far, false);
+	Hdu HDUobject(window, camera);
+
     // build and compile our shader program
     // ------------------------------------
 	
 	// OBJECTS
 	PhysxScene physxScene;
-	Objects objects(&camera, &physxScene);
+	Objects objects(&camera, &physxScene, &HDUobject);
 
     glfwSetWindowUserPointer(window, &camera);
     glfwSetFramebufferSizeCallback(window, framebufferSizeCallback);
@@ -88,16 +111,20 @@ int main()
 	// -----------
 	while (!glfwWindowShouldClose(window))
 	{
+
+		// calculate frame rate						// TODO besprechen wo physx Zeug einbauen!
 		float currentFrame = glfwGetTime();
 		float lastFrame = 0.0f;
 		float deltaTime = currentFrame - lastFrame;
 		lastFrame = currentFrame;
 
+
 		camera.pollMousePosition(window);
 
 		// render
-		glClearColor(0.5f, 0.5f, 0.5f, 1.0f);
+		glClearColor(0.9f, 0.9f, 0.9f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
 
 		// render objects
 		objects.render(window, deltaTime);

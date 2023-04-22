@@ -1,16 +1,19 @@
 #include "Texture.h"
-#include "stb_image.h"
-
-Texture::Texture(){}
+#include "Utils/stb_image.h"
 
 //std::unordered_map<std::string, std::shared_ptr<Texture>> Texture::textureMap = std::unordered_map<std::string, std::shared_ptr<Texture>>();
 
 Texture::Texture() {};
 
-Texture::Texture(GLuint textureHandle) 
+Texture::Texture(const char* texturePath)
 {
 	path = texturePath;
 	genTexture(texturePath);
+}
+
+Texture::Texture(GLuint textureHandle) 
+{
+	handle = textureHandle;
 }
 
 void Texture::genTexture(const char* texturePath)

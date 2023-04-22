@@ -22,7 +22,7 @@ public:
 	bool superSpeed = false;
 
 	Character() {};
-	Character(Camera* camera, PhysxScene* physxScene, glm::vec3 position);
+	Character(Camera* camera, PhysxScene* physxScene, glm::vec3 position, GLFWwindow* window);
 	float moveX = 0.0f;
 	float moveZ = 0.0f;
 	physx::PxVec3 disp;

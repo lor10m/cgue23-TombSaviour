@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Utils.h"
+#include "Utils/Utils.h"
 #include "Texture.h"
 #include "Shader.h"
 #include "Camera.h"

@@ -1,16 +1,18 @@
 #include "Objects.h"
 
 
-Objects::Objects(Camera* camera, PhysxScene* physxScene)
+
+Objects::Objects(Camera* camera, PhysxScene* physxScene, Hdu* hdu)
 {
     this->camera = camera;
+    this->hduObject = hdu;
     this->physxScene = physxScene;
     createTerrain();
     createMummy();
     createEnemy();
     createPyramid();
     createPalmTree();
-   
+
 }
 
 void Objects::createTerrain()
@@ -27,7 +29,7 @@ void Objects::createTerrain()
 
 void Objects::createMummy()
 {
-    mummy = Character(camera, physxScene, glm::vec3(0.0f, 30.0f, 0.0f));
+    mummy = Character(camera, physxScene, glm::vec3(0.0f, 30.0f, 0.0f), camera->window);
 }
 
 void Objects::createEnemy()
@@ -125,6 +127,10 @@ void Objects::render(GLFWwindow* window, float dt)//, Shader* enemyModelShader)
     enemyModel.draw(&enemyShader);
 
     enemy.move(mummy.getPosition(), 0.2, dt);
+
+    hduObject->simpleShader.setUniformMatrix4fv("viewMatrix", 1, GL_FALSE, hduObject->hduCamera.getProjectionMatrixHDU());
+    hduObject->simpleShader.setUniform3f("eyePos", hduObject->hduCamera.cameraPosition.x, hduObject->hduCamera.cameraPosition.y, hduObject->hduCamera.cameraPosition.z);
+    hduObject->drawHDU();
 
     // simulate physx
     physxScene->simulate(window, 1.0f / 60.0f);

@@ -1,7 +1,7 @@
 #include "Character.h"
 
 
-Character::Character(Camera* playerCamera2, PhysxScene* physxScene, glm::vec3 position)
+Character::Character(Camera* playerCamera2, PhysxScene* physxScene, glm::vec3 position, GLFWwindow* window)
 {
 	PxControllerManager* gManager = PxCreateControllerManager(*physxScene->scene);
 	PxCapsuleControllerDesc cDesc;
@@ -70,6 +70,7 @@ void Character::mouseButtonCallback(int button, int action, int mods) {
 	{
 		// left mouse button is clicked
 		std::cout << "Left mouse button is clicked." << std::endl;
+
 	}
 	if (button == GLFW_MOUSE_BUTTON_RIGHT && action == GLFW_PRESS)
 	{

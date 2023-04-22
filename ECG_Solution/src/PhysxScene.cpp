@@ -217,3 +217,11 @@ PxScene* PhysxScene::getScene()
 {
 	return scene;
 }
+
+bool PhysxScene::adjustScene(PxReal dt)		// TODO: reicht void?
+{
+	scene->simulate(dt);		// 
+	scene->fetchResults(true);	// continue if no errors 
+	return true;
+	// https://docs.nvidia.com/gameworks/content/gameworkslibrary/physx/guide/Manual/Simulation.html
+}

@@ -12,6 +12,7 @@ private:
 public:
 
 	Texture();
+	Texture(const char* texturePath);
 	Texture(GLuint textureHandle);
 	//Texture(const char* texturePath);
 	void genTexture(const char* texturePath);
