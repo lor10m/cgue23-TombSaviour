@@ -4,12 +4,12 @@
 
 Hdu::Hdu() {}
 
-Hdu::Hdu(GLFWwindow* window, Camera threeDCamera) {
+void Hdu::createHdu(GLFWwindow* window, Camera* threeDCamera) {
 
-	Camera camera(window, threeDCamera.fov, (double)800 / (double)800, threeDCamera.near, threeDCamera.far, true);
+	Camera camera(window, threeDCamera->fov, (double)800 / (double)800, threeDCamera->near, threeDCamera->far, true);
 	hduCamera = camera;
 
-	simpleShader.createHDUShader("assets/textures/tiles_diffuse.dds");
+	simpleShader.createHDUShader("assets/textures/hduTry.dds");
 
 	glfwGetWindowSize(window, &width, &height);
 
@@ -19,9 +19,13 @@ Hdu::Hdu(GLFWwindow* window, Camera threeDCamera) {
 	screenTransform.translate(screenPosition);
 	screenTransform.scale(screenScale);
 
+
+	Transform t;
+	t.scale(glm::vec3(2.0f, 2.0f, 0.0f));
+
 	screenObject.generateModel("assets/objects/screen.obj");
 
-	simpleShader.setUniformMatrix4fv("modelMatrix", 1, GL_FALSE, screenTransform.getMatrix());
+	simpleShader.setUniformMatrix4fv("modelMatrix", 1, GL_FALSE, t.getMatrix());
 
 	//initLevelGui();
 
@@ -31,6 +35,11 @@ void Hdu::drawHDU()
 {
 	simpleShader.activate();
 	//simpleShader.changeShader(hduCamera);
+
+	glm::mat4 proj = hduCamera.getProjectionMatrixHDU();
+	simpleShader.setUniformMatrix4fv("viewMatrix", 1, GL_FALSE, hduCamera.getProjectionMatrixHDU());
+
+	simpleShader.setUniform3f("eyePos", hduCamera.cameraPosition.x, hduCamera.cameraPosition.y, hduCamera.cameraPosition.z);
 
 	glDisable(GL_DEPTH_TEST);
 	glEnable(GL_BLEND);
@@ -43,22 +52,22 @@ void Hdu::drawHDU()
 
 	//std::cout << "I'm here";
 }
-
-void Hdu::renderFirstHDU(GLFWwindow* window, Camera threeDCamera)
-{
-	glm::vec3 screenPosition = glm::vec3(120 - width / 2.0f, height / 2.0f - 90, 0.0f);
-	glm::vec3 screenScale = glm::vec3(190.0f, 190.0f, 1.0f);
-	Transform screenTransform;
-	screenTransform.translate(screenPosition);
-	screenTransform.scale(screenScale);
-
-
-
-	//_centerObj->getMaterial()->setTexture(Texture::loadTexture("loading.dds"));
-	//addObject(_centerObj);
-
-	drawHDU();
-}
+//
+//void Hdu::renderFirstHDU(GLFWwindow* window, Camera threeDCamera)
+//{
+//	glm::vec3 screenPosition = glm::vec3(120 - width / 2.0f, height / 2.0f - 90, 0.0f);
+//	glm::vec3 screenScale = glm::vec3(190.0f, 190.0f, 1.0f);
+//	Transform screenTransform;
+//	screenTransform.translate(screenPosition);
+//	screenTransform.scale(screenScale);
+//
+//
+//
+//	//_centerObj->getMaterial()->setTexture(Texture::loadTexture("loading.dds"));
+//	//addObject(_centerObj);
+//
+//	drawHDU();
+//}
 
 
 

@@ -15,7 +15,9 @@ class Objects {
 private:
 	PhysxScene* physxScene;
 	Camera* camera;
-	Hdu* hduObject;
+	
+	
+	Hdu hduObject;
 
 	Terrain terrain;
 	Character mummy;
@@ -33,13 +35,14 @@ private:
 
 public:
 
-	Objects(Camera* camera, PhysxScene* physxScene, Hdu* hduCamera);
+	Objects(GLFWwindow* window, Camera* camera, PhysxScene* physxScene);
 	void render(GLFWwindow* window, float dt);
 	void createMummy();
 	void createTerrain();
 	void createEnemy();
 	void createPyramid();
 	void createPalmTree();
+	void createHduObject(GLFWwindow* window);
 	void deleteObjects();
 
 };

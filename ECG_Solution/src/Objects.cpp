@@ -2,16 +2,16 @@
 
 
 
-Objects::Objects(Camera* camera, PhysxScene* physxScene, Hdu* hdu)
+Objects::Objects(GLFWwindow* window, Camera* camera, PhysxScene* physxScene)
 {
     this->camera = camera;
-    this->hduObject = hdu;
     this->physxScene = physxScene;
     createTerrain();
     createMummy();
     createEnemy();
     createPyramid();
     createPalmTree();
+    createHduObject(window);
 
 }
 
@@ -87,6 +87,12 @@ void Objects::createPyramid()
     physxScene->createModel(pyramid.indices, pyramid.vertices, pyramid.normals, pyramidScale, pyramidTranslate, pyramidRotate);
 }
 
+void Objects::createHduObject(GLFWwindow* window)
+{
+    hduObject.createHdu(window, camera);
+
+}
+
 void Objects::render(GLFWwindow* window, float dt)//, Shader* enemyModelShader)
 {
     // Character: 
@@ -114,7 +120,7 @@ void Objects::render(GLFWwindow* window, float dt)//, Shader* enemyModelShader)
     palmTreeShader.setUniform3f("eyePos", camera->cameraPosition.x, camera->cameraPosition.y, camera->cameraPosition.z);
     palmTree.draw(&palmTreeShader);
 
-    ////render enemy
+    //render enemy
     enemyShader.setUniformMatrix4fv("viewMatrix", 1, GL_FALSE, camera->getTransformMatrix());
     enemyShader.setUniform3f("eyePos", camera->cameraPosition.x, camera->cameraPosition.y, camera->cameraPosition.z);
 
@@ -128,9 +134,11 @@ void Objects::render(GLFWwindow* window, float dt)//, Shader* enemyModelShader)
 
     enemy.move(mummy.getPosition(), 0.2, dt);
 
-    hduObject->simpleShader.setUniformMatrix4fv("viewMatrix", 1, GL_FALSE, hduObject->hduCamera.getProjectionMatrixHDU());
-    hduObject->simpleShader.setUniform3f("eyePos", hduObject->hduCamera.cameraPosition.x, hduObject->hduCamera.cameraPosition.y, hduObject->hduCamera.cameraPosition.z);
-    hduObject->drawHDU();
+
+
+    //hduObject->simpleShader.setUniformMatrix4fv("viewMatrix", 1, GL_FALSE, hduObject->hduCamera.getProjectionMatrixHDU());
+    //hduObject->simpleShader.setUniform3f("eyePos", hduObject->hduCamera.cameraPosition.x, hduObject->hduCamera.cameraPosition.y, hduObject->hduCamera.cameraPosition.z);
+    hduObject.drawHDU();
 
     // simulate physx
     physxScene->simulate(window, 1.0f / 60.0f);

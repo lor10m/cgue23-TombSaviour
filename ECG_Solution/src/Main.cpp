@@ -93,15 +93,15 @@ int main()
 	}
 
     Camera camera(window, camera_fov, (double)800 / (double)800, camera_near, camera_far, false);
-	Hdu HDUobject(window, camera);
+	//Hdu HDUobject(window, camera);
 
     // build and compile our shader program
     // ------------------------------------
 	
 	// OBJECTS
 	PhysxScene physxScene;
-	Objects objects(&camera, &physxScene, &HDUobject);
-
+	Objects objects(window, &camera, &physxScene);
+	
     glfwSetWindowUserPointer(window, &camera);
     glfwSetFramebufferSizeCallback(window, framebufferSizeCallback);
 

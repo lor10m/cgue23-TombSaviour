@@ -14,9 +14,9 @@ private:
 public:
 
 	Hdu();
-	Hdu(GLFWwindow* window, Camera threeDCamera);
+	void createHdu(GLFWwindow* window, Camera* threeDCamera);
 
-	void initHdu();
+	//void initHdu();
 
 	//std::shared_ptr<Camera> hduCamera;
 	Camera hduCamera;
@@ -28,7 +28,7 @@ public:
 
 	std::shared_ptr<Texture> startTexture;
 
-	void Hdu::renderFirstHDU(GLFWwindow* window, Camera threeDCamera);
+	//void Hdu::renderFirstHDU(GLFWwindow* window, Camera* threeDCamera);
 
 	int width, height;
 
