@@ -65,7 +65,7 @@ void Objects::createPalmTree()
 
     palmTree.generateModel("assets/objects/palm_tree.obj");
 
-    physxScene->createModel(palmTree.indices, palmTree.vertices, palmTree.normals, palmScale, palmTranslate, palmRotate);
+    physxPalmTree = physxScene->createModel(palmTree.indices, palmTree.vertices, palmTree.normals, palmScale, palmTranslate, palmRotate);
 }
 
 void Objects::createPyramid()
@@ -92,7 +92,6 @@ void Objects::render(GLFWwindow* window, float dt)//, Shader* enemyModelShader)
 
     glm::mat4 projection = glm::mat4(1.0f);
     glm::mat4 viewMatrix = camera->getTransformMatrix();
-
 
     // render the terrain
     terrainShader.setUniformMatrix4fv("projection", 1, GL_FALSE, projection);
@@ -125,6 +124,10 @@ void Objects::render(GLFWwindow* window, float dt)//, Shader* enemyModelShader)
     enemyModel.draw(&enemyShader);
 
     enemy.move(mummy.getPosition(), 0.2, dt);
+
+    if (glfwGetKey(window, GLFW_KEY_ENTER) == GLFW_PRESS) {
+        physxScene->throwObject(physxPalmTree);
+    }
 
     // simulate physx
     physxScene->simulate(window, 1.0f / 60.0f);

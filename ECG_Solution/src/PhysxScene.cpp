@@ -82,7 +82,7 @@ void PhysxScene::createTerrain(const char* heightmapPath)
 	scene->addActor(*actor);
 }
 
-void PhysxScene::createModel(std::vector<unsigned int> indices, std::vector<glm::vec3> vertices, std::vector<glm::vec3> normals, glm::vec3 scale, glm::vec3 translate, glm::vec3 rotate)
+PxRigidDynamic* PhysxScene::createModel(std::vector<unsigned int> indices, std::vector<glm::vec3> vertices, std::vector<glm::vec3> normals, glm::vec3 scale, glm::vec3 translate, glm::vec3 rotate)
 {	
 	PxTriangleMeshDesc meshDesc;
 
@@ -119,12 +119,20 @@ void PhysxScene::createModel(std::vector<unsigned int> indices, std::vector<glm:
 
 	shape->setLocalPose(PxTransform(PxIdentity));
 	PxTransform transform(PxVec3(translate.x, translate.y, translate.z), PxIdentity);
-	PxRigidActor* staticActor = physics->createRigidStatic(PxTransform(PxIdentity));
+	PxRigidDynamic* staticActor = physics->createRigidDynamic(PxTransform(PxIdentity)); //TODO static/dynamic
 	staticActor->attachShape(*shape);
 	// Set position and orientation of the static actor
 	staticActor->setGlobalPose(transform);
 	scene->addActor(*staticActor);
+
+	return staticActor;
 	
+};
+
+void PhysxScene::throwObject(PxRigidDynamic* object)
+{
+	PxVec3 force(10.0f, 0.0f, 0.0f);
+	object->addForce(force);
 }
 
 void PhysxScene::createPlayer()
@@ -153,31 +161,6 @@ void PhysxScene::createPlayer()
 		}
 	}
 	shape->release();
-	
-	// create player actor
-	//PxTransform playerTransform(PxVec3(0.0f, 50.0f, 0.0f));
-	//PxBoxGeometry playerGeometry(PxVec3(1.0f, 2.0f, 1.0f));
-	//playerActor = PxCreateDynamic(*physics, playerTransform, playerGeometry, *material, 1.0f);
-	//playerActor->setAngularDamping(0.5f);
-	//playerActor->setMass(10.0f);
-	//scene->addActor(*playerActor);
-
-	//playerCamera = playerCam;
-	//
-	////create cam offset
-	////attach camera to player
-	//PxVec3 cameraOffset(0.0f, 1.5f, 0.0f);
-	//PxTransform transform = playerTransform.transform(PxTransform(cameraOffset));
-
-	////transform camera
-	//playerCamera.setTransform(playerTransform.transform(PxTransform(cameraOffset)));
-
-	//// create camera
-	//camera = new Camera();
-	//camera->setAspect(1.33f);
-	//camera->setFOV(45.0f);
-	//camera->setNearClip(0.1f);
-	//camera->setFarClip(1000.0f);
 }
 
 void PhysxScene::simulate(GLFWwindow* window, float timeStep)

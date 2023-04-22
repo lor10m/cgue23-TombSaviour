@@ -35,7 +35,8 @@ public:
 	PhysxScene();
 	void simulate(GLFWwindow* window, float timeStep);
 	void createTerrain(const char* heightmapPath);
-	void createModel(std::vector<unsigned int> indices, std::vector<glm::vec3> vertices, std::vector<glm::vec3> normals, glm::vec3 scale, glm::vec3 translate, glm::vec3 rotate);
+	PxRigidDynamic* createModel(std::vector<unsigned int> indices, std::vector<glm::vec3> vertices, std::vector<glm::vec3> normals, glm::vec3 scale, glm::vec3 translate, glm::vec3 rotate);
 	void createPlayer();
+	void throwObject(PxRigidDynamic* object);
 	PxScene* getScene();
 };

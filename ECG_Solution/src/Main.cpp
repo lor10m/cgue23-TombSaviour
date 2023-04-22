@@ -8,7 +8,6 @@
 #include "PhysxScene.h"
 #include "Character.h"
 #include "Enemy.h"
-
 #include "Drawables/Model.h"
 #include "Lights/PointLight.h"
 #include "Lights/DirectionalLight.h"
