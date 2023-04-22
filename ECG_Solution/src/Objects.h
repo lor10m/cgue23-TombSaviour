@@ -27,8 +27,6 @@ private:
 	Shader palmTreeShader;
 	Shader pyramidShader;
 
-	PxRigidDynamic* physxPalmTree = nullptr;
-
 
 public:
 

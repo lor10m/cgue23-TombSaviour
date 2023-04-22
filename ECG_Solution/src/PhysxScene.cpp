@@ -168,6 +168,9 @@ void PhysxScene::simulate(GLFWwindow* window, float timeStep)
 	scene->simulate(timeStep);
 	scene->fetchResults(true);
 
+	if (glfwGetKey(window, GLFW_KEY_ENTER) == GLFW_PRESS) {
+		scene->getActors()
+	}
 	//// handle input to move player
 	//PxVec3 playerVelocity(0.0f);
 
