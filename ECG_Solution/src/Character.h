@@ -2,7 +2,6 @@
 
 #include <PxPhysicsAPI.h>
 #include "Camera.h"
-#include "PhysxScene.h"
 
 using namespace physx;
 
@@ -21,8 +20,9 @@ public:
 	float  charSpeed = 2;
 	bool superSpeed = false;
 
-	Character() {};
-	Character(Camera* camera, PhysxScene* physxScene, glm::vec3 position);
+	Character();
+	void createCharacter(Camera* camera, PxControllerManager* gManager, PxMaterial* material, glm::vec3 position);
+	PxRigidDynamic* getActor();
 	glm::vec3 getPosition();
 
 	void move(glm::vec3 dir, float dt);

@@ -2,9 +2,11 @@
 #include <postprocess.h>
 #include <assimp/Importer.hpp>
 #include <assimp/scene.h>
+#include "Utils/Transform.h"
 
 PhysxScene::PhysxScene()
 {
+
 	// init physx
 	foundation = PxCreateFoundation(PX_PHYSICS_VERSION, defaultAllocatorCallback, defaultErrorCallback);
 	if (!foundation) throw("PxCreateFoundation failed!");
@@ -18,6 +20,7 @@ PhysxScene::PhysxScene()
 	toleranceScale.length = 100;        // typical length of an object
 	toleranceScale.speed = 981;         // typical speed of an object, gravity*1s is a reasonable choice
 	physics = PxCreatePhysics(PX_PHYSICS_VERSION, *foundation, toleranceScale, true, pvd);
+	PxInitExtensions(*physics, pvd);
 
 	PxSceneDesc sceneDesc(physics->getTolerancesScale());
 	sceneDesc.gravity = PxVec3(0.0f, -9.81f, 0.0f);
@@ -76,14 +79,14 @@ void PhysxScene::createTerrain(const char* heightmapPath)
 	PxHeightFieldGeometry heightFieldGeom(heightField, PxMeshGeometryFlags(), 1.0f, 1.0f, 1.0f);
 
 	// Create a PhysX actor
-	PxTransform transform(PxVec3(-width/2, 0.0f, -width / 2), PxQuat(PxIdentity));				
+	PxTransform transform(PxVec3(-width / 2, 0.0f, -width / 2), PxQuat(PxIdentity));
 	PxRigidActor* actor = PxCreateStatic(*physics, transform, heightFieldGeom, *material);
 
 	scene->addActor(*actor);
 }
 
-PxRigidDynamic* PhysxScene::createModel(std::vector<unsigned int> indices, std::vector<glm::vec3> vertices, std::vector<glm::vec3> normals, glm::vec3 scale, glm::vec3 translate, glm::vec3 rotate)
-{	
+void PhysxScene::createModel(const char* name, std::vector<unsigned int> indices, std::vector<glm::vec3> vertices, std::vector<glm::vec3> normals, glm::vec3 scale, glm::vec3 translate, glm::vec3 rotate)
+{
 	PxTriangleMeshDesc meshDesc;
 
 	meshDesc.points.count = vertices.size();
@@ -117,86 +120,210 @@ PxRigidDynamic* PhysxScene::createModel(std::vector<unsigned int> indices, std::
 	PxMaterial* material = physics->createMaterial(0.5f, 0.5f, 0.1f);
 	PxShape* shape = physics->createShape(geometry, *material);
 
-	shape->setLocalPose(PxTransform(PxIdentity));
 	PxTransform transform(PxVec3(translate.x, translate.y, translate.z), PxIdentity);
-	PxRigidDynamic* staticActor = physics->createRigidDynamic(PxTransform(PxIdentity)); //TODO static/dynamic
+	shape->setLocalPose(transform);
+
+	PxRigidStatic* staticActor = physics->createRigidStatic(PxTransform(PxIdentity));
+
 	staticActor->attachShape(*shape);
-	// Set position and orientation of the static actor
-	staticActor->setGlobalPose(transform);
+	staticActor->setGlobalPose(PxTransform(PxIdentity));
+
+	staticActor->setName(name);
+
 	scene->addActor(*staticActor);
 
-	return staticActor;
-	
 };
 
-void PhysxScene::throwObject(PxRigidDynamic* object)
+void PhysxScene::setCharacter(Character* character)
 {
-	PxVec3 force(10.0f, 0.0f, 0.0f);
-	object->addForce(force);
+	mummy = character;
 }
 
-void PhysxScene::createPlayer()
+void PhysxScene::createCactus(unsigned int index, glm::vec3 size, glm::vec3 position)
 {
-	float halfExtent = 10.0f;
-	PxShape* shape = physics->createShape(PxBoxGeometry(halfExtent, halfExtent, halfExtent), *material);
-	PxU32 size = 30;
+	PxBoxGeometry boxGeometry(PxVec3(size.x, size.y, size.z));
+	PxMaterial* material = physics->createMaterial(0.5f, 0.5f, 0.1f);
+	PxShape* shape = physics->createShape(boxGeometry, *material);
 
-	//// Set the collision filtering for the dynamic object
-	//PxFilterData filterData;
-	//filterData.word0 = 1 << 0;  // Set the collision group to bit 0
-	//filterData.word1 = 1 << 1;  // Set the collision mask to bit 1
-	//shape->setQueryFilterData(filterData);
-	//shape->setSimulationFilterData(filterData);
+	PxRigidStatic* staticActor = physics->createRigidStatic(PxTransform(PxIdentity));
 
-	for (PxU32 i = 0; i < size; i++)
-	{
-		for (PxU32 j = 0; j < size - i; j++)
-		{
-			PxTransform t(PxVec3(0));
-			PxTransform localTm(PxVec3(PxReal(j * 2) - PxReal(size - i) + 10, PxReal(i * 2 + 1), 20) * halfExtent);
-			PxRigidDynamic* body = physics->createRigidDynamic(t.transform(localTm));
-			body->attachShape(*shape);
-			PxRigidBodyExt::updateMassAndInertia(*body, 10.0f);
-			scene->addActor(*body);
-		}
-	}
-	shape->release();
+	staticActor->attachShape(*shape);
+	PxTransform transform(PxVec3(position.x, position.y, position.z), PxIdentity);
+	staticActor->setGlobalPose(transform);
+	staticActor->setName("cactus");
+	scene->addActor(*staticActor);
+
+	StaticActor cactus;
+	cactus.index = index;
+	cactus.actor = staticActor;
+	cacti[index] = cactus;
 }
 
-void PhysxScene::simulate(GLFWwindow* window, float timeStep)
+void PhysxScene::createSpike(unsigned int index, glm::vec3 size, glm::vec3 position)
+{
+	PxBoxGeometry boxGeometry(PxVec3(size.x, size.y, size.z));
+	PxMaterial* material = physics->createMaterial(0.5f, 0.5f, 0.1f);
+	PxShape* shape = physics->createShape(boxGeometry, *material);
+
+	PxRigidDynamic* dynamicActor = physics->createRigidDynamic(PxTransform(PxIdentity));
+
+	dynamicActor->attachShape(*shape);
+	PxTransform transform(PxVec3(position.x, position.y, position.z), PxIdentity);
+	dynamicActor->setGlobalPose(transform);
+	dynamicActor->setName("spike");
+
+	DynamicActor spike;
+	spike.index = index;
+	spike.actor = dynamicActor;
+	spikes.push_back(spike);
+}
+
+
+void PhysxScene::simulate(GLFWwindow* window, Camera* camera, float timeStep, std::map<unsigned int, SpikeStruct>& spikeStruct, std::map<unsigned int, CactusStruct>& cactusStruct)
 {
 	scene->simulate(timeStep);
 	scene->fetchResults(true);
 
-	if (glfwGetKey(window, GLFW_KEY_ENTER) == GLFW_PRESS) {
-		scene->getActors()
+	pollMouse(window, camera);
+
+	for (DynamicActor spike : spikes) {
+		if (spike.isThrownOrPickedUp) {
+			PxVec3 newPos = spike.actor->getGlobalPose().p;
+			spikeStruct[spike.index].scale = glm::vec3(0.1f, 0.1f, 0.1f);
+			spikeStruct[spike.index].translate = glm::vec3(newPos.x, newPos.y, newPos.z);
+			spikeStruct[spike.index].render = true;
+		}
+		else {
+			//spike.shader->setUniformMatrix4fv("modelMatrix", 1, GL_FALSE, glm::mat4(0.0f));
+		}
 	}
-	//// handle input to move player
-	//PxVec3 playerVelocity(0.0f);
+	for (auto& pair : cacti) {
+		if (pair.second.isThrownOrPickedUp) {
+			cactusStruct.erase(pair.second.index);
+			cacti.erase(pair.second.index);
+			break;
+		}
+	}
+}
 
-	//if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) {
-	//	playerVelocity += playerCamera.getForwardVector() * 10.0f;
-	//}
-	//if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) {
-	//	playerVelocity -= playerCamera.getForwardVector() * 10.0f;
-	//}
-	//if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) {
-	//	playerVelocity -= playerCamera.getRightVector() * 10.0f;
-	//}
-	//if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) {
-	//	playerVelocity += playerCamera.getRightVector() * 10.0f;
-	//}
 
-	//playerVelocity.y = playerActor->getLinearVelocity().y;
-	//playerActor->setLinearVelocity(playerVelocity);
 
-	//// update camera position and orientation
-	//PxTransform playerTransform = playerActor->getGlobalPose();
-	//PxVec3 cameraOffset(0.0f, 1.5f, 0.0f);
+void PhysxScene::pickUpNearestObject(Camera* camera)
+{
+	float pickUpDistance = 5.0f;
+	glm::vec3 mummyPos = mummy->getPosition();
 
-	//playerCamera.setTransform(playerTransform.transform(PxTransform(cameraOffset)));
-	//playerCamera.lookAt(playerTransform.p + playerCamera.getForwardVector() * 10.0f, playerTransform.p + PxVec3(0.0f, 1.5f, 0.0f));
+	for (auto& pair: cacti)
+	{
+		PxRigidStatic* object = pair.second.actor;
+		PxTransform objectPosition = object->getGlobalPose();
+		float distanceToMummy = sqrt(pow(objectPosition.p.x - mummyPos.x, 2) + pow(objectPosition.p.y - mummyPos.y, 2));
 
+		if (distanceToMummy <= pickUpDistance && !pickedUp)
+		{
+			scene->removeActor(*object);
+			//cacti.pop_back();
+			pair.second.isThrownOrPickedUp = true;
+			pickedUpSpikes += spickesPerCactus;
+			break;
+		}
+	}
+}
+
+void PhysxScene::throwSpike(GLFWwindow* window, Camera* camera)
+{
+	// Get mouse and window things
+	double mousex, mousey;
+	int windowWidth, windowHeight;
+	glfwGetWindowSize(window, &windowWidth, &windowHeight);
+	glfwGetCursorPos(window, &mousex, &mousey);
+
+	pickedUpSpikes--;
+	
+	// Get one of the spikes
+	spikes[thrownSpikes].isThrownOrPickedUp = true;
+	PxRigidDynamic* object = spikes[thrownSpikes].actor;
+	thrownSpikes++;
+
+	glm::vec3 origin = camera->getCameraPosition();
+	glm::vec3 cameraForward = camera->getDirection();
+	float distanceFromCamera = 2.0f;
+	glm::vec3 desiredPos = origin + cameraForward * distanceFromCamera;
+	PxVec3 objectPos = PxVec3(desiredPos.x, desiredPos.y, desiredPos.z);
+
+	// Set position of spike to position of Characters "hand", a little in front of camera
+	PxTransform objPos = object->getGlobalPose();
+	objPos.p = objectPos;
+	object->setActorFlag(PxActorFlag::eDISABLE_GRAVITY, true);
+	object->setGlobalPose(objPos);
+	scene->addActor(*object); // add the spike to the scene
+
+	PxVec3 rayOrigin = PxVec3(origin.x, origin.y, origin.z);
+	PxVec3 throwDirection = -(rayOrigin - objectPos).getNormalized();
+
+	// throw spike
+	object->setActorFlag(PxActorFlag::eDISABLE_GRAVITY, false);
+	object->addForce(throwDirection * 20, PxForceMode::eIMPULSE);
+
+	//std::cout << "throwDir: " << throwDirection.x << " " << throwDirection.y << " " << throwDirection.z << std::endl;
+}
+
+
+
+void PhysxScene::pollMouse(GLFWwindow* window, Camera* camera)
+{
+	// PICK UP CACTUS
+	if (glfwGetKey(window, GLFW_KEY_ENTER) == GLFW_PRESS)
+	{
+		if (mouse_left_released) {
+			std::cout << "pick up object" << std::endl;
+			pickUpNearestObject(camera);
+			mouse_left_pressed = true;
+			mouse_left_released = false;
+		}
+
+	}
+	// THROW SPIKE
+	if (glfwGetKey(window, GLFW_KEY_COMMA) == GLFW_PRESS)
+	{
+		if (mouse_right_released) {
+			std::cout << "throw object" << std::endl;
+			if (pickedUpSpikes > 0) {
+				throwSpike(window, camera);
+				mouse_right_pressed = true;
+				mouse_right_released = false;
+			}
+		}
+	}
+	if (glfwGetKey(window, GLFW_KEY_COMMA) == GLFW_RELEASE) {
+		mouse_right_released = true;
+		mouse_right_pressed = false;
+	}
+	if (glfwGetKey(window, GLFW_KEY_ENTER) == GLFW_RELEASE) {
+		mouse_left_released = true;
+		mouse_left_pressed = false;
+	}
+}
+
+
+void PhysxScene::pickUpObject(Camera* camera, PxRigidDynamic* object)
+{
+	float pickUpDistance = 5.0f;
+	glm::vec3 mummyPos = mummy->getPosition();
+
+	PxTransform objectPosition = object->getGlobalPose();
+	float distanceToObject = sqrt(pow(objectPosition.p.x - mummyPos.x, 2) + pow(objectPosition.p.y - mummyPos.y, 2));
+
+	if (distanceToObject <= pickUpDistance && !pickedUp)
+	{
+		object->setActorFlag(PxActorFlag::eDISABLE_GRAVITY, true);
+		pickedUp = true;
+
+		//joint = PxFixedJointCreate(*physics, mummy->getActor(), PxTransform(PxIdentity), object, PxTransform(PxVec3(0.0, 0.0, 2.0f)));
+		//joint->setConstraintFlag(PxConstraintFlag::eCOLLISION_ENABLED, false);
+		//joint->setBreakForce(1000.0f, 1000.0f); // Set the maximum force and torque that the joint can withstand before breaking
+
+	}
 }
 
 PxScene* PhysxScene::getScene()

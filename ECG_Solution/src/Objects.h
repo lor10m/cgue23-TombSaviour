@@ -8,6 +8,7 @@
 #include "Enemy.h"
 #include "ShaderManager.h"
 #include "Drawables/Cube.h"
+#include "Utils/GlobalVariables.h"
 
 class Objects {
 
@@ -16,7 +17,6 @@ private:
 	Camera* camera;
 
 	Terrain terrain;
-	Character mummy;
 	Enemy enemy;
 	Model enemyModel;
 	Model palmTree;
@@ -26,6 +26,22 @@ private:
 	Shader enemyShader;
 	Shader palmTreeShader;
 	Shader pyramidShader;
+	Shader cactusShader;
+	Shader spikeShader;
+
+	Character mummy;
+	Texture cactusTexture;
+
+	unsigned int spikeCounter = 0;
+	unsigned int cactiCounter = 0;
+
+	std::map<unsigned int, SpikeStruct> spikes;
+	std::map<unsigned int, CactusStruct> cacti;
+	
+
+	unsigned int numCacti = 3;
+	unsigned int numSpikes = 5 * numCacti;
+	void createSpike();
 
 
 public:
@@ -38,4 +54,5 @@ public:
 	void createPyramid();
 	void createPalmTree();
 	void deleteObjects();
+	void createCactus(glm::vec3 position);
 };

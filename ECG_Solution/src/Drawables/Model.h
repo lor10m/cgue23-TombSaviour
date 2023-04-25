@@ -118,6 +118,8 @@ public:
 	std::vector<glm::vec3> normals;
 	std::vector<glm::vec3> vertices;
 
+	glm::vec3 modelSize;
+
 	glm::vec3 physxTransform = glm::vec3(0.0f);
 	glm::mat4 physxRotate = glm::mat4(1.0f);
 

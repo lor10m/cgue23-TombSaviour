@@ -44,7 +44,7 @@ void Model::generateModel(string path)
 		processNode(node);
 		initBuffer();
 
-		std::cout << "numMeshes:" << scene->mNumMeshes << " numVertices: " << numVertices << " numIndices: " << numIndices << " numBones: " << numBones << " numAnims: " << scene->mNumAnimations << std::endl;
+		std::cout << "numMeshes:" << scene->mNumMeshes << " numVertices: " << numVertices << " numIndices: " << numIndices << " numBones: " << numBones << " numAnims: " << scene->mNumAnimations << " numMaterials: " << scene->mNumMaterials << std::endl;
 		std::cout << std::endl;
 
 	}
@@ -70,6 +70,9 @@ void Model::processMesh(aiMesh* mesh, unsigned int meshIndex)
 
 	for (unsigned int i = 0; i < mesh->mNumVertices; i++) {
 		aiVector3D& pos = mesh->mVertices[i];
+		modelSize.x = std::max(modelSize.x, std::abs(pos.x));
+		modelSize.y = std::max(modelSize.y, std::abs(pos.y));
+		modelSize.z = std::max(modelSize.z, std::abs(pos.z));
 		Vertex vert;
 		vert.position = glm::vec3(pos.x, pos.y, pos.z);
 		vertices.push_back(glm::vec3(pos.x, pos.y, pos.z));

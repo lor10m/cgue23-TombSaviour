@@ -26,6 +26,8 @@ public:
 
     Camera::Camera();
     Camera(GLFWwindow* window, double fov, double aspect_ratio, double near, double far);
+
+    void computeWorldRay(GLFWwindow* window, double mouseX, double mouseY, glm::vec3& origin, glm::vec3& direction);
     
     static glm::mat4 getCameraTransform(glm::vec3 g, glm::vec3 e, glm::vec3 t);
     glm::mat4 getFirstPersonCameraTransform();

@@ -3,9 +3,10 @@
 #include <glm/gtx/dual_quaternion.hpp>
 
 
-Character::Character(Camera* playerCamera2, PhysxScene* physxScene, glm::vec3 position)
+Character::Character() {};
+
+void Character::createCharacter(Camera* camera, PxControllerManager* gManager, PxMaterial* material, glm::vec3 position)
 {
-	PxControllerManager* gManager = PxCreateControllerManager(*physxScene->scene);
 	PxCapsuleControllerDesc cDesc;
 	cDesc.position = PxExtendedVec3{ position.x, position.y, position.z };
 	cDesc.contactOffset = 0.05f;
@@ -14,11 +15,11 @@ Character::Character(Camera* playerCamera2, PhysxScene* physxScene, glm::vec3 po
 	cDesc.stepOffset = 0.2f;
 	cDesc.slopeLimit = 0.2f;
 	cDesc.upDirection = PxVec3(0.0f, 1.0f, 0.0f);
-	cDesc.material = physxScene->material;
+	cDesc.material = material;
 	pxChar = gManager->createController(cDesc);
 	pxChar->getActor()->setName("mummy");
 
-	playerCamera = playerCamera2;
+	playerCamera = camera;
 	setPosition();
 }
 
@@ -80,6 +81,9 @@ void Character::setPosition() {
 	playerCamera->setCameraPosition(glm::vec3(charPosition.x, charPosition.y, charPosition.z));
 
 	//printPosition();
+}
+PxRigidDynamic* Character::getActor() {
+	return pxChar->getActor();
 }
 
 glm::vec3 Character::getPosition() {

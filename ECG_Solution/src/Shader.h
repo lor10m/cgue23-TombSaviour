@@ -23,7 +23,7 @@ public:
     ~Shader();
 
     void createPhongShader(const std::string& diffuseTexture, const std::string& specularTexture, glm::mat4 modelMatrix, float ka, float kd, float ks, int alpha);
-    void createPhongShader(float ka, float kd, float ks, int alpha);
+    void createPhongShader(glm::mat4 modelMatrix, float ka, float kd, float ks, int alpha);
     void createTerrainShader();
     void createSimpleShader(glm::vec3 color, glm::mat4 modelMatrix);
  

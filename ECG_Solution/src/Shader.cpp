@@ -26,13 +26,13 @@ void Shader::createPhongShader(const std::string& diffuseTexture, const std::str
 	setUniformMatrix4fv("modelMatrix", 1, GL_FALSE, modelMatrix);
 
 	//TODO: lights
-	PointLight pointLight1({ 0, 40, 0 }, { 10, 10, 10 }, { 1.0f, 0.4f, 0.1f });
+	PointLight pointLight1({ 0, 50, 0 }, { 100, 100, 100 }, { 1.0f, 0.4f, 0.1f });
 	DirectionalLight directionalLight1({ 0, -1, -1 }, { 0.8f, 0.8f, 0.8f });
 	addUniformPointLight("pointLight", pointLight1);
 	addUniformDirectionalLight("directionalLight", directionalLight1);
 }
 
-void Shader::createPhongShader(float ka, float kd, float ks, int alpha) {
+void Shader::createPhongShader(glm::mat4 modelMatrix, float ka, float kd, float ks, int alpha) {
 	shader = glCreateProgram();
 
 	GLuint vertexShader = compileShader(GL_VERTEX_SHADER, "assets/shaders/phong.vsh");
@@ -50,6 +50,13 @@ void Shader::createPhongShader(float ka, float kd, float ks, int alpha) {
 	setUniform1f("kd", kd);
 	setUniform1f("ks", ks);
 	setUniform1i("alpha", alpha);
+	setUniformMatrix4fv("modelMatrix", 1, GL_FALSE, modelMatrix);
+
+	//TODO lights
+	PointLight pointLight1({ 0, 50, 0 }, { 10, 10, 10 }, { 1.0f, 0.4f, 0.1f });
+	DirectionalLight directionalLight1({ 0, -1, -1 }, { 0.8f, 0.8f, 0.8f });
+	addUniformPointLight("pointLight", pointLight1);
+	addUniformDirectionalLight("directionalLight", directionalLight1);
 }
 
 void Shader::createTerrainShader()
@@ -185,6 +192,7 @@ GLint Shader::getUniformLocation(const std::string& name) {
 	return id;
 }
 
+//TODO in texture dds/jpg/png
 void Shader::loadTexture(const std::string& texturePath, int unit) {
 	DDSImage ddsImage = loadDDS(texturePath.c_str());
 	if (unit == 0) {
