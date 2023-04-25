@@ -38,7 +38,7 @@ public:
     void updateProjectionMatrix(float aspect_ration_new);
 
     void registerMovementCallbacks(GLFWwindow* window);
-    void pollMousePosition(GLFWwindow* window);
+    void pollMousePosition(GLFWwindow* window, bool isShooterCamera);
     void scrollCallback(GLFWwindow* window, double xoffset, double yoffset);
     void setCameraPosition(glm::vec3 newPosition);
 

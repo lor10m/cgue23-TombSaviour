@@ -18,6 +18,7 @@
 #include "Utils/Callbacks.h"
 #include "Objects.h"
 #include "Hdu.h"
+#include <thread>
 
 using namespace physx;
 
@@ -38,7 +39,7 @@ int main()
 	std::string window_title = reader.Get("window", "title", "Tomb Saviour");
 	double camera_fov = reader.GetReal("camera", "fov", 60) * M_PI / 180.0;
 	double camera_near = reader.GetReal("camera", "near", 0.1);
-	double camera_far = reader.GetReal("camera", "far", 100);
+	double camera_far = reader.GetReal("camera", "far", 1000);
 
 	// glfw: initialize and configure
 	// ------------------------------
@@ -98,7 +99,7 @@ int main()
     // ------------------------------------
 	
 	// OBJECTS
-	PhysxScene physxScene;
+	PhysxScene physxScene(window);
 	Objects objects(window, &camera, &physxScene);
 	
     glfwSetWindowUserPointer(window, &camera);
@@ -109,51 +110,46 @@ int main()
 	double deltaTime = 0.0;
 	double physxDeltaTime = 0.0;
 	double oneUnit, velocity = 0.0;
-	float minFPS = 1.0f / 60.0f;
+	float minDeltaTime = 1.0f / 60.0f; // min delta time or minfps = 60
+	
+	float lastFrame = 0.0f;
 
+	double initialTime = glfwGetTime();
+	int frameCount = 0;
+	double finalTime = 0;
 	// -----------
 	// render loop
 	// -----------
 	while (!glfwWindowShouldClose(window))
 	{
 
-		//calculate frame rate						// TODO besprechen wo physx Zeug einbauen!
+		//calculate frame rate
 		float currentFrame = glfwGetTime();
-		float lastFrame = 0.0f;
-		float deltaTime = currentFrame - lastFrame;
+		float deltaTime = currentFrame - lastFrame; //frame rate
 		lastFrame = currentFrame;
-
-		//double currentTime = glfwGetTime();
-		//nbFrames++;
-		//if (currentTime - lastTime >= 1.0) { // If last prinf() was more than 1 sec ago
-		//	// printf and reset timer
-		//	deltaTime = 2 / (static_cast<double>(2) * nbFrames);
-		//	nbFrames = 0;
-		//	lastTime += 1.0;
-		//}
-
-		physxDeltaTime += deltaTime;
-		while (physxDeltaTime >= minFPS)
-		{
-			physxScene.simulate(window, minFPS);
-
-			physxDeltaTime -= minFPS;
-		}
-
-		camera.pollMousePosition(window);
 
 		// render
 		glClearColor(0.9f, 0.9f, 0.9f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+		camera.pollMousePosition(window, true);
 
-		// render objects
-		objects.render(window, deltaTime);
+		objects.render(window, currentFrame, deltaTime);
 
 		// glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
 		glfwSwapBuffers(window);
 		glfwPollEvents();
 
+
+		// calculate actual FPS
+		frameCount++;
+		finalTime = glfwGetTime();
+		if (finalTime - initialTime >= 1) 
+		{
+			std::cout << "FPS: " << frameCount / (finalTime - initialTime) << std::endl;
+			frameCount = 0;
+			initialTime = finalTime;
+		}
 	}
 
 	objects.deleteObjects();

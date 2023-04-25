@@ -3,7 +3,7 @@
 
 Character::Character() {};
 
-void Character::createCharacter(Camera* camera, PxControllerManager* gManager, PxMaterial* material, glm::vec3 position)
+void Character::createCharacter(GLFWwindow* window, Camera* camera, PxControllerManager* gManager, PxMaterial* material, glm::vec3 position)
 {
 	PxCapsuleControllerDesc cDesc;
 	cDesc.position = PxExtendedVec3{ position.x, position.y, position.z };
@@ -19,7 +19,6 @@ void Character::createCharacter(Camera* camera, PxControllerManager* gManager, P
 
 	playerCamera = camera;
 	setPosition();
-	registerMouseClickCallbacks(window);
 }
 
 void Character::move(glm::vec3 dir, float dt)
@@ -58,28 +57,6 @@ void Character::pollInput(GLFWwindow* window, float dt) {
 	}
 	move(normalize(dirForward + dirRight), dt);
 }
-
-void Character::registerMouseClickCallbacks(GLFWwindow* window) {
-	glfwSetWindowUserPointer(window, this);
-	glfwSetMouseButtonCallback(window, [](GLFWwindow* w, int button, int action, int mods) {
-		static_cast<Character*>(glfwGetWindowUserPointer(w))->mouseButtonCallback(button, action, mods);
-		});
-}
-
-void Character::mouseButtonCallback(int button, int action, int mods) {
-	if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS)
-	{
-		// left mouse button is clicked
-		std::cout << "Left mouse button is clicked." << std::endl;
-
-	}
-	if (button == GLFW_MOUSE_BUTTON_RIGHT && action == GLFW_PRESS)
-	{
-		// left mouse button is clicked
-		std::cout << "Right mouse button is clicked." << std::endl;
-	}
-}
-
 
 void Character::setPosition() {
 	physx::PxExtendedVec3 pos = pxChar->getPosition(); //getFootPosition()

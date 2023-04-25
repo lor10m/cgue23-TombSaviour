@@ -6,6 +6,7 @@
 #include "cooking/PxTriangleMeshDesc.h"
 #include "Utils/stb_image.h"
 #include "Utils/GlobalVariables.h"
+#include "PxSimulationEventCallback.h"
 
 #include "Drawables/Model.h"
 #include "Character.h"
@@ -24,9 +25,10 @@ struct StaticActor {
 	bool isThrownOrPickedUp = false;
 };
 
-class PhysxScene
+class PhysxScene: public PxSimulationEventCallback
 {
 private:
+
 	PxDefaultAllocator defaultAllocatorCallback;
 	PxDefaultErrorCallback defaultErrorCallback;
 	PxDefaultCpuDispatcher* dispatcher = NULL;
@@ -64,7 +66,7 @@ public:
 	unsigned int thrownSpikes = 0;
 	unsigned int spickesPerCactus = 5;
 
-	PhysxScene();
+	PhysxScene(GLFWwindow* window);
 	void simulate(GLFWwindow* window,Camera* camera, float timeStep, std::map<unsigned int, SpikeStruct>& spikeStruct, std::map<unsigned int, CactusStruct>& cactusStruct);
 	void createTerrain(const char* heightmapPath);
 	void createModel(const char* name, std::vector<unsigned int> indices, std::vector<glm::vec3> vertices, std::vector<glm::vec3> normals, glm::vec3 scale, glm::vec3 translate, glm::vec3 rotate);
@@ -78,5 +80,13 @@ public:
 	void pickUpNearestObject(Camera* camera);
 	PxScene* getScene();
 
-	void pollMouse(GLFWwindow* window, Camera* camera);
+	virtual void onContact(const PxContactPairHeader& pairHeader, const PxContactPair* pairs, PxU32 nbPairs);
+	virtual void onTrigger(PxTriggerPair* pairs, PxU32 count);
+	virtual void onConstraintBreak(PxConstraintInfo*, PxU32) {}
+	virtual void onWake(PxActor**, PxU32) {}
+	virtual void onSleep(PxActor**, PxU32) {}
+	virtual void onAdvance(const PxRigidBody* const*, const PxTransform*, const PxU32) {}
+	void mouseButtonCallback(GLFWwindow* window, Camera* camera);
+
+	void deleteScene();
 };

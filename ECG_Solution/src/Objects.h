@@ -48,12 +48,13 @@ private:
 	unsigned int numSpikes = 5 * numCacti;
 	void createSpike();
 
-
+	double physxDeltaTime = 0.0;
+	
 public:
 
 	Objects(GLFWwindow* window, Camera* camera, PhysxScene* physxScene);
-	void render(GLFWwindow* window, float dt);
-	void createMummy();
+	void render(GLFWwindow* window, float currentTime, float dt);
+	void createMummy(GLFWwindow* window);
 	void createTerrain();
 	void createEnemy();
 	void createPyramid();

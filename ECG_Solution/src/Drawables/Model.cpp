@@ -13,7 +13,7 @@ Model::Model() {
 
 void Model::generateModel(string path)
 {
-	scene = importer.ReadFile(path.c_str(), aiProcess_Triangulate | aiProcess_GenNormals | aiProcess_JoinIdenticalVertices | aiProcess_FlipUVs); //TODO
+	scene = importer.ReadFile(path.c_str(), aiProcess_Triangulate | aiProcess_GenNormals | aiProcess_JoinIdenticalVertices | aiProcess_FlipUVs);
 	std::cout << "Loading assimp!" << std::endl;
 
 	if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode) {
@@ -241,7 +241,7 @@ void Model::readNodeHierachy(float animationTimeTicks, const aiNode* node, glm::
 
 	if (boneInfoMap.find(nodeName) != boneInfoMap.end()) {
 		int index = boneInfoMap[nodeName].id;
-		boneInfoMap[nodeName].finalTransformation = convertAiMatrixToGlm(globalInverseTransform) * globalTransform * boneInfoMap[nodeName].offset; //todo inverse
+		boneInfoMap[nodeName].finalTransformation = convertAiMatrixToGlm(globalInverseTransform) * globalTransform * boneInfoMap[nodeName].offset;
 		finalBoneMatrices[index] = convertAiMatrixToGlm(globalInverseTransform) * globalTransform * boneInfoMap[nodeName].offset;
 	}
 

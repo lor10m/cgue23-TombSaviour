@@ -42,7 +42,7 @@ void Enemy::move(glm::vec3 dir, float speed, float dt)
 	// calculate position based on target position
 	PxVec3 displacement = targetPosition - currPos;
 	displacement.normalize();
-	displacement *= speed;
+	displacement *= (speed * dt); //TODO 
 
 	pxChar->move(displacement, 0.001f, dt, physx::PxControllerFilters());
 

@@ -7,7 +7,7 @@ Objects::Objects(GLFWwindow* window, Camera* camera, PhysxScene* physxScene)
 	this->camera = camera;
 	this->physxScene = physxScene;
 	createTerrain();
-	createMummy();
+	createMummy(window);
 	createEnemy();
 	createPyramid();
 	createPalmTree();
@@ -42,9 +42,9 @@ void Objects::createTerrain()
 
 }
 
-void Objects::createMummy()
+void Objects::createMummy(GLFWwindow* window)
 {
-	mummy.createCharacter(camera, PxCreateControllerManager(*physxScene->scene), physxScene->material, glm::vec3(0.0f, 30.0f, 0.0f));
+	mummy.createCharacter(window, camera, PxCreateControllerManager(*physxScene->scene), physxScene->material, glm::vec3(0.0f, 30.0f, 0.0f));
 	physxScene->setCharacter(&mummy);
 }
 
@@ -120,7 +120,7 @@ void Objects::createCactus(glm::vec3 position)
 	cactiCounter++;
 }
 
-//TODO maybe delete when on floor
+//TODO delete when collision
 void Objects::createSpike()
 {
 	Model* spikeModel = new Model();
@@ -141,13 +141,12 @@ void Objects::createHduObject(GLFWwindow* window)
 
 }
 
-void Objects::render(GLFWwindow* window, float dt)//, Shader* enemyModelShader)
+void Objects::render(GLFWwindow* window, float currentTime, float dt)
 {
 	// Character: 
 	// mummy.pollInput(window, 0.08);
     // Character: 
-    mummy.pollInput(window, dt);        // ca.: 
-    std::cout << dt << "\n";
+    mummy.pollInput(window,	dt);
 
 	glm::mat4 projection = glm::mat4(1.0f);
 	glm::mat4 viewMatrix = camera->getTransformMatrix();
@@ -179,7 +178,7 @@ void Objects::render(GLFWwindow* window, float dt)//, Shader* enemyModelShader)
 	palmTreeShader.setUniform3f("eyePos", camera->cameraPosition.x, camera->cameraPosition.y, camera->cameraPosition.z);
 	palmTree.draw(&palmTreeShader);
 
-    ////render enemy
+    //render enemy
     enemyShader.setUniformMatrix4fv("viewMatrix", 1, GL_FALSE, camera->getTransformMatrix());
     enemyShader.setUniform3f("eyePos", camera->cameraPosition.x, camera->cameraPosition.y, camera->cameraPosition.z);
 
@@ -198,14 +197,14 @@ void Objects::render(GLFWwindow* window, float dt)//, Shader* enemyModelShader)
 	}
 
 	std::vector<glm::mat4> transformationMatrices;
-	enemyModel.getBoneTransforms(dt, glm::mat4(1.0f), transformationMatrices);
+	enemyModel.getBoneTransforms(currentTime, glm::mat4(1.0f), transformationMatrices);
 	for (unsigned int i = 0; i < transformationMatrices.size(); i++) {
 		glm::mat4 mat = transformationMatrices[i];
 		enemyShader.setUniformMatrix4fv("bones[" + std::to_string(i) + "]", 1, GL_FALSE, mat);
 	}
 	enemyModel.draw(&enemyShader);
 
-	enemy.move(mummy.getPosition(), 0.2, dt);
+	enemy.move(mummy.getPosition(), 50, dt);
 
 
     //hduObject->simpleShader.setUniformMatrix4fv("viewMatrix", 1, GL_FALSE, hduObject->hduCamera.getProjectionMatrixHDU());
@@ -216,11 +215,11 @@ void Objects::render(GLFWwindow* window, float dt)//, Shader* enemyModelShader)
     // simulate physx
     //physxScene->simulate(window, 1.0f / 60.0f);     // min. 60 FPS and Framerate Independence
 	// simulate physx
-	physxScene->simulate(window, camera, 1.0f / 60.0f, spikes, cacti);
+	physxScene->simulate(window, camera, (1.0f / 40.0f), spikes, cacti);
 }
 
 void Objects::deleteObjects()
 {
 	terrain.deleteTerrain();
-
+	physxScene->deleteScene();
 }

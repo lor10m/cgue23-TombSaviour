@@ -130,3 +130,25 @@ void framebufferSizeCallback(GLFWwindow* window, int width, int height) {
     Camera* camera = static_cast<Camera*>(glfwGetWindowUserPointer(window));
     camera->updateProjectionMatrix(aspectRatio);
 }
+
+
+//void Character::mouseButtonCallback(int button, int action, int mods) {
+//    if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS)
+//    {
+//        // left mouse button is clicked
+//        std::cout << "Left mouse button is clicked." << std::endl;
+//
+//    }
+//    if (button == GLFW_MOUSE_BUTTON_RIGHT && action == GLFW_PRESS)
+//    {
+//        // left mouse button is clicked
+//        std::cout << "Right mouse button is clicked." << std::endl;
+//    }
+//}
+// 
+//void Character::registerMouseClickCallbacks(GLFWwindow* window) {
+//    glfwSetWindowUserPointer(window, this);
+//    glfwSetMouseButtonCallback(window, [](GLFWwindow* w, int button, int action, int mods) {
+//        static_cast<Character*>(glfwGetWindowUserPointer(w))->mouseButtonCallback(button, action, mods);
+//        });
+//}

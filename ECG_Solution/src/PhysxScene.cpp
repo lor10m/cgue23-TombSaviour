@@ -3,10 +3,10 @@
 #include <assimp/Importer.hpp>
 #include <assimp/scene.h>
 #include "Utils/Transform.h"
+#include "Utils/PhysxCallbacks.h"
 
-PhysxScene::PhysxScene()
+PhysxScene::PhysxScene(GLFWwindow* window)
 {
-
 	// init physx
 	foundation = PxCreateFoundation(PX_PHYSICS_VERSION, defaultAllocatorCallback, defaultErrorCallback);
 	if (!foundation) throw("PxCreateFoundation failed!");
@@ -27,6 +27,7 @@ PhysxScene::PhysxScene()
 	dispatcher = PxDefaultCpuDispatcherCreate(2);
 	sceneDesc.cpuDispatcher = dispatcher;
 	sceneDesc.filterShader = PxDefaultSimulationFilterShader;
+	sceneDesc.simulationEventCallback = this;
 	scene = physics->createScene(sceneDesc);
 
 	PxPvdSceneClient* pvdClient = scene->getScenePvdClient();
@@ -46,6 +47,10 @@ PhysxScene::PhysxScene()
 	if (!cooking) {
 		std::cerr << ("Failed to init cooking") << std::endl;
 	}
+
+	//glfwSetWindowUserPointer(window, this);
+	//glfwSetMouseButtonCallback(window, [](GLFWwindow* w, int button, int action, int mods) {
+ //      static_cast<PhysxScene*>(glfwGetWindowUserPointer(w))->mouseButtonCallback(button, action, mods, camera);});
 }
 
 void PhysxScene::createTerrain(const char* heightmapPath)
@@ -72,13 +77,8 @@ void PhysxScene::createTerrain(const char* heightmapPath)
 	heightFieldDesc.samples.data = samples;
 	heightFieldDesc.samples.stride = sizeof(PxHeightFieldSample);
 
-	// Create the height field
 	PxHeightField* heightField = cooking->createHeightField(heightFieldDesc, physics->getPhysicsInsertionCallback());
-
-	// Create the height field geometry
 	PxHeightFieldGeometry heightFieldGeom(heightField, PxMeshGeometryFlags(), 1.0f, 1.0f, 1.0f);
-
-	// Create a PhysX actor
 	PxTransform transform(PxVec3(-width / 2, 0.0f, -width / 2), PxQuat(PxIdentity));
 	PxRigidActor* actor = PxCreateStatic(*physics, transform, heightFieldGeom, *material);
 
@@ -119,7 +119,7 @@ void PhysxScene::createModel(const char* name, std::vector<unsigned int> indices
 
 	PxMaterial* material = physics->createMaterial(0.5f, 0.5f, 0.1f);
 	PxShape* shape = physics->createShape(geometry, *material);
-
+	
 	PxTransform transform(PxVec3(translate.x, translate.y, translate.z), PxIdentity);
 	shape->setLocalPose(transform);
 
@@ -146,7 +146,6 @@ void PhysxScene::createCactus(unsigned int index, glm::vec3 size, glm::vec3 posi
 	PxShape* shape = physics->createShape(boxGeometry, *material);
 
 	PxRigidStatic* staticActor = physics->createRigidStatic(PxTransform(PxIdentity));
-
 	staticActor->attachShape(*shape);
 	PxTransform transform(PxVec3(position.x, position.y, position.z), PxIdentity);
 	staticActor->setGlobalPose(transform);
@@ -183,7 +182,7 @@ void PhysxScene::simulate(GLFWwindow* window, Camera* camera, float timeStep, st
 	scene->simulate(timeStep);
 	scene->fetchResults(true);
 
-	pollMouse(window, camera);
+	mouseButtonCallback(window, camera);
 
 	for (DynamicActor spike : spikes) {
 		if (spike.isThrownOrPickedUp) {
@@ -206,13 +205,49 @@ void PhysxScene::simulate(GLFWwindow* window, Camera* camera, float timeStep, st
 }
 
 
+//TODO make mouseButtonCallback instead
+void PhysxScene::mouseButtonCallback(GLFWwindow* window, Camera* camera)
+{
+	// PICK UP CACTUS
+	if (glfwGetKey(window, GLFW_KEY_9) == GLFW_PRESS)
+	{
+		if (mouse_left_released) {
+			std::cout << "pick up object" << std::endl;
+			pickUpNearestObject(camera);
+			mouse_left_pressed = true;
+			mouse_left_released = false;
+		}
+
+	}
+	// THROW SPIKE
+	if (glfwGetKey(window, GLFW_KEY_0) == GLFW_PRESS)
+	{
+		if (mouse_right_released) {
+			std::cout << "throw object" << std::endl;
+			mouse_right_pressed = true;
+			mouse_right_released = false;
+			if (pickedUpSpikes > 0) {
+				throwSpike(window, camera);
+			}
+		}
+	}
+	if (glfwGetKey(window, GLFW_KEY_0) == GLFW_RELEASE) {
+		mouse_right_released = true;
+		mouse_right_pressed = false;
+	}
+	if (glfwGetKey(window, GLFW_KEY_9) == GLFW_RELEASE) {
+		mouse_left_released = true;
+		mouse_left_pressed = false;
+	}
+}
+
 
 void PhysxScene::pickUpNearestObject(Camera* camera)
 {
 	float pickUpDistance = 5.0f;
 	glm::vec3 mummyPos = mummy->getPosition();
 
-	for (auto& pair: cacti)
+	for (auto& pair : cacti)
 	{
 		PxRigidStatic* object = pair.second.actor;
 		PxTransform objectPosition = object->getGlobalPose();
@@ -221,7 +256,6 @@ void PhysxScene::pickUpNearestObject(Camera* camera)
 		if (distanceToMummy <= pickUpDistance && !pickedUp)
 		{
 			scene->removeActor(*object);
-			//cacti.pop_back();
 			pair.second.isThrownOrPickedUp = true;
 			pickedUpSpikes += spickesPerCactus;
 			break;
@@ -238,7 +272,7 @@ void PhysxScene::throwSpike(GLFWwindow* window, Camera* camera)
 	glfwGetCursorPos(window, &mousex, &mousey);
 
 	pickedUpSpikes--;
-	
+
 	// Get one of the spikes
 	spikes[thrownSpikes].isThrownOrPickedUp = true;
 	PxRigidDynamic* object = spikes[thrownSpikes].actor;
@@ -262,46 +296,7 @@ void PhysxScene::throwSpike(GLFWwindow* window, Camera* camera)
 
 	// throw spike
 	object->setActorFlag(PxActorFlag::eDISABLE_GRAVITY, false);
-	object->addForce(throwDirection * 20, PxForceMode::eIMPULSE);
-
-	//std::cout << "throwDir: " << throwDirection.x << " " << throwDirection.y << " " << throwDirection.z << std::endl;
-}
-
-
-
-void PhysxScene::pollMouse(GLFWwindow* window, Camera* camera)
-{
-	// PICK UP CACTUS
-	if (glfwGetKey(window, GLFW_KEY_ENTER) == GLFW_PRESS)
-	{
-		if (mouse_left_released) {
-			std::cout << "pick up object" << std::endl;
-			pickUpNearestObject(camera);
-			mouse_left_pressed = true;
-			mouse_left_released = false;
-		}
-
-	}
-	// THROW SPIKE
-	if (glfwGetKey(window, GLFW_KEY_COMMA) == GLFW_PRESS)
-	{
-		if (mouse_right_released) {
-			std::cout << "throw object" << std::endl;
-			if (pickedUpSpikes > 0) {
-				throwSpike(window, camera);
-				mouse_right_pressed = true;
-				mouse_right_released = false;
-			}
-		}
-	}
-	if (glfwGetKey(window, GLFW_KEY_COMMA) == GLFW_RELEASE) {
-		mouse_right_released = true;
-		mouse_right_pressed = false;
-	}
-	if (glfwGetKey(window, GLFW_KEY_ENTER) == GLFW_RELEASE) {
-		mouse_left_released = true;
-		mouse_left_pressed = false;
-	}
+	object->addForce(throwDirection * 100, PxForceMode::eIMPULSE);
 }
 
 
@@ -317,15 +312,37 @@ void PhysxScene::pickUpObject(Camera* camera, PxRigidDynamic* object)
 	{
 		object->setActorFlag(PxActorFlag::eDISABLE_GRAVITY, true);
 		pickedUp = true;
-
-		//joint = PxFixedJointCreate(*physics, mummy->getActor(), PxTransform(PxIdentity), object, PxTransform(PxVec3(0.0, 0.0, 2.0f)));
-		//joint->setConstraintFlag(PxConstraintFlag::eCOLLISION_ENABLED, false);
-		//joint->setBreakForce(1000.0f, 1000.0f); // Set the maximum force and torque that the joint can withstand before breaking
-
 	}
 }
 
 PxScene* PhysxScene::getScene()
 {
 	return scene;
+}
+
+void PhysxScene::onContact(const PxContactPairHeader& pairHeader, const PxContactPair* pairs, PxU32 nbPairs)
+{
+	std::cout << "collide" << std::endl;
+
+	for (PxU32 i = 0; i < nbPairs; i++) {
+		const PxContactPair& cp = pairs[i];
+
+		if (cp.events & PxPairFlag::eNOTIFY_TOUCH_FOUND)
+		{
+			std::cout << "collide" << std::endl;
+		}
+	}
+}
+
+void PhysxScene::onTrigger(PxTriggerPair* pairs, PxU32 count)
+{
+	std::cout << "trigger" << std::endl;
+}
+
+void PhysxScene::deleteScene()
+{
+	//TODO release, delete all
+	//scene->release();
+	//physics->release();
+	//foundation->release();
 }
