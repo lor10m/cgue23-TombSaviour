@@ -246,7 +246,7 @@ void Camera::pollMousePosition(GLFWwindow* window) { // Polling Mouse Cursour
 
 // get back to start position with Scrolling
 void Camera::scrollCallback(GLFWwindow* window, double xoffset, double yoffset) {
-	cameraPosition = { 0.0f, 0.0f, 0.0f };
+	cameraPosition = { 0.0f, 200.0f, 0.0f };
 }
 
 glm::mat4 Camera::getFirstPersonCameraTransform() {

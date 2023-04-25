@@ -69,7 +69,7 @@ int main()
 	glfwSetKeyCallback(window, keyCallback);
 
 	/*
-	// TODO BEIDE: besprechen wie Illumination einfügen (dann N umsetzen) in Main mal lassen
+	// TODO illumination multiplier
 	int brightnessIdx = reader.GetReal("global", "brightnessIdx", 10);
 	setIllumination(brightnessIdx);
 	std::cout << "Illumination: " << getIlluminationMultiplier() << "\n";
@@ -93,7 +93,6 @@ int main()
 	}
 
     Camera camera(window, camera_fov, (double)800 / (double)800, camera_near, camera_far, false);
-	//Hdu HDUobject(window, camera);
 
     // build and compile our shader program
     // ------------------------------------
@@ -105,6 +104,12 @@ int main()
     glfwSetWindowUserPointer(window, &camera);
     glfwSetFramebufferSizeCallback(window, framebufferSizeCallback);
 
+	double lastTime = glfwGetTime();
+	int nbFrames = 0;
+	double deltaTime = 0.0;
+	double physxDeltaTime = 0.0;
+	double oneUnit, velocity = 0.0;
+	float minFPS = 1.0f / 60.0f;
 
 	// -----------
 	// render loop
@@ -112,12 +117,28 @@ int main()
 	while (!glfwWindowShouldClose(window))
 	{
 
-		// calculate frame rate						// TODO besprechen wo physx Zeug einbauen!
+		//calculate frame rate						// TODO besprechen wo physx Zeug einbauen!
 		float currentFrame = glfwGetTime();
 		float lastFrame = 0.0f;
 		float deltaTime = currentFrame - lastFrame;
 		lastFrame = currentFrame;
 
+		//double currentTime = glfwGetTime();
+		//nbFrames++;
+		//if (currentTime - lastTime >= 1.0) { // If last prinf() was more than 1 sec ago
+		//	// printf and reset timer
+		//	deltaTime = 2 / (static_cast<double>(2) * nbFrames);
+		//	nbFrames = 0;
+		//	lastTime += 1.0;
+		//}
+
+		physxDeltaTime += deltaTime;
+		while (physxDeltaTime >= minFPS)
+		{
+			physxScene.simulate(window, minFPS);
+
+			physxDeltaTime -= minFPS;
+		}
 
 		camera.pollMousePosition(window);
 
@@ -129,12 +150,11 @@ int main()
 		// render objects
 		objects.render(window, deltaTime);
 
-        // glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
-        glfwSwapBuffers(window);
-        glfwPollEvents();
+		// glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
+		glfwSwapBuffers(window);
+		glfwPollEvents();
 
-    }
-
+	}
 
 	objects.deleteObjects();
 

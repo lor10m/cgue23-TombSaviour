@@ -64,11 +64,6 @@ file(COPY "assimp/assimp-vc143-mt.dll"
 file(COPY "assimp/assimp-vc143-mtd.dll"
     DESTINATION ${EXECUTABLE_OUTPUT_PATH})
 
-file(COPY "freetype/freetype.dll"
-    DESTINATION ${EXECUTABLE_OUTPUT_PATH})
-file(COPY "freetype/freetyped.dll"
-    DESTINATION ${EXECUTABLE_OUTPUT_PATH})
-
 set_target_properties(${PROJECT_NAME} PROPERTIES
     VS_GLOBAL_KEYWORD "Win32Proj"
 )
@@ -105,9 +100,6 @@ target_include_directories(${PROJECT_NAME} PRIVATE
 )
 target_include_directories(${PROJECT_NAME} PRIVATE
     "../external/include/assimp"
-)
-target_include_directories(${PROJECT_NAME} PRIVATE
-    "../external/include/freetype"
 )
 
 ################################################################################
@@ -205,8 +197,6 @@ if(WIN32)
         "PhysXCooking_64.lib"
         "assimp-vc143-mt.lib"
         "PhysXCharacterKinematic_static_64.lib"
-        "freetype.lib"
-
     )
 else()
     set(GLEW_USE_STATIC_LIBS TRUE)
@@ -249,7 +239,6 @@ target_link_directories(${PROJECT_NAME} PRIVATE
 if(CMAKE_BUILD_TYPE MATCHES "Debug")
     target_link_directories(${PROJECT_NAME} PRIVATE "../external/lib/PhysxDebug")
     target_link_directories(${PROJECT_NAME} PRIVATE "../external/lib/AssimpDebug")
-    target_link_directories(${PROJECT_NAME} PRIVATE "../external/lib/FreeTypeDebug")
 
     file(COPY "assimp/assimp-vc143-mtd.dll"
         DESTINATION ${EXECUTABLE_OUTPUT_PATH})
@@ -257,24 +246,17 @@ if(CMAKE_BUILD_TYPE MATCHES "Debug")
         "assimp-vc143-mtd.lib"
     )
 
-    file(COPY "freetype/freetyped.dll"
-        DESTINATION ${EXECUTABLE_OUTPUT_PATH})
-
 endif()
 
 if(CMAKE_BUILD_TYPE MATCHES "Release")
     target_link_directories(${PROJECT_NAME} PRIVATE "../external/lib/PhysxRelease")
     target_link_directories(${PROJECT_NAME} PRIVATE "../external/lib/AssimpRelease")
-    target_link_directories(${PROJECT_NAME} PRIVATE "../external/lib/FreeTypeRelease")
 
     file(COPY "assimp/assimp-vc143-mt.dll"
         DESTINATION ${EXECUTABLE_OUTPUT_PATH})
     list(APPEND ADDITIONAL_LIBRARY_DEPENDENCIES # this doesn't seem to do anything
         "assimp-vc143-mt.lib"
     )
-
-    file(COPY "freetype/freetype.dll"
-        DESTINATION ${EXECUTABLE_OUTPUT_PATH})
 
 endif()
 

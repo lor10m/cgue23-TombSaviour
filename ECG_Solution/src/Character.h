@@ -18,7 +18,7 @@ public:
 	glm::vec3 direction;
 	glm::vec3 up = glm::vec3(0, 1, 0);
 	double mummyHeight;
-	float  charSpeed = 2;
+	float  charSpeed = 1;
 	bool superSpeed = false;
 
 	Character() {};

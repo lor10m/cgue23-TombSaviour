@@ -180,10 +180,11 @@ void PhysxScene::createPlayer()
 	//camera->setFarClip(1000.0f);
 }
 
-void PhysxScene::simulate(GLFWwindow* window, float timeStep)
+void PhysxScene::simulate(GLFWwindow* window, float timeStep)		// adjust physx scene
 {
 	scene->simulate(timeStep);
 	scene->fetchResults(true);
+	// https://docs.nvidia.com/gameworks/content/gameworkslibrary/physx/guide/Manual/Simulation.html
 
 	//// handle input to move player
 	//PxVec3 playerVelocity(0.0f);
@@ -216,12 +217,4 @@ void PhysxScene::simulate(GLFWwindow* window, float timeStep)
 PxScene* PhysxScene::getScene()
 {
 	return scene;
-}
-
-bool PhysxScene::adjustScene(PxReal dt)		// TODO: reicht void?
-{
-	scene->simulate(dt);		// 
-	scene->fetchResults(true);	// continue if no errors 
-	return true;
-	// https://docs.nvidia.com/gameworks/content/gameworkslibrary/physx/guide/Manual/Simulation.html
 }

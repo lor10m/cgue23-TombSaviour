@@ -9,23 +9,25 @@ void Hdu::createHdu(GLFWwindow* window, Camera* threeDCamera) {
 	Camera camera(window, threeDCamera->fov, (double)800 / (double)800, threeDCamera->near, threeDCamera->far, true);
 	hduCamera = camera;
 
-	simpleShader.createHDUShader("assets/textures/hduTry.dds");
+	simpleShader.createHDUShader("assets/textures/hdu/scorpions.dds");
 
 	glfwGetWindowSize(window, &width, &height);
 
-	glm::vec3 screenPosition = glm::vec3(120 - width / 2.0f, height / 2.0f - 90, 0.0f);
+	/*glm::vec3 screenPosition = glm::vec3(120 - width / 2.0f, height / 2.0f - 90, 0.0f);
 	glm::vec3 screenScale = glm::vec3(190.0f, 190.0f, 1.0f);
+	Transform screenTransform;
+	screenTransform.translate(screenPosition);
+	screenTransform.scale(screenScale);*/
+
+	glm::vec3 screenPosition = glm::vec3(0.5f, 0.75f, 0.0f);
+	glm::vec3 screenScale = glm::vec3(1.0f, 1.0f, 1.0f);
 	Transform screenTransform;
 	screenTransform.translate(screenPosition);
 	screenTransform.scale(screenScale);
 
-
-	Transform t;
-	t.scale(glm::vec3(2.0f, 2.0f, 0.0f));
-
 	screenObject.generateModel("assets/objects/screen.obj");
 
-	simpleShader.setUniformMatrix4fv("modelMatrix", 1, GL_FALSE, t.getMatrix());
+	simpleShader.setUniformMatrix4fv("modelMatrix", 1, GL_FALSE, screenTransform.getMatrix());
 
 	//initLevelGui();
 

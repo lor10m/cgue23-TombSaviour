@@ -96,7 +96,8 @@ void Objects::createHduObject(GLFWwindow* window)
 void Objects::render(GLFWwindow* window, float dt)//, Shader* enemyModelShader)
 {
     // Character: 
-    mummy.pollInput(window, 0.08);
+    mummy.pollInput(window, dt);        // ca.: 
+    std::cout << dt << "\n";
 
     glm::mat4 projection = glm::mat4(1.0f);
     glm::mat4 viewMatrix = camera->getTransformMatrix();
@@ -135,13 +136,13 @@ void Objects::render(GLFWwindow* window, float dt)//, Shader* enemyModelShader)
     enemy.move(mummy.getPosition(), 0.2, dt);
 
 
-
     //hduObject->simpleShader.setUniformMatrix4fv("viewMatrix", 1, GL_FALSE, hduObject->hduCamera.getProjectionMatrixHDU());
     //hduObject->simpleShader.setUniform3f("eyePos", hduObject->hduCamera.cameraPosition.x, hduObject->hduCamera.cameraPosition.y, hduObject->hduCamera.cameraPosition.z);
+
     hduObject.drawHDU();
 
     // simulate physx
-    physxScene->simulate(window, 1.0f / 60.0f);
+    //physxScene->simulate(window, 1.0f / 60.0f);     // min. 60 FPS and Framerate Independence
 }
 
 void Objects::deleteObjects()
