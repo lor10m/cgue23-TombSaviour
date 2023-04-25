@@ -132,7 +132,7 @@ int main()
 		glClearColor(0.9f, 0.9f, 0.9f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-		camera.pollMousePosition(window, true);
+		camera.pollMousePosition(window, isShooterCam());
 
 		objects.render(window, currentFrame, deltaTime);
 

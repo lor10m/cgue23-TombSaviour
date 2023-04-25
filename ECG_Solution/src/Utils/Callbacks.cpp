@@ -6,6 +6,7 @@ static GLenum currentPolygonMode = GL_FILL;
 static GLboolean isBackfaceCullingActive = GL_TRUE;
 bool fullscreen = false;
 int oldWidth, oldHeight;
+bool shooterCamera = true;
 
 void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods) {
     if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS) {
@@ -80,6 +81,10 @@ void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods
     if (key == GLFW_KEY_SPACE && action == GLFW_PRESS) {
         // TODO sth
     }
+
+    if (key == GLFW_KEY_C && action == GLFW_PRESS) {
+        shooterCamera = !shooterCamera;
+    }
 }
 
 void debugCallback(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const GLchar *message, const void *userParam) {
@@ -131,6 +136,10 @@ void framebufferSizeCallback(GLFWwindow* window, int width, int height) {
     camera->updateProjectionMatrix(aspectRatio);
 }
 
+bool isShooterCam()
+{
+    return shooterCamera;
+}
 
 //void Character::mouseButtonCallback(int button, int action, int mods) {
 //    if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS)
