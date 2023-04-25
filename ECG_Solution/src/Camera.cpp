@@ -78,7 +78,7 @@ void Camera::pollMousePosition(GLFWwindow* window, bool isShooterCamera)
 			lastX = xpos;
 			lastY = ypos;
 			firstMouse = false;
-			glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+			//glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 		}
 
 		const int threshold = 50;
@@ -112,8 +112,6 @@ void Camera::pollMousePosition(GLFWwindow* window, bool isShooterCamera)
 		cameraFront = glm::normalize(front);
 	}
 	else {
-
-
 		// Calculate center of window
 		double centerX = width / 2.0;
 		double centerY = height / 2.0;
