@@ -178,7 +178,6 @@ void PhysxScene::createSpike(unsigned int index, glm::vec3 size, glm::vec3 posit
 	spikes.push_back(spike);
 }
 
-
 void PhysxScene::simulate(GLFWwindow* window, Camera* camera, float timeStep, std::map<unsigned int, SpikeStruct>& spikeStruct, std::map<unsigned int, CactusStruct>& cactusStruct)
 {
 	scene->simulate(timeStep);

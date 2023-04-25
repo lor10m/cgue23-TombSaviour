@@ -1,7 +1,8 @@
 #include "Objects.h"
 
 
-Objects::Objects(Camera* camera, PhysxScene* physxScene)
+
+Objects::Objects(GLFWwindow* window, Camera* camera, PhysxScene* physxScene)
 {
 	this->camera = camera;
 	this->physxScene = physxScene;
@@ -26,6 +27,7 @@ Objects::Objects(Camera* camera, PhysxScene* physxScene)
 		createSpike();
 	}
 
+	createHduObject(window);
 }
 
 void Objects::createTerrain()
@@ -133,10 +135,19 @@ void Objects::createSpike()
 
 }
 
-void Objects::render(GLFWwindow* window, float dt)
+void Objects::createHduObject(GLFWwindow* window)
+{
+    hduObject.createHdu(window, camera);
+
+}
+
+void Objects::render(GLFWwindow* window, float dt)//, Shader* enemyModelShader)
 {
 	// Character: 
-	mummy.pollInput(window, 0.08);
+	// mummy.pollInput(window, 0.08);
+    // Character: 
+    mummy.pollInput(window, dt);        // ca.: 
+    std::cout << dt << "\n";
 
 	glm::mat4 projection = glm::mat4(1.0f);
 	glm::mat4 viewMatrix = camera->getTransformMatrix();
@@ -168,9 +179,9 @@ void Objects::render(GLFWwindow* window, float dt)
 	palmTreeShader.setUniform3f("eyePos", camera->cameraPosition.x, camera->cameraPosition.y, camera->cameraPosition.z);
 	palmTree.draw(&palmTreeShader);
 
-	//render enemy
-	enemyShader.setUniformMatrix4fv("viewMatrix", 1, GL_FALSE, camera->getTransformMatrix());
-	enemyShader.setUniform3f("eyePos", camera->cameraPosition.x, camera->cameraPosition.y, camera->cameraPosition.z);
+    ////render enemy
+    enemyShader.setUniformMatrix4fv("viewMatrix", 1, GL_FALSE, camera->getTransformMatrix());
+    enemyShader.setUniform3f("eyePos", camera->cameraPosition.x, camera->cameraPosition.y, camera->cameraPosition.z);
 
 	//render spikes
 	for (const auto& pair : spikes) {
@@ -196,6 +207,14 @@ void Objects::render(GLFWwindow* window, float dt)
 
 	enemy.move(mummy.getPosition(), 0.2, dt);
 
+
+    //hduObject->simpleShader.setUniformMatrix4fv("viewMatrix", 1, GL_FALSE, hduObject->hduCamera.getProjectionMatrixHDU());
+    //hduObject->simpleShader.setUniform3f("eyePos", hduObject->hduCamera.cameraPosition.x, hduObject->hduCamera.cameraPosition.y, hduObject->hduCamera.cameraPosition.z);
+
+    hduObject.drawHDU();
+
+    // simulate physx
+    //physxScene->simulate(window, 1.0f / 60.0f);     // min. 60 FPS and Framerate Independence
 	// simulate physx
 	physxScene->simulate(window, camera, 1.0f / 60.0f, spikes, cacti);
 }

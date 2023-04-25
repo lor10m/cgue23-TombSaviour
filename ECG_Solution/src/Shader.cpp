@@ -98,6 +98,23 @@ void Shader::createSimpleShader(glm::vec3 color, glm::mat4 modelMatrix)
 	setUniformMatrix4fv("modelMatrix", 1, GL_FALSE, modelMatrix);
 }
 
+void Shader::createHDUShader(const std::string& texturePath)
+{
+	shader = glCreateProgram();
+
+	GLuint vertexShader = compileShader(GL_VERTEX_SHADER, "assets/shaders/guiShader.vsh");
+	GLuint fragmentShader = compileShader(GL_FRAGMENT_SHADER, "assets/shaders/guiShader.fs");
+
+	glAttachShader(shader, vertexShader);
+	glAttachShader(shader, fragmentShader);
+	glLinkProgram(shader);
+	glValidateProgram(shader);
+
+	glDeleteShader(vertexShader);
+	glDeleteShader(fragmentShader);
+
+	loadTexture(texturePath, 0);
+}
 
 void Shader::activate() {
 	glUseProgram(shader);
@@ -195,6 +212,8 @@ GLint Shader::getUniformLocation(const std::string& name) {
 //TODO in texture dds/jpg/png
 void Shader::loadTexture(const std::string& texturePath, int unit) {
 	DDSImage ddsImage = loadDDS(texturePath.c_str());
+
+	std::cout << "textureSize of texture: " << texturePath << " size: " << ddsImage.height << ", " << ddsImage.width;
 	if (unit == 0) {
 		glGenTextures(1, &diffuseTexture);
 		glBindTexture(GL_TEXTURE_2D, diffuseTexture);
@@ -238,3 +257,12 @@ void Shader::setUniformMatrix4fv(const std::string& name, int size, GLboolean tr
 	activate();
 	glUniformMatrix4fv(getUniformLocation(name), size, transposed, matrix);
 }
+
+void Shader::changeShader(std::shared_ptr<Camera> camera)
+{
+    /*use();
+    setUniform("viewProjectionMat", camera->getViewProjMat());
+    setUniform("cameraWorld", camera->getWorldPosition());
+    setUniform("brightness", GlobalManager::get().getBrightness());*/
+}
+

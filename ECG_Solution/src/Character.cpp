@@ -1,6 +1,4 @@
 #include "Character.h"
-#include <glm/ext/quaternion_geometric.hpp>
-#include <glm/gtx/dual_quaternion.hpp>
 
 
 Character::Character() {};
@@ -21,56 +19,67 @@ void Character::createCharacter(Camera* camera, PxControllerManager* gManager, P
 
 	playerCamera = camera;
 	setPosition();
+	registerMouseClickCallbacks(window);
 }
 
 void Character::move(glm::vec3 dir, float dt)
 {
-	float moveX = dir.x * charSpeed;
-	float moveZ = dir.z * charSpeed;
+	moveX = dir.x * charSpeed;
+	moveZ = dir.z * charSpeed;
+	disp = physx::PxVec3(moveX, -100.0f, moveZ) * dt;
 
-	pxChar->move(physx::PxVec3(moveX, -100.0f, moveZ) * dt, 0.001f, dt, physx::PxControllerFilters());
+	pxChar->move(disp, 0.001f, dt, physx::PxControllerFilters());
 	setPosition();
 }
 
 void Character::pollInput(GLFWwindow* window, float dt) {
 
 	direction = playerCamera->getDirection();		// cameraFront
-	glm::vec3 dirForward{ 0.0f, 0.0f, 0.0f };
-	glm::vec3 dirRight  { 0.0f, 0.0f, 0.0f };
 
 	if (glfwGetKey(window, GLFW_KEY_B) == GLFW_PRESS) {
 		getBackToStart();
 		//std::cout << "B!";
 	}
-	if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) {
-		dirForward += direction;
-		//std::cout << "W!";
-	}
-	if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) {
-		dirForward -= direction;
-		//std::cout << "S!";
-	}
-	if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) {
-		dirRight -= glm::normalize(glm::cross(direction, up));
-		//std::cout << "A!";
-	}
-	if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) {
-		dirRight += glm::normalize(glm::cross(direction, up));
-		//std::cout << "D!";
-	}
+
+	dirForward = getWSdirection(window);
+	dirRight = getADdirection(window);
+
 	if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_RELEASE && superSpeed) {
-		charSpeed = 4;
+		charSpeed = 2;
 		superSpeed = false;
 	}
 	if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS) {
-		charSpeed = 8;
+		charSpeed = 6;
 		superSpeed = true;
+		printPosition();
 	}
 	if (glfwGetKey(window, GLFW_KEY_W) != GLFW_PRESS && glfwGetKey(window, GLFW_KEY_S) != GLFW_PRESS && glfwGetKey(window, GLFW_KEY_A) != GLFW_PRESS && glfwGetKey(window, GLFW_KEY_D) != GLFW_PRESS) {
 		return;	// it shouldn't do anything (also not just setting the same position again if no key is pressed
 	}
 	move(normalize(dirForward + dirRight), dt);
 }
+
+void Character::registerMouseClickCallbacks(GLFWwindow* window) {
+	glfwSetWindowUserPointer(window, this);
+	glfwSetMouseButtonCallback(window, [](GLFWwindow* w, int button, int action, int mods) {
+		static_cast<Character*>(glfwGetWindowUserPointer(w))->mouseButtonCallback(button, action, mods);
+		});
+}
+
+void Character::mouseButtonCallback(int button, int action, int mods) {
+	if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS)
+	{
+		// left mouse button is clicked
+		std::cout << "Left mouse button is clicked." << std::endl;
+
+	}
+	if (button == GLFW_MOUSE_BUTTON_RIGHT && action == GLFW_PRESS)
+	{
+		// left mouse button is clicked
+		std::cout << "Right mouse button is clicked." << std::endl;
+	}
+}
+
 
 void Character::setPosition() {
 	physx::PxExtendedVec3 pos = pxChar->getPosition(); //getFootPosition()
@@ -100,4 +109,90 @@ void Character::printPosition() { // print current Position of controller object
 	std::cout << "\nCharPos: " << charPosition.x << "CameraPos: " << playerCamera->getCameraPosition().x << "\n";
 	std::cout << "CharPos: " << charPosition.y << "CameraPos: " << playerCamera->getCameraPosition().y << "\n";
 	std::cout << "CharPos: " << charPosition.z << "CameraPos: " << playerCamera->getCameraPosition().z << "\n";
+}
+
+glm::vec3 Character::getWSdirection(GLFWwindow* window) {
+	dirForward = glm::vec3(0.0f, 0.0f, 0.0f);
+
+	if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) {
+		w_pressed = true;
+		if (setnewWtime) {
+			time_w_pressed = glfwGetTime();
+			setnewWtime = false;
+		}
+	}
+	if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) {
+		s_pressed = true;
+		if (setnewStime) {
+			time_s_pressed = glfwGetTime();
+			setnewStime = false;
+		}
+	}
+	if (glfwGetKey(window, GLFW_KEY_W) == GLFW_RELEASE) {
+		w_pressed = false;
+		setnewWtime = true;
+	}
+	if (glfwGetKey(window, GLFW_KEY_S) == GLFW_RELEASE) {
+		s_pressed = false;
+		setnewStime = true;
+	}
+	if (w_pressed && s_pressed) {
+		// check which key was last pressed
+		if (time_w_pressed > time_s_pressed) {
+			dirForward += direction;
+		}
+		else {
+			dirForward -= direction;
+		}
+	}
+	else if (w_pressed) {
+		dirForward += direction;
+	}
+	else if (s_pressed) {
+		dirForward -= direction;
+	}
+	return dirForward;
+}
+
+glm::vec3 Character::getADdirection(GLFWwindow* window) {
+	dirRight = glm::vec3(0.0f, 0.0f, 0.0f);
+
+	if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) {
+		a_pressed = true;
+		if (setnewAtime) {
+			time_a_pressed = glfwGetTime();
+			setnewAtime = false;
+		}
+	}
+	if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) {
+		d_pressed = true;
+		if (setnewDtime) {
+			time_d_pressed = glfwGetTime();
+			setnewDtime = false;
+		}
+	}
+	if (glfwGetKey(window, GLFW_KEY_A) == GLFW_RELEASE) {
+		a_pressed = false;
+		setnewAtime = true;
+	}
+	if (glfwGetKey(window, GLFW_KEY_D) == GLFW_RELEASE) {
+		d_pressed = false;
+		setnewDtime = true;
+	}
+	if (a_pressed && d_pressed) {
+		// check which key was last pressed
+		if (time_a_pressed > time_d_pressed) {
+			dirRight -= glm::normalize(glm::cross(direction, up));
+		}
+		else {
+			dirRight += glm::normalize(glm::cross(direction, up));
+		}
+	}
+	else if (a_pressed) {
+		dirRight -= glm::normalize(glm::cross(direction, up));
+	}
+	else if (d_pressed) {
+		dirRight += glm::normalize(glm::cross(direction, up));
+	}
+	return dirRight;
 }

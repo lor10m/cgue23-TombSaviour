@@ -8,6 +8,7 @@
 #include "Enemy.h"
 #include "ShaderManager.h"
 #include "Drawables/Cube.h"
+#include "Hdu.h"
 #include "Utils/GlobalVariables.h"
 
 class Objects {
@@ -15,6 +16,9 @@ class Objects {
 private:
 	PhysxScene* physxScene;
 	Camera* camera;
+	
+	
+	Hdu hduObject;
 
 	Terrain terrain;
 	Enemy enemy;
@@ -31,6 +35,7 @@ private:
 
 	Character mummy;
 	Texture cactusTexture;
+	Shader hduShader;
 
 	unsigned int spikeCounter = 0;
 	unsigned int cactiCounter = 0;
@@ -46,13 +51,14 @@ private:
 
 public:
 
-	Objects(Camera* camera, PhysxScene* physxScene);
+	Objects(GLFWwindow* window, Camera* camera, PhysxScene* physxScene);
 	void render(GLFWwindow* window, float dt);
 	void createMummy();
 	void createTerrain();
 	void createEnemy();
 	void createPyramid();
 	void createPalmTree();
+	void createHduObject(GLFWwindow* window);
 	void deleteObjects();
 	void createCactus(glm::vec3 position);
 };
