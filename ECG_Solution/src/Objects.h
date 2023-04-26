@@ -45,7 +45,7 @@ private:
 	
 
 	unsigned int numCacti = 3;
-	unsigned int numSpikes = 5 * numCacti;
+	unsigned int numSpikes = 3 * numCacti;
 	void createSpike();
 
 	double physxDeltaTime = 0.0;

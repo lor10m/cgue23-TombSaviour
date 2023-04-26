@@ -44,13 +44,13 @@ void Character::pollInput(GLFWwindow* window, float dt) {
 	dirRight = getADdirection(window);
 
 	if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_RELEASE && superSpeed) {
-		charSpeed = 2;
+		charSpeed = 10;
 		superSpeed = false;
 	}
 	if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS) {
-		charSpeed = 6;
+		charSpeed = 20;
 		superSpeed = true;
-		printPosition();
+		//printPosition();
 	}
 	if (glfwGetKey(window, GLFW_KEY_W) != GLFW_PRESS && glfwGetKey(window, GLFW_KEY_S) != GLFW_PRESS && glfwGetKey(window, GLFW_KEY_A) != GLFW_PRESS && glfwGetKey(window, GLFW_KEY_D) != GLFW_PRESS) {
 		return;	// it shouldn't do anything (also not just setting the same position again if no key is pressed
@@ -77,7 +77,7 @@ glm::vec3 Character::getPosition() {
 }
 
 void Character::getBackToStart() {		// get back to start position with "B"
-	physx::PxExtendedVec3 newPosition = { 0.0f, 200.0f, 0.0f };
+	physx::PxExtendedVec3 newPosition = { 0.0f, 30.0f, 0.0f };
 	pxChar->setPosition(newPosition);
 	setPosition();
 }

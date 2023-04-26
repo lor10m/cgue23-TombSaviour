@@ -17,7 +17,7 @@ Objects::Objects(GLFWwindow* window, Camera* camera, PhysxScene* physxScene)
 	cactusTexture.genTexture("assets/textures/cactus.jpg");
 
 	for (unsigned int i = 0; i < numCacti; i++) {
-		createCactus(glm::vec3(10.0f + 2*i, 25.64f, 0.0f));
+		createCactus(glm::vec3(10.0f + 4 * i, 25.64f, i * 2.0f));
 	}
 
 	spikeShader.createPhongShader(glm::mat4(0.0f), 0.1f, 0.7f, 0.1f, 2);
@@ -88,7 +88,7 @@ void Objects::createPalmTree()
 void Objects::createPyramid()
 {
 	glm::vec3 pyramidRotate = glm::vec3(glm::radians(-90.0f), glm::radians(90.0f), glm::radians(0.0f));
-	glm::vec3 pyramidScale = glm::vec3(2, 2, 2);
+	glm::vec3 pyramidScale = glm::vec3(5, 5, 5);
 	glm::vec3 pyramidTranslate = glm::vec3(5.0, 25.64, 0.0);
 	Transform pyramidTransform;
 	pyramidTransform.translate(pyramidTranslate);
@@ -143,14 +143,14 @@ void Objects::createHduObject(GLFWwindow* window)
 
 void Objects::render(GLFWwindow* window, float currentTime, float dt)
 {
+
+	//TODO load textures in Model.cpp instead of shader and use 1 shader for (almost) all objects
+
 	// Character: 
-	// mummy.pollInput(window, 0.08);
-    // Character: 
     mummy.pollInput(window,	dt);
 
 	glm::mat4 projection = glm::mat4(1.0f);
 	glm::mat4 viewMatrix = camera->getTransformMatrix();
-
 
 	// render the terrain
 	terrainShader.setUniformMatrix4fv("projection", 1, GL_FALSE, projection);

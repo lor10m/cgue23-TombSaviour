@@ -160,6 +160,8 @@ void PhysxScene::createCactus(unsigned int index, glm::vec3 size, glm::vec3 posi
 
 void PhysxScene::createSpike(unsigned int index, glm::vec3 size, glm::vec3 position)
 {
+	//TODO calculate rotation
+
 	PxBoxGeometry boxGeometry(PxVec3(size.x, size.y, size.z));
 	PxMaterial* material = physics->createMaterial(0.5f, 0.5f, 0.1f);
 	PxShape* shape = physics->createShape(boxGeometry, *material);
@@ -187,15 +189,14 @@ void PhysxScene::simulate(GLFWwindow* window, Camera* camera, float timeStep, st
 	for (DynamicActor spike : spikes) {
 		if (spike.isThrownOrPickedUp) {
 			PxVec3 newPos = spike.actor->getGlobalPose().p;
+			//TODO: set rotation: spike.actor->getGlobalPose().q
 			spikeStruct[spike.index].scale = glm::vec3(0.1f, 0.1f, 0.1f);
 			spikeStruct[spike.index].translate = glm::vec3(newPos.x, newPos.y, newPos.z);
 			spikeStruct[spike.index].render = true;
 		}
-		else {
-			//spike.shader->setUniformMatrix4fv("modelMatrix", 1, GL_FALSE, glm::mat4(0.0f));
-		}
 	}
 	for (auto& pair : cacti) {
+		//cactusStruct[pair.second.index].modelMatrix = pair.second.actor->getGlobalPose().p
 		if (pair.second.isThrownOrPickedUp) {
 			cactusStruct.erase(pair.second.index);
 			cacti.erase(pair.second.index);
@@ -227,7 +228,7 @@ void PhysxScene::mouseButtonCallback(GLFWwindow* window, Camera* camera)
 			mouse_right_pressed = true;
 			mouse_right_released = false;
 			if (pickedUpSpikes > 0) {
-				throwSpike(window, camera);
+				throwSpike(camera);
 			}
 		}
 	}
@@ -244,7 +245,7 @@ void PhysxScene::mouseButtonCallback(GLFWwindow* window, Camera* camera)
 
 void PhysxScene::pickUpNearestObject(Camera* camera)
 {
-	float pickUpDistance = 5.0f;
+	float pickUpDistance = 2.0f;
 	glm::vec3 mummyPos = mummy->getPosition();
 
 	for (auto& pair : cacti)
@@ -263,14 +264,8 @@ void PhysxScene::pickUpNearestObject(Camera* camera)
 	}
 }
 
-void PhysxScene::throwSpike(GLFWwindow* window, Camera* camera)
+void PhysxScene::throwSpike(Camera* camera)
 {
-	// Get mouse and window things
-	double mousex, mousey;
-	int windowWidth, windowHeight;
-	glfwGetWindowSize(window, &windowWidth, &windowHeight);
-	glfwGetCursorPos(window, &mousex, &mousey);
-
 	pickedUpSpikes--;
 
 	// Get one of the spikes
@@ -292,27 +287,11 @@ void PhysxScene::throwSpike(GLFWwindow* window, Camera* camera)
 	scene->addActor(*object); // add the spike to the scene
 
 	PxVec3 rayOrigin = PxVec3(origin.x, origin.y, origin.z);
-	PxVec3 throwDirection = -(rayOrigin - objectPos).getNormalized();
+	PxVec3 throwDirection = -(rayOrigin - objectPos).getNormalized(); //TODO
 
 	// throw spike
 	object->setActorFlag(PxActorFlag::eDISABLE_GRAVITY, false);
 	object->addForce(throwDirection * 100, PxForceMode::eIMPULSE);
-}
-
-
-void PhysxScene::pickUpObject(Camera* camera, PxRigidDynamic* object)
-{
-	float pickUpDistance = 5.0f;
-	glm::vec3 mummyPos = mummy->getPosition();
-
-	PxTransform objectPosition = object->getGlobalPose();
-	float distanceToObject = sqrt(pow(objectPosition.p.x - mummyPos.x, 2) + pow(objectPosition.p.y - mummyPos.y, 2));
-
-	if (distanceToObject <= pickUpDistance && !pickedUp)
-	{
-		object->setActorFlag(PxActorFlag::eDISABLE_GRAVITY, true);
-		pickedUp = true;
-	}
 }
 
 PxScene* PhysxScene::getScene()

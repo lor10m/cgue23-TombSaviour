@@ -64,7 +64,7 @@ public:
 
 	unsigned int pickedUpSpikes = 0;
 	unsigned int thrownSpikes = 0;
-	unsigned int spickesPerCactus = 5;
+	unsigned int spickesPerCactus = 3;
 
 	PhysxScene(GLFWwindow* window);
 	void simulate(GLFWwindow* window,Camera* camera, float timeStep, std::map<unsigned int, SpikeStruct>& spikeStruct, std::map<unsigned int, CactusStruct>& cactusStruct);
@@ -75,7 +75,7 @@ public:
 	void createCactus(unsigned int index, glm::vec3 size, glm::vec3 position);
 	void createSpike(unsigned int index, glm::vec3 size, glm::vec3 position);
 
-	void throwSpike(GLFWwindow* window, Camera* camera);
+	void throwSpike(Camera* camera);
 	void pickUpObject(Camera* camera, PxRigidDynamic* object);
 	void pickUpNearestObject(Camera* camera);
 	PxScene* getScene();
