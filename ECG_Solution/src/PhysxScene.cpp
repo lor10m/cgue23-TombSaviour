@@ -5,6 +5,28 @@
 #include "Utils/Transform.h"
 #include "Utils/PhysxCallbacks.h"
 
+PxFilterFlags CollisionFilterShader(
+	PxFilterObjectAttributes attributes0, PxFilterData filterData0,
+	PxFilterObjectAttributes attributes1, PxFilterData filterData1,
+	PxPairFlags& pairFlags, const void* constantBlock, PxU32 constantBlockSize)
+{
+	pairFlags = PxPairFlag::eCONTACT_DEFAULT | PxPairFlag::eNOTIFY_TOUCH_FOUND;
+
+	//if ((filterData0.word0 == 2) || (filterData1.word0 == 2)) // if one is fluffy
+	//{
+	//	pairFlags |= PxPairFlag::eNOTIFY_TOUCH_PERSISTS; // to check if fluffy is currently colliding with something
+	//}
+
+	//if ((filterData0.word0 == PxU32(3)) || (filterData1.word0 == PxU32(3))) // if one is lava
+	//{
+	//	pairFlags |= PxPairFlag::eNOTIFY_CONTACT_POINTS; // to get particle spawn position
+	//}
+
+	//pairFlags = PxPairFlag::eCONTACT_DEFAULT;
+
+	return PxFilterFlag::eDEFAULT;
+}
+
 PhysxScene::PhysxScene(GLFWwindow* window)
 {
 	// init physx
@@ -26,8 +48,9 @@ PhysxScene::PhysxScene(GLFWwindow* window)
 	sceneDesc.gravity = PxVec3(0.0f, -9.81f, 0.0f);
 	dispatcher = PxDefaultCpuDispatcherCreate(2);
 	sceneDesc.cpuDispatcher = dispatcher;
-	sceneDesc.filterShader = PxDefaultSimulationFilterShader;
+	sceneDesc.filterShader = CollisionFilterShader;
 	sceneDesc.simulationEventCallback = this;
+
 	scene = physics->createScene(sceneDesc);
 
 	PxPvdSceneClient* pvdClient = scene->getScenePvdClient();
@@ -79,8 +102,15 @@ void PhysxScene::createTerrain(const char* heightmapPath)
 
 	PxHeightField* heightField = cooking->createHeightField(heightFieldDesc, physics->getPhysicsInsertionCallback());
 	PxHeightFieldGeometry heightFieldGeom(heightField, PxMeshGeometryFlags(), 1.0f, 1.0f, 1.0f);
+
 	PxTransform transform(PxVec3(-width / 2, 0.0f, -width / 2), PxQuat(PxIdentity));
 	PxRigidActor* actor = PxCreateStatic(*physics, transform, heightFieldGeom, *material);
+
+	PxMaterial* material = physics->createMaterial(0.5f, 0.5f, 0.1f);
+	//PxShape* shape = physics->createShape(heightFieldGeom, *material);
+
+	actor->setName("terrain");
+	//actor->attachShape(*shape);
 
 	scene->addActor(*actor);
 }
@@ -166,17 +196,23 @@ void PhysxScene::createSpike(unsigned int index, glm::vec3 size, glm::vec3 posit
 	PxMaterial* material = physics->createMaterial(0.5f, 0.5f, 0.1f);
 	PxShape* shape = physics->createShape(boxGeometry, *material);
 
+
 	PxRigidDynamic* dynamicActor = physics->createRigidDynamic(PxTransform(PxIdentity));
 
-	dynamicActor->attachShape(*shape);
 	PxTransform transform(PxVec3(position.x, position.y, position.z), PxIdentity);
+
+	shape->setLocalPose(transform);
+
+	dynamicActor->attachShape(*shape);
+
 	dynamicActor->setGlobalPose(transform);
 	dynamicActor->setName("spike");
 
 	DynamicActor spike;
 	spike.index = index;
 	spike.actor = dynamicActor;
-	spikes.push_back(spike);
+	spikes[spikes.size()] =  spike;
+
 }
 
 void PhysxScene::simulate(GLFWwindow* window, Camera* camera, float timeStep, std::map<unsigned int, SpikeStruct>& spikeStruct, std::map<unsigned int, CactusStruct>& cactusStruct)
@@ -186,15 +222,30 @@ void PhysxScene::simulate(GLFWwindow* window, Camera* camera, float timeStep, st
 
 	mouseButtonCallback(window, camera);
 
-	for (DynamicActor spike : spikes) {
-		if (spike.isThrownOrPickedUp) {
-			PxVec3 newPos = spike.actor->getGlobalPose().p;
+
+	for (int i = 0; i < spikes.size(); i++) {
+		PxRigidDynamic* spike = spikes[i].actor;
+		if (std::find(actorsToRemove.begin(), actorsToRemove.end(), spike) != actorsToRemove.end()) { //TODO
+			std::cout << "remove spike" << std::endl;
+			spikes[i].isThrownOrPickedUp = false;
+			spikeStruct[spikes[i].index].render = false;
+		}
+		if (spikes[i].isThrownOrPickedUp) {
+			PxVec3 newPos = spikes[i].actor->getGlobalPose().p;
 			//TODO: set rotation: spike.actor->getGlobalPose().q
-			spikeStruct[spike.index].scale = glm::vec3(0.1f, 0.1f, 0.1f);
-			spikeStruct[spike.index].translate = glm::vec3(newPos.x, newPos.y, newPos.z);
-			spikeStruct[spike.index].render = true;
+			spikeStruct[spikes[i].index].scale = glm::vec3(0.1f, 0.1f, 0.1f);
+			spikeStruct[spikes[i].index].translate = glm::vec3(newPos.x, newPos.y, newPos.z);
+			spikeStruct[spikes[i].index].render = true;
 		}
 	}
+
+	for (auto actor : actorsToRemove) {
+		std::cout << "remove actor" << std::endl;
+		scene->removeActor(*actor);
+	}
+
+	actorsToRemove.clear();
+
 	for (auto& pair : cacti) {
 		//cactusStruct[pair.second.index].modelMatrix = pair.second.actor->getGlobalPose().p
 		if (pair.second.isThrownOrPickedUp) {
@@ -203,6 +254,7 @@ void PhysxScene::simulate(GLFWwindow* window, Camera* camera, float timeStep, st
 			break;
 		}
 	}
+
 }
 
 
@@ -291,7 +343,7 @@ void PhysxScene::throwSpike(Camera* camera)
 
 	// throw spike
 	object->setActorFlag(PxActorFlag::eDISABLE_GRAVITY, false);
-	object->addForce(throwDirection * 100, PxForceMode::eIMPULSE);
+	object->addForce(throwDirection * 40, PxForceMode::eIMPULSE);
 }
 
 PxScene* PhysxScene::getScene()
@@ -301,21 +353,32 @@ PxScene* PhysxScene::getScene()
 
 void PhysxScene::onContact(const PxContactPairHeader& pairHeader, const PxContactPair* pairs, PxU32 nbPairs)
 {
-	std::cout << "collide" << std::endl;
 
-	for (PxU32 i = 0; i < nbPairs; i++) {
+	for (PxU32 i = 0; i < nbPairs; i++)
+	{
 		const PxContactPair& cp = pairs[i];
 
 		if (cp.events & PxPairFlag::eNOTIFY_TOUCH_FOUND)
 		{
-			std::cout << "collide" << std::endl;
+			if (pairHeader.actors[0]->is<PxRigidDynamic>()) {
+				if ((std::find(actorsToRemove.begin(), actorsToRemove.end(), pairHeader.actors[0]) == actorsToRemove.end())) {
+					std::cout << "callback" << std::endl;
+					PxActor* act = pairHeader.actors[0];
+					actorsToRemove.push_back(act);
+				}
+			}
+			else if (pairHeader.actors[1]->is<PxRigidDynamic>() && std::find(actorsToRemove.begin(), actorsToRemove.end(), pairHeader.actors[1]) == actorsToRemove.end()) {
+				std::cout << "callback" << std::endl;
+				PxActor* act = pairHeader.actors[1];
+				actorsToRemove.push_back(act);
+			}
 		}
 	}
+
 }
 
 void PhysxScene::onTrigger(PxTriggerPair* pairs, PxU32 count)
 {
-	std::cout << "trigger" << std::endl;
 }
 
 void PhysxScene::deleteScene()

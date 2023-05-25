@@ -25,7 +25,7 @@ struct StaticActor {
 	bool isThrownOrPickedUp = false;
 };
 
-class PhysxScene: public PxSimulationEventCallback
+class PhysxScene : public PxSimulationEventCallback
 {
 private:
 
@@ -55,8 +55,10 @@ private:
 	Shader* cactusShader;
 	glm::mat4 cactusModelMatrix;
 
-	std::vector<DynamicActor> spikes;
+	std::map<unsigned int, DynamicActor> spikes;
 	std::map<unsigned int, StaticActor> cacti;
+
+	std::vector<PxActor*> actorsToRemove;
 
 public:
 	PxMaterial* material = NULL;

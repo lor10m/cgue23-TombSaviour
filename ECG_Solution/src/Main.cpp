@@ -146,7 +146,7 @@ int main()
 		finalTime = glfwGetTime();
 		if (finalTime - initialTime >= 1) 
 		{
-			std::cout << "FPS: " << frameCount / (finalTime - initialTime) << std::endl;
+			//std::cout << "FPS: " << frameCount / (finalTime - initialTime) << std::endl;
 			frameCount = 0;
 			initialTime = finalTime;
 		}

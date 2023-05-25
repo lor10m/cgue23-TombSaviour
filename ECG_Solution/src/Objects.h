@@ -26,12 +26,16 @@ private:
 	Model palmTree;
 	Model pyramid;
 
+	Model pointLightCube;
+
 	Shader terrainShader;
 	Shader enemyShader;
 	Shader palmTreeShader;
 	Shader pyramidShader;
 	Shader cactusShader;
 	Shader spikeShader;
+
+	Shader lightCubeShader;
 
 	Character mummy;
 	Texture cactusTexture;
@@ -59,6 +63,7 @@ public:
 	void createEnemy();
 	void createPyramid();
 	void createPalmTree();
+	void createPointLightCube();
 	void createHduObject(GLFWwindow* window);
 	void deleteObjects();
 	void createCactus(glm::vec3 position);

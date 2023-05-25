@@ -7,7 +7,7 @@ void Shader::createPhongShader(const std::string& diffuseTexture, const std::str
 	shader = glCreateProgram();
 
 	GLuint vertexShader = compileShader(GL_VERTEX_SHADER, "assets/shaders/phong.vsh");
-	GLuint fragmentShader = compileShader(GL_FRAGMENT_SHADER, "assets/shaders/phong.fsh");
+	GLuint fragmentShader = compileShader(GL_FRAGMENT_SHADER, "assets/shaders/phong.fs");
 
 	glAttachShader(shader, vertexShader);
 	glAttachShader(shader, fragmentShader);
@@ -36,7 +36,7 @@ void Shader::createPhongShader(glm::mat4 modelMatrix, float ka, float kd, float 
 	shader = glCreateProgram();
 
 	GLuint vertexShader = compileShader(GL_VERTEX_SHADER, "assets/shaders/phong.vsh");
-	GLuint fragmentShader = compileShader(GL_FRAGMENT_SHADER, "assets/shaders/phong.fsh");
+	GLuint fragmentShader = compileShader(GL_FRAGMENT_SHADER, "assets/shaders/phong.fs");
 
 	glAttachShader(shader, vertexShader);
 	glAttachShader(shader, fragmentShader);
@@ -57,7 +57,9 @@ void Shader::createPhongShader(glm::mat4 modelMatrix, float ka, float kd, float 
 	DirectionalLight directionalLight1({ 0, -1, -1 }, { 0.8f, 0.8f, 0.8f });
 	addUniformPointLight("pointLight", pointLight1);
 	addUniformDirectionalLight("directionalLight", directionalLight1);
+
 }
+
 
 void Shader::createTerrainShader()
 {
@@ -115,6 +117,7 @@ void Shader::createHDUShader(const std::string& texturePath)
 
 	loadTexture(texturePath, 0);
 }
+
 
 void Shader::activate() {
 	glUseProgram(shader);
@@ -260,9 +263,9 @@ void Shader::setUniformMatrix4fv(const std::string& name, int size, GLboolean tr
 
 void Shader::changeShader(std::shared_ptr<Camera> camera)
 {
-    /*use();
-    setUniform("viewProjectionMat", camera->getViewProjMat());
-    setUniform("cameraWorld", camera->getWorldPosition());
-    setUniform("brightness", GlobalManager::get().getBrightness());*/
+	/*use();
+	setUniform("viewProjectionMat", camera->getViewProjMat());
+	setUniform("cameraWorld", camera->getWorldPosition());
+	setUniform("brightness", GlobalManager::get().getBrightness());*/
 }
 

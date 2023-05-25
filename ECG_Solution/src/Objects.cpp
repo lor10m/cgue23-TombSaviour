@@ -8,9 +8,10 @@ Objects::Objects(GLFWwindow* window, Camera* camera, PhysxScene* physxScene)
 	this->physxScene = physxScene;
 	createTerrain();
 	createMummy(window);
-	createEnemy();
+	//createEnemy();
 	createPyramid();
 	createPalmTree();
+	createPointLightCube();
 
 	cactusShader.createPhongShader(glm::mat4(0.0f), 0.1f, 1.0f, 0.1f, 2);
 	cactusShader.setUniform1i("isAnimated", 0);
@@ -76,8 +77,9 @@ void Objects::createPalmTree()
 	palmTransform.rotate(palmRotate);
 	palmTransform.scale(palmScale);
 
+	//shaderManager.createCookTorranceShader({ 1.0f, 1.0f, 1.0f, 1.0f }, 0.05f, 0.8f, 0.01f + 0.02f * j, 0.1f + 0.4 * i);
 
-	palmTreeShader.createPhongShader("assets/textures/wood_texture.dds", "assets/textures/wood_texture_specular.dds", palmTransform.getMatrix(), 0.1f, 0.7f, 0.1f, 2);
+	palmTreeShader.createCookTorranceShader("assets/textures/wood_texture.dds", "assets/textures/wood_texture_specular.dds", palmTransform.getMatrix(), 0.05f, 0.8f, 0.5f, 1.0f);
 	palmTreeShader.setUniform1i("isAnimated", 0);
 
 	palmTree.generateModel("assets/objects/palm_tree.obj");
@@ -96,10 +98,21 @@ void Objects::createPyramid()
 	pyramidTransform.scale(pyramidScale);
 	pyramid.generateModel("assets/objects/pyramid1.obj");
 
-	pyramidShader.createPhongShader("assets/textures/wood_texture.dds", "assets/textures/wood_texture_specular.dds", pyramidTransform.getMatrix(), 0.1f, 0.7f, 0.1f, 2);
+	pyramidShader.createCookTorranceShader("assets/textures/wood_texture.dds", "assets/textures/wood_texture_specular.dds", pyramidTransform.getMatrix(), 0.05f, 0.8f, 1.0f, 1.0f);
 	pyramidShader.setUniform1i("isAnimated", 0);
 
 	physxScene->createModel("pyramid", pyramid.indices, pyramid.vertices, pyramid.normals, pyramidScale, pyramidTranslate, pyramidRotate);
+}
+
+void Objects::createPointLightCube()
+{
+	Transform t;
+	t.translate(glm::vec3(0.0f, 30.0, -7.0));
+	t.scale(glm::vec3(0.1, 0.1, 0.1));
+	pointLightCube.generateModel("assets/objects/cube.obj");
+
+	lightCubeShader.createPhongShader("assets/textures/weiss.dds", "assets/textures/weiss.dds", t.getMatrix(), 1,1,1, 1);
+	lightCubeShader.setUniform1i("isAnimated", 0);
 }
 
 void Objects::createCactus(glm::vec3 position)
@@ -178,9 +191,14 @@ void Objects::render(GLFWwindow* window, float currentTime, float dt)
 	palmTreeShader.setUniform3f("eyePos", camera->cameraPosition.x, camera->cameraPosition.y, camera->cameraPosition.z);
 	palmTree.draw(&palmTreeShader);
 
+	//render light cube
+	lightCubeShader.setUniformMatrix4fv("viewMatrix", 1, GL_FALSE, camera->getTransformMatrix());
+	lightCubeShader.setUniform3f("eyePos", camera->cameraPosition.x, camera->cameraPosition.y, camera->cameraPosition.z);
+	pointLightCube.draw(&lightCubeShader);
+
     //render enemy
-    enemyShader.setUniformMatrix4fv("viewMatrix", 1, GL_FALSE, camera->getTransformMatrix());
-    enemyShader.setUniform3f("eyePos", camera->cameraPosition.x, camera->cameraPosition.y, camera->cameraPosition.z);
+    //enemyShader.setUniformMatrix4fv("viewMatrix", 1, GL_FALSE, camera->getTransformMatrix());
+    //enemyShader.setUniform3f("eyePos", camera->cameraPosition.x, camera->cameraPosition.y, camera->cameraPosition.z);
 
 	//render spikes
 	for (const auto& pair : spikes) {
@@ -196,15 +214,15 @@ void Objects::render(GLFWwindow* window, float currentTime, float dt)
 		}
 	}
 
-	std::vector<glm::mat4> transformationMatrices;
-	enemyModel.getBoneTransforms(currentTime, glm::mat4(1.0f), transformationMatrices);
-	for (unsigned int i = 0; i < transformationMatrices.size(); i++) {
-		glm::mat4 mat = transformationMatrices[i];
-		enemyShader.setUniformMatrix4fv("bones[" + std::to_string(i) + "]", 1, GL_FALSE, mat);
-	}
-	enemyModel.draw(&enemyShader);
+	//std::vector<glm::mat4> transformationMatrices;
+	//enemyModel.getBoneTransforms(currentTime, glm::mat4(1.0f), transformationMatrices);
+	//for (unsigned int i = 0; i < transformationMatrices.size(); i++) {
+	//	glm::mat4 mat = transformationMatrices[i];
+	//	enemyShader.setUniformMatrix4fv("bones[" + std::to_string(i) + "]", 1, GL_FALSE, mat);
+	//}
+	//enemyModel.draw(&enemyShader);
 
-	enemy.move(mummy.getPosition(), 50, dt);
+	//enemy.move(mummy.getPosition(), 50, dt);
 
 
     //hduObject->simpleShader.setUniformMatrix4fv("viewMatrix", 1, GL_FALSE, hduObject->hduCamera.getProjectionMatrixHDU());

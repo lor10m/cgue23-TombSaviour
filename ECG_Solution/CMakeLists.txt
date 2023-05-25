@@ -35,7 +35,7 @@ find_package(OpenGL REQUIRED)
 ################################################################################
 # All_Sources is imported from SourcesList.cmake
 message(STATUS "All_Sources: ${All_Sources}")
-add_executable(${PROJECT_NAME} ${All_Sources} ../assets/settings.ini "src/Hdu.h" "src/Hdu.cpp" "src/Utils/stb_image.h" "src/Utils/stb_image.cpp"  "src/Utils/GlobalVariables.cpp" "src/Utils/GlobalVariables.h" "src/Terrain.h" "src/Terrain.cpp" "src/Texture.h" "src/Texture.cpp" "src/PhysxScene.h" "src/PhysxScene.cpp" "src/Drawables/Model.h" "src/Drawables/Model.cpp"  "src/Character.h" "src/Character.cpp" "src/Enemy.h" "src/Enemy.cpp" "src/Objects.h" "src/Objects.cpp" "src/Utils/PhysxCallbacks.h")
+add_executable(${PROJECT_NAME} ${All_Sources} ../assets/settings.ini "src/Hdu.h" "src/Hdu.cpp" "src/Utils/stb_image.h" "src/Utils/stb_image.cpp"  "src/Utils/GlobalVariables.cpp" "src/Utils/GlobalVariables.h" "src/Terrain.h" "src/Terrain.cpp" "src/Texture.h" "src/Texture.cpp" "src/PhysxScene.h" "src/PhysxScene.cpp" "src/Drawables/Model.h" "src/Drawables/Model.cpp"  "src/Character.h" "src/Character.cpp" "src/Enemy.h" "src/Enemy.cpp" "src/Objects.h" "src/Objects.cpp" "src/Utils/PhysxCallbacks.h" "src/ShadowMap.h" "src/ShadowMap.cpp")
 set(LIBRARY_OUTPUT_PATH "${CMAKE_BINARY_DIR}")
 set(EXECUTABLE_OUTPUT_PATH "${CMAKE_BINARY_DIR}")
 

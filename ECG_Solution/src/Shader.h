@@ -26,6 +26,7 @@ public:
     void createPhongShader(glm::mat4 modelMatrix, float ka, float kd, float ks, int alpha);
     void createTerrainShader();
     void createSimpleShader(glm::vec3 color, glm::mat4 modelMatrix);
+    void createCookTorranceShader(const std::string& diffuseTexture, const std::string& specularTexture, glm::mat4 modelMatrix, float ka, float kd, float roughness, float ior);
  
     GLuint compileShader(GLuint type, const std::string& path) const;
     void activate();
