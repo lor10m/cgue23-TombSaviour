@@ -22,6 +22,7 @@ public:
 	int lightIdx;
 	double lightArray[20];
 	double illumination_multiplier;
+
 };
 
 void setIllumination(int newLightIdx);

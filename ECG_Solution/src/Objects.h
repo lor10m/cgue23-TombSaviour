@@ -16,8 +16,7 @@ class Objects {
 private:
 	PhysxScene* physxScene;
 	Camera* camera;
-	
-	
+
 	Hdu hduObject;
 
 	Terrain terrain;

@@ -94,7 +94,7 @@ void Objects::createPyramid()
 	pyramidTransform.translate(pyramidTranslate);
 	pyramidTransform.rotate(pyramidRotate);
 	pyramidTransform.scale(pyramidScale);
-	pyramid.generateModel("assets/objects/pyramid1.obj");
+	pyramid.generateModel("assets/objects/pyramid1.obj"); //pyramid1
 
 	pyramidShader.createPhongShader("assets/textures/wood_texture.dds", "assets/textures/wood_texture_specular.dds", pyramidTransform.getMatrix(), 0.1f, 0.7f, 0.1f, 2);
 	pyramidShader.setUniform1i("isAnimated", 0);
@@ -137,8 +137,8 @@ void Objects::createSpike()
 
 void Objects::createHduObject(GLFWwindow* window)
 {
-    hduObject.createHdu(window, camera);
-
+    hduObject.createHdu(window, camera, physxScene->getLifeCnt());
+	physxScene->setHDU(&hduObject);
 }
 
 void Objects::render(GLFWwindow* window, float currentTime, float dt)
@@ -210,7 +210,7 @@ void Objects::render(GLFWwindow* window, float currentTime, float dt)
     //hduObject->simpleShader.setUniformMatrix4fv("viewMatrix", 1, GL_FALSE, hduObject->hduCamera.getProjectionMatrixHDU());
     //hduObject->simpleShader.setUniform3f("eyePos", hduObject->hduCamera.cameraPosition.x, hduObject->hduCamera.cameraPosition.y, hduObject->hduCamera.cameraPosition.z);
 
-    hduObject.drawHDU();
+    hduObject.drawHDU(window);
 
     // simulate physx
     //physxScene->simulate(window, 1.0f / 60.0f);     // min. 60 FPS and Framerate Independence

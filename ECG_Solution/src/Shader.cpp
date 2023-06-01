@@ -116,6 +116,14 @@ void Shader::createHDUShader(const std::string& texturePath)
 	loadTexture(texturePath, 0);
 }
 
+void Shader::changeTexture(const std::string& newTexturePath)
+{
+	glActiveTexture(GL_TEXTURE0 + 0);
+	glBindTexture(GL_TEXTURE_2D, 0); // unbind previous texture
+
+	loadTexture(newTexturePath, 0); // load + bind new texture
+}
+
 void Shader::activate() {
 	glUseProgram(shader);
 	if (diffuseTexture != 0) {

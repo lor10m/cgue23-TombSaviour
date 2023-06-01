@@ -5,31 +5,41 @@
 #include "Shader.h"
 #include "Camera.h"
 #include "Drawables/Model.h"
+#include "Utils/Transform.h"
 
-class Hdu
+struct HduData
 {
-private:
-
-
-public:
-
-	Hdu();
-	void createHdu(GLFWwindow* window, Camera* threeDCamera);
-
-	//void initHdu();
-
-	//std::shared_ptr<Camera> hduCamera;
-	Camera hduCamera;
-
 	Shader simpleShader;
-	Model screenObject;
+	Model model;
+	Transform transform;
+	float ndcXposition; // Position (normalized)
+	float scaleMulti = 1.0f;
+	glm::vec3 getScale(float widthScale, float heightScale) {
+		return glm::vec3(widthScale * scaleMulti, heightScale * scaleMulti, 1.0f);
+	}
+};
 
-	void Hdu::drawHDU();
+class Hdu {
+public:
+	Hdu();
 
-	std::shared_ptr<Texture> startTexture;
+	Camera hduCamera;
+	std::unordered_map<std::string, HduData> hduDataMap;
+	const Transform emptyTransform;			// ugly but functional
+	float widthScale, heightScale;		// Scale
+	int screenWidth, screenHeight;
+	int currentLifeNr;
+	int maxLifeNr;
 
-	//void Hdu::renderFirstHDU(GLFWwindow* window, Camera* threeDCamera);
-
-	int width, height;
+	void createHdu(GLFWwindow* window, Camera* threeDCamera, int lifeStartNumber);
+	void drawHDU(GLFWwindow* window);
+	void generateStartHDU();
+	void initGameHDU(int lifeStartNumber);
+	void calculateScale();
+	void calculatePosition();
+	void updateSpikeCount(int newNumber);
+	void updateLifeCount(int newLifeNumber);
+	void showGameOverScreen();
+	float getFullscreenHDUScale();
 
 };

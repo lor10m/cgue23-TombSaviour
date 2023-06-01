@@ -69,13 +69,13 @@ int main()
 	glfwMakeContextCurrent(window);
 	glfwSetKeyCallback(window, keyCallback);
 
-	/*
+	
 	// TODO illumination multiplier
 	int brightnessIdx = reader.GetReal("global", "brightnessIdx", 10);
 	setIllumination(brightnessIdx);
 	std::cout << "Illumination: " << getIlluminationMultiplier() << "\n";
 	// https://github.com/lor10m/cgue23-TombSaviour/blob/CameraEtc/ECG_Solution/src/GlobalVariables.cpp
-	*/
+	int lifeNumber = reader.GetReal("global", "maxlifes", 3);
 
 	//glewExperimental = true;
 	if (GLEW_OK != glewInit()) {
@@ -99,7 +99,7 @@ int main()
     // ------------------------------------
 	
 	// OBJECTS
-	PhysxScene physxScene(window);
+	PhysxScene physxScene(window, lifeNumber);
 	Objects objects(window, &camera, &physxScene);
 	
     glfwSetWindowUserPointer(window, &camera);
@@ -122,14 +122,14 @@ int main()
 	// -----------
 	while (!glfwWindowShouldClose(window))
 	{
-
 		//calculate frame rate
 		float currentFrame = glfwGetTime();
 		float deltaTime = currentFrame - lastFrame; //frame rate
 		lastFrame = currentFrame;
 
 		// render
-		glClearColor(0.9f, 0.9f, 0.9f, 1.0f);
+		//glClearColor(0.9f, 0.9f, 0.9f, 1.0f);		// white/grey
+		glClearColor(0.7f, 0.7f, 1.0f, 1.0f);		// light blue
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		camera.pollMousePosition(window, isShooterCam());
@@ -139,7 +139,6 @@ int main()
 		// glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
 		glfwSwapBuffers(window);
 		glfwPollEvents();
-
 
 		// calculate actual FPS
 		frameCount++;

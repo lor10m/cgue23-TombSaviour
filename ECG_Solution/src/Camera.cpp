@@ -78,7 +78,7 @@ void Camera::pollMousePosition(GLFWwindow* window, bool isShooterCamera)
 			lastX = xpos;
 			lastY = ypos;
 			firstMouse = false;
-			glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+			//glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 		}
 
 		const int threshold = 50;

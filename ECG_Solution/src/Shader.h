@@ -37,6 +37,7 @@ public:
     void setUniformMatrix4fv(const std::string& name, int size, GLboolean transposed, glm::mat4 matrix);
     void setUniformMatrix4fv(const std::string& name, int size, GLboolean transposed, GLfloat* matrix);
     void createHDUShader(const std::string& texturePath);
+    void changeTexture(const std::string& newTexturePath);
     void changeShader(std::shared_ptr<Camera> camera);
     void addUniformPointLight(const std::string& name, PointLight pointLight);
     void addUniformDirectionalLight(const std::string& name, DirectionalLight directionalLight);
