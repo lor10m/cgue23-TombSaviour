@@ -94,7 +94,7 @@ void Objects::createPyramid()
 	pyramidTransform.translate(pyramidTranslate);
 	pyramidTransform.rotate(pyramidRotate);
 	pyramidTransform.scale(pyramidScale);
-	pyramid.generateModel("assets/objects/pyramid1.obj"); //pyramid1
+	pyramid.generateModel("assets/objects/untitled5.obj"); //pyramid1	untitled5.obj
 
 	pyramidShader.createPhongShader("assets/textures/wood_texture.dds", "assets/textures/wood_texture_specular.dds", pyramidTransform.getMatrix(), 0.1f, 0.7f, 0.1f, 2);
 	pyramidShader.setUniform1i("isAnimated", 0);
