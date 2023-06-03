@@ -27,6 +27,8 @@ struct Vertex
 {
 	glm::vec3 position;
 	glm::vec2 uv;
+	glm::vec3 tangents;
+	glm::vec3 bitangents;
 };
 
 struct BoneData
@@ -51,8 +53,11 @@ struct Mesh
 	std::vector<Vertex> vertices;
 	std::vector<glm::vec3> normals;
 	std::vector<unsigned int> indices;
-	std::vector<BoneData> boneData;
 	std::vector<Texture> textures;
+	//std::vector<glm::vec3> tangents;
+	//std::vector<glm::vec3> bitangents;
+
+	std::vector<BoneData> boneData;
 	int baseVertexIndex;
 	int baseIndicesIndex;
 	float ambient = -1;

@@ -134,7 +134,7 @@ int main()
 
 		camera.pollMousePosition(window, isShooterCam());
 
-		objects.render(window, currentFrame, deltaTime);
+		objects.render(window, currentFrame, deltaTime, normalMappingActivated());
 
 		// glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
 		glfwSwapBuffers(window);

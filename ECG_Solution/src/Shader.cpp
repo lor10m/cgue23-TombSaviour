@@ -1,4 +1,5 @@
 #include "Shader.h"
+#include "Utils/stb_image.h"
 
 
 Shader::Shader() {}
@@ -17,8 +18,8 @@ void Shader::createPhongShader(const std::string& diffuseTexture, const std::str
 	glDeleteShader(vertexShader);
 	glDeleteShader(fragmentShader);
 
-	loadTexture(diffuseTexture, 0);
-	loadTexture(specularTexture, 1);
+	loadDDSTexture(diffuseTexture, 0);
+	loadDDSTexture(specularTexture, 1);
 	setUniform1f("ka", ka);
 	setUniform1f("kd", kd);
 	setUniform1f("ks", ks);
@@ -30,6 +31,32 @@ void Shader::createPhongShader(const std::string& diffuseTexture, const std::str
 	DirectionalLight directionalLight1({ 0, -1, -1 }, { 0.8f, 0.8f, 0.8f });
 	addUniformPointLight("pointLight", pointLight1);
 	addUniformDirectionalLight("directionalLight", directionalLight1);
+}
+
+void Shader::createNormalShader(const char* diffuseTexturePath, const char* specularTexturePath, const char* normalTexturePath, glm::mat4 modelMatrix)
+{
+	shader = glCreateProgram();
+
+	GLuint vertexShader = compileShader(GL_VERTEX_SHADER, "assets/shaders/normal.vsh");
+	GLuint fragmentShader = compileShader(GL_FRAGMENT_SHADER, "assets/shaders/normal.fs");
+
+
+	loadTexture(diffuseTexturePath, 0);
+	loadTexture(specularTexturePath, 1);
+	loadTexture(normalTexturePath, 2);
+
+	setUniform1i("diffuseTexture", 0);
+	setUniform1i("specularTexture", 1);
+	setUniform1i("normalTexture", 2);
+
+	glAttachShader(shader, vertexShader);
+	glAttachShader(shader, fragmentShader);
+	glLinkProgram(shader);
+	glValidateProgram(shader);
+
+	glDeleteShader(vertexShader);
+	glDeleteShader(fragmentShader);
+
 }
 
 void Shader::createPhongShader(glm::mat4 modelMatrix, float ka, float kd, float ks, int alpha) {
@@ -53,9 +80,9 @@ void Shader::createPhongShader(glm::mat4 modelMatrix, float ka, float kd, float 
 	setUniformMatrix4fv("modelMatrix", 1, GL_FALSE, modelMatrix);
 
 	//TODO lights
-	PointLight pointLight1({ 0, 50, 0 }, { 10, 10, 10 }, { 1.0f, 0.4f, 0.1f });
-	DirectionalLight directionalLight1({ 0, -1, -1 }, { 0.8f, 0.8f, 0.8f });
-	addUniformPointLight("pointLight", pointLight1);
+	//PointLight pointLight1({ 0, 50, 0 }, { 2, 2, 2}, {1.0f, 0.4f, 0.1f});
+	DirectionalLight directionalLight1({ 0, -1, 0 }, { 1.5f, 1.5f, 1.5f });
+	//addUniformPointLight("pointLight", pointLight1);
 	addUniformDirectionalLight("directionalLight", directionalLight1);
 
 }
@@ -115,7 +142,7 @@ void Shader::createHDUShader(const std::string& texturePath)
 	glDeleteShader(vertexShader);
 	glDeleteShader(fragmentShader);
 
-	loadTexture(texturePath, 0);
+	loadDDSTexture(texturePath, 0);
 }
 
 
@@ -130,6 +157,11 @@ void Shader::activate() {
 		glActiveTexture(GL_TEXTURE0 + 1);
 		glBindTexture(GL_TEXTURE_2D, specularTexture);
 		glUniform1i(getUniformLocation("specularTexture"), 1);
+	}
+	if (normalTexture != 0) {
+		glActiveTexture(GL_TEXTURE0 + 2);
+		glBindTexture(GL_TEXTURE_2D, specularTexture);
+		glUniform1i(getUniformLocation("normalTexture"), 2);
 	}
 }
 
@@ -212,11 +244,10 @@ GLint Shader::getUniformLocation(const std::string& name) {
 	return id;
 }
 
-//TODO in texture dds/jpg/png
-void Shader::loadTexture(const std::string& texturePath, int unit) {
+void Shader::loadDDSTexture(const std::string& texturePath, int unit) {
 	DDSImage ddsImage = loadDDS(texturePath.c_str());
 
-	std::cout << "textureSize of texture: " << texturePath << " size: " << ddsImage.height << ", " << ddsImage.width;
+	//std::cout << "textureSize of texture: " << texturePath << " size: " << ddsImage.height << ", " << ddsImage.width;
 	if (unit == 0) {
 		glGenTextures(1, &diffuseTexture);
 		glBindTexture(GL_TEXTURE_2D, diffuseTexture);
@@ -229,6 +260,36 @@ void Shader::loadTexture(const std::string& texturePath, int unit) {
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	glCompressedTexImage2D(GL_TEXTURE_2D, 0, ddsImage.format, ddsImage.width, ddsImage.height, 0, ddsImage.size, ddsImage.data);
 	glGenerateMipmap(GL_TEXTURE_2D);
+}
+
+void Shader::loadTexture(const char* texturePath, int unit) 
+{
+	int width, height, nrChannels;
+	unsigned char* data = stbi_load(texturePath, &width, &height, &nrChannels, 0);
+
+	if (unit == 0) {
+		glGenTextures(1, &diffuseTexture);
+		glBindTexture(GL_TEXTURE_2D, diffuseTexture);
+	}
+	else if (unit == 1) {
+		glGenTextures(1, &specularTexture);
+		glBindTexture(GL_TEXTURE_2D, specularTexture);
+	}
+	else if (unit == 2) {
+		glGenTextures(1, &normalTexture);
+		glBindTexture(GL_TEXTURE_2D, normalTexture);
+	}
+
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
+	glGenerateMipmap(GL_TEXTURE_2D);
+
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+
+	glBindTexture(GL_TEXTURE_2D, 0);
+	stbi_image_free(data);
 }
 
 void Shader::setUniform4f(const std::string& name, float v1, float v2, float v3, float v4) {

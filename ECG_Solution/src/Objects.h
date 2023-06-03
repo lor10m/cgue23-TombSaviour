@@ -28,6 +28,13 @@ private:
 
 	Model pointLightCube;
 
+	unsigned int vao;
+	unsigned int vbo;
+	unsigned int tangentsVBO;
+	unsigned int bitangentsVBO;
+
+	Shader testCubeShader;
+
 	Shader terrainShader;
 	Shader enemyShader;
 	Shader palmTreeShader;
@@ -57,13 +64,14 @@ private:
 public:
 
 	Objects(GLFWwindow* window, Camera* camera, PhysxScene* physxScene);
-	void render(GLFWwindow* window, float currentTime, float dt);
+	void render(GLFWwindow* window, float currentTime, float dt, bool normalMapping);
 	void createMummy(GLFWwindow* window);
 	void createTerrain();
 	void createEnemy();
 	void createPyramid();
 	void createPalmTree();
 	void createPointLightCube();
+	void createTestCube();
 	void createHduObject(GLFWwindow* window);
 	void deleteObjects();
 	void createCactus(glm::vec3 position);

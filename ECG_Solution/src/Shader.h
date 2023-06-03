@@ -17,20 +17,24 @@ private:
     int spotLights = 0;
     GLuint diffuseTexture = 0;
     GLuint specularTexture = 0;
+    GLuint normalTexture = 0;
     std::unordered_map<std::string, GLint> uniformLocationMap;
 public:
     Shader();
     ~Shader();
 
     void createPhongShader(const std::string& diffuseTexture, const std::string& specularTexture, glm::mat4 modelMatrix, float ka, float kd, float ks, int alpha);
+
+    void createNormalShader(const char* diffuseTexture, const char* specularTexture, const char* normalTexture, glm::mat4 modelMatrix);
+
     void createPhongShader(glm::mat4 modelMatrix, float ka, float kd, float ks, int alpha);
     void createTerrainShader();
     void createSimpleShader(glm::vec3 color, glm::mat4 modelMatrix);
-    void createCookTorranceShader(const std::string& diffuseTexture, const std::string& specularTexture, glm::mat4 modelMatrix, float ka, float kd, float roughness, float ior);
  
     GLuint compileShader(GLuint type, const std::string& path) const;
     void activate();
-    void loadTexture(const std::string& texturePath, int unit);
+    void loadDDSTexture(const std::string& texturePath, int unit);
+    void loadTexture(const char* texturePath, int unit);
     void setUniform4f(const std::string& name, float v1, float v2, float v3, float v4);
     void setUniform3f(const std::string& name, float v1, float v2, float v3);
     void setUniform1f(const std::string& name, float v);

@@ -7,6 +7,8 @@ static GLboolean isBackfaceCullingActive = GL_TRUE;
 bool fullscreen = false;
 int oldWidth, oldHeight;
 bool shooterCamera = true;
+bool normalMapping = true;
+
 
 void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods) {
     if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS) {
@@ -30,7 +32,12 @@ void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods
             glEnable(GL_CULL_FACE);
             isBackfaceCullingActive = GL_TRUE;
         }
+    } 
+
+    if (key == GLFW_KEY_N && action == GLFW_PRESS) {   // Normal mapping
+        normalMapping = !normalMapping;
     }
+
     if (key == GLFW_KEY_F5 && action == GLFW_PRESS) {       // Fullscreen
         if (!fullscreen) {
             glfwGetWindowSize(window, &oldWidth, &oldHeight);
@@ -139,6 +146,11 @@ void framebufferSizeCallback(GLFWwindow* window, int width, int height) {
 bool isShooterCam()
 {
     return shooterCamera;
+}
+
+bool normalMappingActivated()
+{
+    return normalMapping;
 }
 
 //void Character::mouseButtonCallback(int button, int action, int mods) {

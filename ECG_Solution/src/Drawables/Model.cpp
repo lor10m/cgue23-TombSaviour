@@ -460,6 +460,7 @@ void Model::initBuffer()
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, modelMeshes[i].ibo); //make object current object
 		glBufferData(GL_ELEMENT_ARRAY_BUFFER, modelMeshes[i].indices.size() * sizeof(unsigned int), modelMeshes[i].indices.data(), GL_STATIC_DRAW);
 
+		// animation properties
 		glGenBuffers(1, &modelMeshes[i].bonesVBO);
 		glBindBuffer(GL_ARRAY_BUFFER, modelMeshes[i].bonesVBO);
 		glBufferData(GL_ARRAY_BUFFER, modelMeshes[i].boneData.size() * sizeof(modelMeshes[i].boneData[0]), &modelMeshes[i].boneData[0], GL_STATIC_DRAW);

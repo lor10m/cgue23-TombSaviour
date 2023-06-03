@@ -8,3 +8,5 @@ void debugCallback(GLenum source, GLenum type, GLuint id, GLenum severity, GLsiz
 void framebufferSizeCallback(GLFWwindow* window, int width, int height);
 
 bool isShooterCam();
+
+bool normalMappingActivated();
