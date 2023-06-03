@@ -47,10 +47,10 @@ void Hdu::initGameHDU(int lifeStartNumber) {
 	// lifes HDU
 	for (int i = 1; i <= maxLifeNr; i++) {
 		string keyName = "Life" + std::to_string(i);
-		//hduDataMap[keyName].simpleShader.createHDUShader("assets/textures/hdu/scarab2.dds");
+		hduDataMap[keyName].simpleShader.createHDUShader("assets/textures/hdu/scarab2.dds");
+		//std::string texPath = "assets/textures/hdu/" + std::to_string(i) + ".dds";
+		//hduDataMap[keyName].simpleShader.createHDUShader(texPath);
 
-		std::string texPath = "assets/textures/hdu/" + std::to_string(i) + ".dds";
-		hduDataMap[keyName].simpleShader.createHDUShader(texPath);
 		hduDataMap[keyName].scaleMulti = 0.4f;
 		hduDataMap[keyName].transform.translate(glm::vec3(hduDataMap[keyName].ndcXposition, -0.85f, 0.0f)).scale(hduDataMap[keyName].getScale(widthScale, heightScale));
 		hduDataMap[keyName].model.generateModel("assets/objects/screen.obj");
@@ -129,9 +129,7 @@ void Hdu::drawHDU(GLFWwindow* window)
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 	for (const auto& element : hduDataMap) {
-
 		const std::string& name = element.first;
-		// element.second.simpleShader.activate(); // TODO: why not working?
 
 		hduDataMap[name].simpleShader.activate();
 		hduDataMap[name].simpleShader.setUniformMatrix4fv("modelMatrix", 1, GL_FALSE, element.second.transform.getMatrix());
@@ -199,10 +197,10 @@ void Hdu::showGameOverScreen() {
 	hduDataMap.clear();
 	hduDataMap["GameOver"].simpleShader.createHDUShader("assets/textures/hdu/gameover.dds");
 
-	// (TODO?) => entweder das oder das andere nehmen
+	// Endbild erstreckt sich über ganzen Screen:
 	hduDataMap["GameOver"].transform.translate(glm::vec3(0.0f, 0.0f, 0.0f)).scale(glm::vec3(getFullscreenHDUScale() * 2.0f));
 
-	// schön rechteckig, aber bei Fullscreenimmer noch Spiel auf der Seite sichtbar
+	// Alternative: schön rechteckig, aber bei Fullscreen immer noch Spiel auf der Seite sichtbar:
 	//hduDataMap["GameOver"].scaleMulti = 4.0f;
 	//hduDataMap["GameOver"].transform.translate(glm::vec3(0.0f, 0.0f, 0.0f)).scale(hduDataMap["GameOver"].getScale(widthScale, heightScale));
 
