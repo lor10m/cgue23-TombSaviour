@@ -70,10 +70,6 @@ PhysxScene::PhysxScene(GLFWwindow* window)
 	if (!cooking) {
 		std::cerr << ("Failed to init cooking") << std::endl;
 	}
-
-	//glfwSetWindowUserPointer(window, this);
-	//glfwSetMouseButtonCallback(window, [](GLFWwindow* w, int button, int action, int mods) {
- //      static_cast<PhysxScene*>(glfwGetWindowUserPointer(w))->mouseButtonCallback(button, action, mods, camera);});
 }
 
 void PhysxScene::createTerrain(const char* heightmapPath)
@@ -102,15 +98,19 @@ void PhysxScene::createTerrain(const char* heightmapPath)
 
 	PxHeightField* heightField = cooking->createHeightField(heightFieldDesc, physics->getPhysicsInsertionCallback());
 	PxHeightFieldGeometry heightFieldGeom(heightField, PxMeshGeometryFlags(), 1.0f, 1.0f, 1.0f);
-
+	
 	PxTransform transform(PxVec3(-width / 2, 0.0f, -width / 2), PxQuat(PxIdentity));
-	PxRigidActor* actor = PxCreateStatic(*physics, transform, heightFieldGeom, *material);
 
 	PxMaterial* material = physics->createMaterial(0.5f, 0.5f, 0.1f);
-	//PxShape* shape = physics->createShape(heightFieldGeom, *material);
+
+	PxRigidActor* actor = PxCreateStatic(*physics, transform, heightFieldGeom, *material);
+	PxShape* shape = physics->createShape(heightFieldGeom, *material);
+
+	shape->setContactOffset(0.00001);
+
+	actor->attachShape(*shape);
 
 	actor->setName("terrain");
-	//actor->attachShape(*shape);
 
 	scene->addActor(*actor);
 }
@@ -149,7 +149,7 @@ void PhysxScene::createModel(const char* name, std::vector<unsigned int> indices
 
 	PxMaterial* material = physics->createMaterial(0.5f, 0.5f, 0.1f);
 	PxShape* shape = physics->createShape(geometry, *material);
-	
+
 	PxTransform transform(PxVec3(translate.x, translate.y, translate.z), PxIdentity);
 	shape->setLocalPose(transform);
 
@@ -161,6 +161,8 @@ void PhysxScene::createModel(const char* name, std::vector<unsigned int> indices
 	staticActor->setName(name);
 
 	scene->addActor(*staticActor);
+
+	std::cout << name << " " << staticActor->getGlobalPose().p.x << "," << staticActor->getGlobalPose().p.y << "," << staticActor->getGlobalPose().p.z << std::endl;
 
 };
 
@@ -199,19 +201,19 @@ void PhysxScene::createSpike(unsigned int index, glm::vec3 size, glm::vec3 posit
 
 	PxRigidDynamic* dynamicActor = physics->createRigidDynamic(PxTransform(PxIdentity));
 
-	PxTransform transform(PxVec3(position.x, position.y, position.z), PxIdentity);
-
-	shape->setLocalPose(transform);
+	shape->setLocalPose(PxTransform(PxIdentity));
+	shape->setContactOffset(0.00001); // Distance to object at which collision is detected (/2)
+	//shape->setRestOffset(0.07);
 
 	dynamicActor->attachShape(*shape);
 
-	dynamicActor->setGlobalPose(transform);
+	dynamicActor->setGlobalPose(PxTransform(PxIdentity));
 	dynamicActor->setName("spike");
 
 	DynamicActor spike;
 	spike.index = index;
 	spike.actor = dynamicActor;
-	spikes[spikes.size()] =  spike;
+	spikes[spikes.size()] = spike;
 
 }
 
@@ -231,7 +233,8 @@ void PhysxScene::simulate(GLFWwindow* window, Camera* camera, float timeStep, st
 			spikeStruct[spikes[i].index].render = false;
 		}
 		if (spikes[i].isThrownOrPickedUp) {
-			PxVec3 newPos = spikes[i].actor->getGlobalPose().p;
+			PxVec3 spikePos = spikes[i].actor->getGlobalPose().p;
+			glm::vec4 newPos = glm::vec4(spikePos.x, spikePos.y, spikePos.z, 1.0f);// / camera->getTransformMatrix();
 			//TODO: set rotation: spike.actor->getGlobalPose().q
 			spikeStruct[spikes[i].index].scale = glm::vec3(0.1f, 0.1f, 0.1f);
 			spikeStruct[spikes[i].index].translate = glm::vec3(newPos.x, newPos.y, newPos.z);
@@ -325,17 +328,18 @@ void PhysxScene::throwSpike(Camera* camera)
 	PxRigidDynamic* object = spikes[thrownSpikes].actor;
 	thrownSpikes++;
 
+	float distanceFromCamera = 1.0f;
 	glm::vec3 origin = camera->getCameraPosition();
-	glm::vec3 cameraForward = camera->getDirection();
-	float distanceFromCamera = 2.0f;
-	glm::vec3 desiredPos = origin + cameraForward * distanceFromCamera;
+	glm::vec3 cameraForward = camera->getDirection() * glm::vec3(distanceFromCamera);
+	glm::vec3 desiredPos = origin + cameraForward;
+
 	PxVec3 objectPos = PxVec3(desiredPos.x, desiredPos.y, desiredPos.z);
 
 	// Set position of spike to position of Characters "hand", a little in front of camera
-	PxTransform objPos = object->getGlobalPose();
-	objPos.p = objectPos;
 	object->setActorFlag(PxActorFlag::eDISABLE_GRAVITY, true);
-	object->setGlobalPose(objPos);
+	PxTransform transform(PxVec3(objectPos.x, objectPos.y, objectPos.z), PxIdentity);
+
+	object->setGlobalPose(transform);
 	scene->addActor(*object); // add the spike to the scene
 
 	PxVec3 rayOrigin = PxVec3(origin.x, origin.y, origin.z);
@@ -353,24 +357,37 @@ PxScene* PhysxScene::getScene()
 
 void PhysxScene::onContact(const PxContactPairHeader& pairHeader, const PxContactPair* pairs, PxU32 nbPairs)
 {
-
 	for (PxU32 i = 0; i < nbPairs; i++)
 	{
 		const PxContactPair& cp = pairs[i];
+		PxRigidActor* actor1 = pairHeader.actors[0];
+		PxRigidActor* actor2 = pairHeader.actors[1];
 
 		if (cp.events & PxPairFlag::eNOTIFY_TOUCH_FOUND)
 		{
-			if (pairHeader.actors[0]->is<PxRigidDynamic>()) {
-				if ((std::find(actorsToRemove.begin(), actorsToRemove.end(), pairHeader.actors[0]) == actorsToRemove.end())) {
-					std::cout << "callback" << std::endl;
-					PxActor* act = pairHeader.actors[0];
-					actorsToRemove.push_back(act);
-				}
-			}
-			else if (pairHeader.actors[1]->is<PxRigidDynamic>() && std::find(actorsToRemove.begin(), actorsToRemove.end(), pairHeader.actors[1]) == actorsToRemove.end()) {
-				std::cout << "callback" << std::endl;
-				PxActor* act = pairHeader.actors[1];
+			std::cout << actor1->getName() << " " << actor2->getName() << std::endl;
+
+			// Delete Spike if it hit something (except ourself) for the first time
+			if (actor1->getName() == "spike" && actor2->getName() != "mummy" && std::find(actorsToRemove.begin(), actorsToRemove.end(), actor1) == actorsToRemove.end()) {
+				PxActor* act = actor1;
 				actorsToRemove.push_back(act);
+
+				// Delete Enemy if it was hit by spike
+				if (strstr(actor2->getName(), "enemy") != nullptr) {
+					std::cout << "hit enemy" << std::endl;
+					actorsToRemove.push_back(actor2);
+				}
+				std::cout << "hit" << std::endl;
+			}
+			else if (actor2->getName() == "spike" && actor1->getName() != "mummy") {
+				actorsToRemove.push_back(actor2);
+
+				if (strstr(actor1->getName(), "enemy") != nullptr) {
+					std::cout << "hit enemy" << std::endl;
+					actorsToRemove.push_back(actor1);
+				}
+				std::cout << "hit" << std::endl;
+
 			}
 		}
 	}

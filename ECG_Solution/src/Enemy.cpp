@@ -3,7 +3,7 @@
 #include <glm/gtx/dual_quaternion.hpp>
 
 
-Enemy::Enemy(Model* model2, PhysxScene* physxScene, glm::vec3 scalingFactor, glm::vec3 position)
+Enemy::Enemy(const char* name, Model* model2, PhysxScene* physxScene, glm::vec3 scalingFactor, glm::vec3 position)
 {
 	// create PxController: 
 	PxControllerManager* enegManager = PxCreateControllerManager(*physxScene->scene);
@@ -17,8 +17,7 @@ Enemy::Enemy(Model* model2, PhysxScene* physxScene, glm::vec3 scalingFactor, glm
 	enecDesc.upDirection = PxVec3(0.0f, 1.0f, 0.0f);
 	enecDesc.material = physxScene->material;
 	pxChar = enegManager->createController(enecDesc);
-	pxChar->getActor()->setName("eve");
-
+	pxChar->getActor()->setName(name); 
 	model = model2;
 	scale = scalingFactor;
 	setPosition();

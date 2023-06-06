@@ -50,13 +50,14 @@ private:
 
 	unsigned int spikeCounter = 0;
 	unsigned int cactiCounter = 0;
+	unsigned int enemyCounter = 0;
 
 	std::map<unsigned int, SpikeStruct> spikes;
 	std::map<unsigned int, CactusStruct> cacti;
 	
 
 	unsigned int numCacti = 3;
-	unsigned int numSpikes = 3 * numCacti;
+	unsigned int numSpikes = 10 * numCacti;
 	void createSpike();
 
 	double physxDeltaTime = 0.0;

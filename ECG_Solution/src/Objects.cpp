@@ -64,9 +64,10 @@ void Objects::createEnemy()
 	enemyModel.generateModel("assets/models/eve.dae");
 
 	enemyShader.createPhongShader(modelTransform.getMatrix(), 0.1f, 1.0f, 0.2f, 32);
-	enemyShader.setUniform1i("isAnimated", 0);
+	enemyShader.setUniform1i("isAnimated", 1);
 
-	enemy = Enemy(&enemyModel, physxScene, modelScale, glm::vec3(0.0f, 25.64f, 80.0f));
+	enemy = Enemy("enemy" + enemyCounter, &enemyModel, physxScene, modelScale, glm::vec3(0.0f, 25.64f, 0.0f));
+	enemyCounter++;
 }
 
 void Objects::createPalmTree()
@@ -302,12 +303,13 @@ void Objects::render(GLFWwindow* window, float currentTime, float dt, bool norma
 
 	// Character: 
 	mummy.pollInput(window, dt);
-
+	
+	//TODO edit shader to do this without projection matrix because TransformMatrix from cam is already view * projection
 	glm::mat4 projection = glm::mat4(1.0f);
 	glm::mat4 viewMatrix = camera->getTransformMatrix();
 
 	// render the terrain
-	terrainShader.setUniformMatrix4fv("projection", 1, GL_FALSE, projection);
+	terrainShader.setUniformMatrix4fv("projection", 1, GL_FALSE, projection); 
 	terrainShader.setUniformMatrix4fv("view", 1, GL_FALSE, viewMatrix);
 	terrainShader.setUniformMatrix4fv("model", 1, GL_FALSE, glm::mat4(1.0f));
 	terrain.render();

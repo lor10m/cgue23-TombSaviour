@@ -21,7 +21,7 @@ public:
 	Model* model;
 
 	Enemy() {};
-	Enemy(Model* model, PhysxScene* physxScene, glm::vec3 scale, glm::vec3 position);
+	Enemy(const char* name, Model* model, PhysxScene* physxScene, glm::vec3 scale, glm::vec3 position);
 	glm::vec3 getPosition();
 
 	void move(glm::vec3 dir, float speed, float dt);
