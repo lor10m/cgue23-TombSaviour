@@ -10,6 +10,7 @@
 
 #include "Drawables/Model.h"
 #include "Character.h"
+#include "Hdu.h"
 
 using namespace physx;
 
@@ -40,6 +41,7 @@ private:
 	PxRigidDynamic* playerActor;
 
 	Character* mummy;
+	Hdu* hdu;
 
 	PxRigidDynamic* cactus;
 	PxRigidDynamic* spike;
@@ -66,14 +68,17 @@ public:
 
 	unsigned int pickedUpSpikes = 0;
 	unsigned int thrownSpikes = 0;
-	unsigned int spickesPerCactus = 3;
+	unsigned int spickesPerCactus = 5;
+	unsigned int lifeCnt = 3;
+	int maxLifeNr = 3;
 
-	PhysxScene(GLFWwindow* window);
+	PhysxScene(GLFWwindow* window, int lifeNumber);
 	void simulate(GLFWwindow* window,Camera* camera, float timeStep, std::map<unsigned int, SpikeStruct>& spikeStruct, std::map<unsigned int, CactusStruct>& cactusStruct);
 	void createTerrain(const char* heightmapPath);
 	void createModel(const char* name, std::vector<unsigned int> indices, std::vector<glm::vec3> vertices, std::vector<glm::vec3> normals, glm::vec3 scale, glm::vec3 translate, glm::vec3 rotate);
 	
 	void setCharacter(Character* character);
+	void setHDU(Hdu* hduObj);
 	void createCactus(unsigned int index, glm::vec3 size, glm::vec3 position);
 	void createSpike(unsigned int index, glm::vec3 size, glm::vec3 position);
 
@@ -89,6 +94,8 @@ public:
 	virtual void onSleep(PxActor**, PxU32) {}
 	virtual void onAdvance(const PxRigidBody* const*, const PxTransform*, const PxU32) {}
 	void mouseButtonCallback(GLFWwindow* window, Camera* camera);
+
+	int getLifeCnt();
 
 	void deleteScene();
 };

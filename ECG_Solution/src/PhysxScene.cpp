@@ -27,7 +27,7 @@ PxFilterFlags CollisionFilterShader(
 	return PxFilterFlag::eDEFAULT;
 }
 
-PhysxScene::PhysxScene(GLFWwindow* window)
+PhysxScene::PhysxScene(GLFWwindow* window, int lifeNumber)
 {
 	// init physx
 	foundation = PxCreateFoundation(PX_PHYSICS_VERSION, defaultAllocatorCallback, defaultErrorCallback);
@@ -70,6 +70,13 @@ PhysxScene::PhysxScene(GLFWwindow* window)
 	if (!cooking) {
 		std::cerr << ("Failed to init cooking") << std::endl;
 	}
+
+	lifeCnt = lifeNumber;
+	maxLifeNr = lifeNumber;
+
+	//glfwSetWindowUserPointer(window, this);
+	//glfwSetMouseButtonCallback(window, [](GLFWwindow* w, int button, int action, int mods) {
+ //      static_cast<PhysxScene*>(glfwGetWindowUserPointer(w))->mouseButtonCallback(button, action, mods, camera);});
 }
 
 void PhysxScene::createTerrain(const char* heightmapPath)
@@ -169,6 +176,11 @@ void PhysxScene::createModel(const char* name, std::vector<unsigned int> indices
 void PhysxScene::setCharacter(Character* character)
 {
 	mummy = character;
+}
+
+void PhysxScene::setHDU(Hdu* hduObj)
+{
+	hdu = hduObj;
 }
 
 void PhysxScene::createCactus(unsigned int index, glm::vec3 size, glm::vec3 position)
@@ -297,6 +309,10 @@ void PhysxScene::mouseButtonCallback(GLFWwindow* window, Camera* camera)
 	}
 }
 
+int PhysxScene::getLifeCnt() {
+	return lifeCnt;
+}
+
 
 void PhysxScene::pickUpNearestObject(Camera* camera)
 {
@@ -314,6 +330,12 @@ void PhysxScene::pickUpNearestObject(Camera* camera)
 			scene->removeActor(*object);
 			pair.second.isThrownOrPickedUp = true;
 			pickedUpSpikes += spickesPerCactus;
+			hdu->updateSpikeCount(int(pickedUpSpikes));
+
+			// TODO move into callback/crash class:
+			lifeCnt = lifeCnt = maxLifeNr ? lifeCnt : lifeCnt++;	// WICHTIG: checken ob eh nicht über max ist!
+			hdu->updateLifeCount(lifeCnt);
+
 			break;
 		}
 	}
@@ -322,6 +344,11 @@ void PhysxScene::pickUpNearestObject(Camera* camera)
 void PhysxScene::throwSpike(Camera* camera)
 {
 	pickedUpSpikes--;
+	hdu->updateSpikeCount(int(pickedUpSpikes));
+	
+	// TODO move into callback/crash class: => ALSO: stop the whole game if 0 lifes
+	lifeCnt--;
+	hdu->updateLifeCount(lifeCnt >= 0 ? lifeCnt : 0);
 
 	// Get one of the spikes
 	spikes[thrownSpikes].isThrownOrPickedUp = true;
