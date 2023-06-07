@@ -116,6 +116,10 @@ void Objects::createPointLightCube()
 	lightCubeShader.setUniform1i("isAnimated", 0);
 }
 
+void Objects::createTestCube()
+{
+}
+
 void Objects::createCactus(glm::vec3 position)
 {
 	Transform cactusTransform;

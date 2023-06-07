@@ -34,6 +34,7 @@ public:
     GLuint compileShader(GLuint type, const std::string& path) const;
     void activate();
     void loadDDSTexture(const std::string& texturePath, int unit);
+    void loadHUDTexture(const std::string& texturePath, int unit);
     void loadTexture(const char* texturePath, int unit);
     void setUniform4f(const std::string& name, float v1, float v2, float v3, float v4);
     void setUniform3f(const std::string& name, float v1, float v2, float v3);
