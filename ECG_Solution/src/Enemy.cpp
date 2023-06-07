@@ -65,5 +65,6 @@ glm::vec3 Enemy::getPosition() {
 }
 
 void Enemy::printPosition() { 
-	std::cout << "\nCharPos: " << charPosition.x << " " << charPosition.y << " " << charPosition.z << std::endl;
+	
+	<< "\nCharPos: " << charPosition.x << " " << charPosition.y << " " << charPosition.z << std::endl;
 }

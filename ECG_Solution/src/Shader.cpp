@@ -150,7 +150,9 @@ void Shader::changeTexture(const std::string& newTexturePath)
 	glActiveTexture(GL_TEXTURE0 + 0);
 	glBindTexture(GL_TEXTURE_2D, 0); // unbind previous texture
 
-	loadTexture(newTexturePath, 0); // load + bind new texture
+	loadTexture(newTexturePath.c_str(), 0); // load + bind new texture
+
+	std::cout << newTexturePath.c_str() << std::endl;
 }
 
 void Shader::activate() {

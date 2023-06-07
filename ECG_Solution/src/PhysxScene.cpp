@@ -169,8 +169,6 @@ void PhysxScene::createModel(const char* name, std::vector<unsigned int> indices
 
 	scene->addActor(*staticActor);
 
-	std::cout << name << " " << staticActor->getGlobalPose().p.x << "," << staticActor->getGlobalPose().p.y << "," << staticActor->getGlobalPose().p.z << std::endl;
-
 };
 
 void PhysxScene::setCharacter(Character* character)
