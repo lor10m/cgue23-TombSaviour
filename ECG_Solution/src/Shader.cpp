@@ -150,9 +150,7 @@ void Shader::changeTexture(const std::string& newTexturePath)
 	glActiveTexture(GL_TEXTURE0 + 0);
 	glBindTexture(GL_TEXTURE_2D, 0); // unbind previous texture
 
-	loadTexture(newTexturePath.c_str(), 0); // load + bind new texture
-
-	std::cout << newTexturePath.c_str() << std::endl;
+	loadHUDTexture(newTexturePath, 0); // load + bind new texture
 }
 
 void Shader::activate() {
@@ -267,6 +265,25 @@ void Shader::loadDDSTexture(const std::string& texturePath, int unit) {
 	}
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glCompressedTexImage2D(GL_TEXTURE_2D, 0, ddsImage.format, ddsImage.width, ddsImage.height, 0, ddsImage.size, ddsImage.data);
+	glGenerateMipmap(GL_TEXTURE_2D);
+}
+
+void Shader::loadHUDTexture(const std::string& texturePath, int unit) {
+	DDSImage ddsImage = loadDDS(texturePath.c_str());
+
+	std::cout << "textureSize of texture: " << texturePath << " size: " << ddsImage.height << ", " << ddsImage.width;
+	if (unit == 0) {
+		glGenTextures(1, &diffuseTexture);
+		glBindTexture(GL_TEXTURE_2D, diffuseTexture);
+	}
+	else if (unit == 1) {
+		glGenTextures(1, &specularTexture);
+		glBindTexture(GL_TEXTURE_2D, specularTexture);
+	}
+
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
 	glCompressedTexImage2D(GL_TEXTURE_2D, 0, ddsImage.format, ddsImage.width, ddsImage.height, 0, ddsImage.size, ddsImage.data);
 	glGenerateMipmap(GL_TEXTURE_2D);
 }
