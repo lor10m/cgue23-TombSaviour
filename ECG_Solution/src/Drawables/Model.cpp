@@ -243,15 +243,15 @@ void Model::readNodeHierachy(float animationTimeTicks, const aiNode* node, glm::
 	if (node == scene->mRootNode->mChildren[1]) {
 		glm::mat4 combined;
 		if (isDeadEnemy) {
-			glm::vec3 translationa, skew, scale;
+			glm::vec3 trans, skew, scale;
 			glm::vec4 perspective;
 			glm::quat rotationQ;
-			glm::decompose(rotation, scale, rotationQ, translationa, skew, perspective);
+			glm::decompose(rotation, scale, rotationQ, trans, skew, perspective);
 
 			rotationQ.y = 0.0f;  // Set rotation around Y-axis to zero
-			translationa.y = -40.0f;
+			trans.y = -40.0f;
 
-			glm::mat4 result = glm::translate(glm::mat4(1.0f), translationa) * glm::mat4_cast(rotationQ) * glm::scale(glm::mat4(1.0f), scale);
+			glm::mat4 result = glm::translate(glm::mat4(1.0f), trans) * glm::mat4_cast(rotationQ) * glm::scale(glm::mat4(1.0f), scale);
 
 			combined = glm::translate(translation, physxTransform) * result; // * rotate when dead
 		}
