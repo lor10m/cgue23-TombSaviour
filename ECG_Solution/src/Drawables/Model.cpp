@@ -1,5 +1,6 @@
 #include "Model.h"
 #include <postprocess.h>
+#include <glm/gtx/matrix_decompose.hpp>
 
 
 #define POSITION_LOCATION    0
@@ -11,10 +12,14 @@
 Model::Model() {
 }
 
+Model::Model(string path)
+{
+	generateModel(path);
+}
+
 void Model::generateModel(string path)
 {
 	scene = importer.ReadFile(path.c_str(), aiProcess_Triangulate | aiProcess_GenNormals | aiProcess_JoinIdenticalVertices | aiProcess_FlipUVs);
-	std::cout << "Loading assimp!" << std::endl;
 
 	if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode) {
 		std::cout << "ERROR::ASSIMP::" << importer.GetErrorString() << std::endl;
@@ -33,7 +38,6 @@ void Model::generateModel(string path)
 			numBones += mesh->mNumBones;
 
 		}
-
 		aiNode* node = scene->mRootNode;
 
 		finalBoneMatrices.resize(numBones);
@@ -43,9 +47,6 @@ void Model::generateModel(string path)
 
 		processNode(node);
 		initBuffer();
-
-		std::cout << "numMeshes:" << scene->mNumMeshes << " numVertices: " << numVertices << " numIndices: " << numIndices << " numBones: " << numBones << " numAnims: " << scene->mNumAnimations << " numMaterials: " << scene->mNumMaterials << std::endl;
-		std::cout << std::endl;
 
 	}
 }
@@ -197,11 +198,13 @@ void Model::getBoneTransforms(float timeInSeconds, glm::mat4 globalTransform, st
 {
 
 	transforms.resize(finalBoneMatrices.size());
-
 	if (scene->mNumAnimations > 0) {
-		float ticksPerSecond = scene->mAnimations[0]->mTicksPerSecond;
+		if (animation == nullptr) {
+			animation = scene->mAnimations[0];
+		}
+		float ticksPerSecond = animation->mTicksPerSecond;
 		float timeInTicks = timeInSeconds * ticksPerSecond;
-		float animationTimeTicks = fmod(timeInTicks, scene->mAnimations[0]->mDuration);
+		float animationTimeTicks = fmod(timeInTicks, animation->mDuration);
 
 		readNodeHierachy(animationTimeTicks, scene->mRootNode, glm::mat4(1.0f));
 
@@ -222,20 +225,39 @@ void Model::readNodeHierachy(float animationTimeTicks, const aiNode* node, glm::
 	std::string nodeName = node->mName.data;
 	glm::mat4 nodeTransform = convertAiMatrixToGlm(node->mTransformation);
 
-	const aiAnimation* animation = scene->mAnimations[0];
+	//const aiAnimation* animation = scene->mAnimations[0];
 	const aiNodeAnim* nodeAnim = findNodeAnim(animation, nodeName);
+
+	glm::mat4 rotation;
+	glm::mat4 translation;
 
 	if (nodeAnim) {
 		glm::mat4 scale = CalcInterpolatedScaling(animationTimeTicks, nodeAnim);
-		glm::mat4 rotation = CalcInterpolatedRotation(animationTimeTicks, nodeAnim);
-		glm::mat4 translation = CalcInterpolatedPosition(animationTimeTicks, nodeAnim);
+		rotation = CalcInterpolatedRotation(animationTimeTicks, nodeAnim);
+		translation = CalcInterpolatedPosition(animationTimeTicks, nodeAnim);
 		nodeTransform = translation * rotation * scale;
 	}
 
 	glm::mat4 globalTransform = parentTransform * nodeTransform;
 
 	if (node == scene->mRootNode->mChildren[1]) {
-		glm::mat4 combined = glm::translate(glm::mat4(1.0f), physxTransform) * physxRotate;
+		glm::mat4 combined;
+		if (isDeadEnemy) {
+			glm::vec3 translationa, skew, scale;
+			glm::vec4 perspective;
+			glm::quat rotationQ;
+			glm::decompose(rotation, scale, rotationQ, translationa, skew, perspective);
+
+			rotationQ.y = 0.0f;  // Set rotation around Y-axis to zero
+			translationa.y = -40.0f;
+
+			glm::mat4 result = glm::translate(glm::mat4(1.0f), translationa) * glm::mat4_cast(rotationQ) * glm::scale(glm::mat4(1.0f), scale);
+
+			combined = glm::translate(translation, physxTransform) * result; // * rotate when dead
+		}
+		else {
+			combined = glm::translate(glm::mat4(1.0f), physxTransform) * physxRotate;
+		}
 		globalTransform = parentTransform * combined;
 	}
 
@@ -413,12 +435,12 @@ void Model::draw(Shader* shader)
 
 float Model::getAnimationDuration()
 {
-	return scene->mAnimations[0]->mDuration;
+	return animation->mDuration;
 }
 
 float Model::getTicksPerSecond()
 {
-	return scene->mAnimations[0]->mTicksPerSecond;
+	return animation->mTicksPerSecond;
 }
 
 glm::mat4 Model::convertAiMatrixToGlm(const aiMatrix4x4& from)

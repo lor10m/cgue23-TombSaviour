@@ -272,7 +272,7 @@ void Shader::loadDDSTexture(const std::string& texturePath, int unit) {
 void Shader::loadHUDTexture(const std::string& texturePath, int unit) {
 	DDSImage ddsImage = loadDDS(texturePath.c_str());
 
-	std::cout << "textureSize of texture: " << texturePath << " size: " << ddsImage.height << ", " << ddsImage.width;
+	//std::cout << "textureSize of texture: " << texturePath << " size: " << ddsImage.height << ", " << ddsImage.width;
 	if (unit == 0) {
 		glGenTextures(1, &diffuseTexture);
 		glBindTexture(GL_TEXTURE_2D, diffuseTexture);

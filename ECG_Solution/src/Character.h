@@ -54,5 +54,4 @@ public:
 
 	glm::vec3 getWSdirection(GLFWwindow* window);
 	glm::vec3 getADdirection(GLFWwindow* window);
-
 };

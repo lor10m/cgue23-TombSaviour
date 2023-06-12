@@ -1,19 +1,24 @@
 #include "Objects.h"
 
-
-
 Objects::Objects(GLFWwindow* window, Camera* camera, PhysxScene* physxScene)
 {
 	this->camera = camera;
 	this->physxScene = physxScene;
+	controllerManager = PxCreateControllerManager(*physxScene->scene);
+
 	createTerrain();
 	createMummy(window);
-	createEnemy();
 	createPyramid();
 	createPalmTree();
 	createPointLightCube();
-
 	createTestCube();
+
+	enemyShader.createPhongShader(glm::mat4(0.0f), 0.1f, 1.0f, 0.2f, 32);
+	enemyShader.setUniform1i("isAnimated", 1);
+
+	for (unsigned int i = 0; i < numEnemies; i++) {
+		createEnemy(glm::vec3(10 * i, 2.0f, 0.0f));
+	}
 
 	cactusShader.createPhongShader(glm::mat4(0.0f), 0.1f, 1.0f, 0.1f, 2);
 	cactusShader.setUniform1i("isAnimated", 0);
@@ -31,6 +36,7 @@ Objects::Objects(GLFWwindow* window, Camera* camera, PhysxScene* physxScene)
 	}
 
 	createHduObject(window);
+
 }
 
 void Objects::createTerrain()
@@ -47,27 +53,43 @@ void Objects::createTerrain()
 
 void Objects::createMummy(GLFWwindow* window)
 {
-	mummy.createCharacter(window, camera, PxCreateControllerManager(*physxScene->scene), physxScene->material, glm::vec3(0.0f, 30.0f, 0.0f));
+	mummy.createCharacter(window, camera, controllerManager, physxScene->material, glm::vec3(0.0f, 30.0f, 0.0f));
 	physxScene->setCharacter(&mummy);
 }
 
-void Objects::createEnemy()
+void Objects::createEnemy(glm::vec3 position)
 {
-	glm::vec3 modelRotate = glm::vec3(0.0, 0.0, 0.0);
 	glm::vec3 modelScale = glm::vec3(0.03, 0.03, 0.03);
-	glm::vec3 modelTranslate = glm::vec3(0.0, 2.0f, 0.0);
 	Transform modelTransform;
-	modelTransform.translate(modelTranslate);
-	modelTransform.rotate(modelRotate);
+	modelTransform.translate(glm::vec3(0.0, 2.0, 0.0));
 	modelTransform.scale(modelScale);
 
-	enemyModel.generateModel("assets/models/eve.dae");
+	EnemyStruct enemyStruct;
+	enemyStruct.id = enemyCounter;
+	enemyStruct.modelMatrix = modelTransform.getMatrix();
+	enemyStruct.enemyModel = std::make_shared<Model>("assets/models/eve.dae");
+	enemyStruct.enemy = std::make_shared<Enemy>(enemyCounter, enemyStruct.enemyModel, physxScene, controllerManager, modelScale, glm::vec3(position.x, 25.64f, position.z));
 
-	enemyShader.createPhongShader(modelTransform.getMatrix(), 0.1f, 1.0f, 0.2f, 32);
-	enemyShader.setUniform1i("isAnimated", 1);
-
-	enemy = Enemy("enemy" + enemyCounter, &enemyModel, physxScene, modelScale, glm::vec3(0.0f, 25.64f, 0.0f));
+	enemies[enemyCounter] = enemyStruct;
 	enemyCounter++;
+}
+
+void Objects::createCactus(glm::vec3 position)
+{
+	Transform cactusTransform;
+	glm::vec3 scale(glm::vec3(0.005f, 0.005f, 0.005f));
+	cactusTransform.translate(position);
+	cactusTransform.scale(scale);
+
+	Model* cactusModel = new Model();
+	CactusStruct c;
+	c.model = cactusModel;
+	c.modelMatrix = cactusTransform.getMatrix();
+
+	cactusModel->generateModel("assets/objects/cactus.obj");
+	physxScene->createCactus(cactiCounter, cactusModel->modelSize * scale, position);
+	cacti[cactiCounter] = c;
+	cactiCounter++;
 }
 
 void Objects::createPalmTree()
@@ -116,27 +138,6 @@ void Objects::createPointLightCube()
 	lightCubeShader.setUniform1i("isAnimated", 0);
 }
 
-void Objects::createTestCube()
-{
-}
-
-void Objects::createCactus(glm::vec3 position)
-{
-	Transform cactusTransform;
-	glm::vec3 scale(glm::vec3(0.005f, 0.005f, 0.005f));
-	cactusTransform.translate(position);
-	cactusTransform.scale(scale);
-
-	Model* cactusModel = new Model();
-	CactusStruct c;
-	c.model = cactusModel;
-	c.modelMatrix = cactusTransform.getMatrix();
-
-	cactusModel->generateModel("assets/objects/cactus.obj");
-	physxScene->createCactus(cactiCounter, cactusModel->modelSize * scale, position);
-	cacti[cactiCounter] = c;
-	cactiCounter++;
-}
 
 //TODO delete when collision
 void Objects::createSpike()
@@ -155,7 +156,7 @@ void Objects::createSpike()
 
 void Objects::createHduObject(GLFWwindow* window)
 {
-    hduObject.createHdu(window, camera, physxScene->getLifeCnt());
+	hduObject.createHdu(window, camera, physxScene->getLifeCnt());
 	physxScene->setHDU(&hduObject);
 }
 
@@ -167,13 +168,13 @@ void Objects::render(GLFWwindow* window, float currentTime, float dt, bool norma
 
 	// Character: 
 	mummy.pollInput(window, dt);
-	
+
 	//TODO edit shader to do this without projection matrix because TransformMatrix from cam is already view * projection
 	glm::mat4 projection = glm::mat4(1.0f);
 	glm::mat4 viewMatrix = camera->getTransformMatrix();
 
 	// render the terrain
-	terrainShader.setUniformMatrix4fv("projection", 1, GL_FALSE, projection); 
+	terrainShader.setUniformMatrix4fv("projection", 1, GL_FALSE, projection);
 	terrainShader.setUniformMatrix4fv("view", 1, GL_FALSE, viewMatrix);
 	terrainShader.setUniformMatrix4fv("model", 1, GL_FALSE, glm::mat4(1.0f));
 	terrain.render();
@@ -203,10 +204,6 @@ void Objects::render(GLFWwindow* window, float currentTime, float dt, bool norma
 	lightCubeShader.setUniform3f("eyePos", camera->cameraPosition.x, camera->cameraPosition.y, camera->cameraPosition.z);
 	pointLightCube.draw(&lightCubeShader);
 
-	//render enemy
-	enemyShader.setUniformMatrix4fv("viewMatrix", 1, GL_FALSE, camera->getTransformMatrix());
-	enemyShader.setUniform3f("eyePos", camera->cameraPosition.x, camera->cameraPosition.y, camera->cameraPosition.z);
-
 	//render spikes
 	for (const auto& pair : spikes) {
 		if (pair.second.render) {
@@ -221,24 +218,38 @@ void Objects::render(GLFWwindow* window, float currentTime, float dt, bool norma
 		}
 	}
 
-	std::vector<glm::mat4> transformationMatrices;
-	enemyModel.getBoneTransforms(currentTime, glm::mat4(1.0f), transformationMatrices);
-	for (unsigned int i = 0; i < transformationMatrices.size(); i++) {
-		glm::mat4 mat = transformationMatrices[i];
-		enemyShader.setUniformMatrix4fv("bones[" + std::to_string(i) + "]", 1, GL_FALSE, mat);
-	}
-	enemyModel.draw(&enemyShader);
-	enemy.move(mummy.getPosition(), 50, dt);
-
-
-    //hduObject->simpleShader.setUniformMatrix4fv("viewMatrix", 1, GL_FALSE, hduObject->hduCamera.getProjectionMatrixHDU());
-    //hduObject->simpleShader.setUniform3f("eyePos", hduObject->hduCamera.cameraPosition.x, hduObject->hduCamera.cameraPosition.y, hduObject->hduCamera.cameraPosition.z);
-
-    hduObject.drawHDU(window);
+	hduObject.drawHDU(window);
 
 	// simulate physx
 	physxScene->simulate(window, camera, (1.0f / 40.0f), spikes, cacti);
 
+	//render enemies
+	std::vector<unsigned int> enemiesToRemove = physxScene->enemiesToRemove;
+	physxScene->enemiesToRemove.clear();
+
+	enemyShader.setUniformMatrix4fv("viewMatrix", 1, GL_FALSE, camera->getTransformMatrix());
+	enemyShader.setUniform3f("eyePos", camera->cameraPosition.x, camera->cameraPosition.y, camera->cameraPosition.z);
+
+	for (const auto& pair : enemies)
+	{
+		if (std::find(enemiesToRemove.begin(), enemiesToRemove.end(), pair.second.id) != enemiesToRemove.end() && std::find(deadEnemyIndices.begin(), deadEnemyIndices.end(), pair.second.id) == deadEnemyIndices.end()) //if enemy is dead
+		{
+			pair.second.enemy->isDead = true;
+			deadEnemyIndices.push_back(pair.first); //either that or just don't clear dead Enemy vector (enemiesToRemove)
+		}
+
+		pair.second.enemy->move(enemyShader, pair.second.modelMatrix, currentTime, mummy.getPosition(), 50, dt);
+
+	}
+
+	for (unsigned int i : deadEnemyIndices) //either that or just don't clear dead Enemy vector (enemiesToRemove)
+	{
+		//if (enemies[i].enemy->shouldBeDeleted) {
+		//	std::cout << enemies[i].enemy->isDead << std::endl;
+
+		//	enemies.erase(i);
+		//}
+	}
 
 	//render test cube
 	Transform t;

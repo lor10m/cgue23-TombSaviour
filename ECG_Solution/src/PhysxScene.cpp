@@ -74,9 +74,6 @@ PhysxScene::PhysxScene(GLFWwindow* window, int lifeNumber)
 	lifeCnt = lifeNumber;
 	maxLifeNr = lifeNumber;
 
-	//glfwSetWindowUserPointer(window, this);
-	//glfwSetMouseButtonCallback(window, [](GLFWwindow* w, int button, int action, int mods) {
- //      static_cast<PhysxScene*>(glfwGetWindowUserPointer(w))->mouseButtonCallback(button, action, mods, camera);});
 }
 
 void PhysxScene::createTerrain(const char* heightmapPath)
@@ -238,7 +235,7 @@ void PhysxScene::simulate(GLFWwindow* window, Camera* camera, float timeStep, st
 	for (int i = 0; i < spikes.size(); i++) {
 		PxRigidDynamic* spike = spikes[i].actor;
 		if (std::find(actorsToRemove.begin(), actorsToRemove.end(), spike) != actorsToRemove.end()) { //TODO
-			std::cout << "remove spike" << std::endl;
+			//std::cout << "remove spike" << std::endl;
 			spikes[i].isThrownOrPickedUp = false;
 			spikeStruct[spikes[i].index].render = false;
 		}
@@ -253,14 +250,13 @@ void PhysxScene::simulate(GLFWwindow* window, Camera* camera, float timeStep, st
 	}
 
 	for (auto actor : actorsToRemove) {
-		std::cout << "remove actor" << std::endl;
+		//std::cout << "remove actor" << std::endl;
 		scene->removeActor(*actor);
 	}
 
 	actorsToRemove.clear();
 
 	for (auto& pair : cacti) {
-		//cactusStruct[pair.second.index].modelMatrix = pair.second.actor->getGlobalPose().p
 		if (pair.second.isThrownOrPickedUp) {
 			cactusStruct.erase(pair.second.index);
 			cacti.erase(pair.second.index);
@@ -331,8 +327,8 @@ void PhysxScene::pickUpNearestObject(Camera* camera)
 			hdu->updateSpikeCount(int(pickedUpSpikes));
 
 			// TODO move into callback/crash class:
-			lifeCnt = lifeCnt = maxLifeNr ? lifeCnt : lifeCnt++;	// WICHTIG: checken ob eh nicht über max ist!
-			hdu->updateLifeCount(lifeCnt);
+			// lifeCnt = lifeCnt = maxLifeNr ? lifeCnt : lifeCnt++;	// WICHTIG: checken ob eh nicht über max ist!
+			// hdu->updateLifeCount(lifeCnt);
 
 			break;
 		}
@@ -345,8 +341,8 @@ void PhysxScene::throwSpike(Camera* camera)
 	hdu->updateSpikeCount(int(pickedUpSpikes));
 	
 	// TODO move into callback/crash class: => ALSO: stop the whole game if 0 lifes
-	lifeCnt--;
-	hdu->updateLifeCount(lifeCnt >= 0 ? lifeCnt : 0);
+	//lifeCnt--;
+	//hdu->updateLifeCount(lifeCnt >= 0 ? lifeCnt : 0);
 
 	// Get one of the spikes
 	spikes[thrownSpikes].isThrownOrPickedUp = true;
@@ -380,6 +376,7 @@ PxScene* PhysxScene::getScene()
 	return scene;
 }
 
+
 void PhysxScene::onContact(const PxContactPairHeader& pairHeader, const PxContactPair* pairs, PxU32 nbPairs)
 {
 	for (PxU32 i = 0; i < nbPairs; i++)
@@ -392,27 +389,29 @@ void PhysxScene::onContact(const PxContactPairHeader& pairHeader, const PxContac
 		{
 			std::cout << actor1->getName() << " " << actor2->getName() << std::endl;
 
-			// Delete Spike if it hit something (except ourself) for the first time
-			if (actor1->getName() == "spike" && actor2->getName() != "mummy" && std::find(actorsToRemove.begin(), actorsToRemove.end(), actor1) == actorsToRemove.end()) {
-				PxActor* act = actor1;
-				actorsToRemove.push_back(act);
-
-				// Delete Enemy if it was hit by spike
-				if (strstr(actor2->getName(), "enemy") != nullptr) {
-					std::cout << "hit enemy" << std::endl;
-					actorsToRemove.push_back(actor2);
-				}
-				std::cout << "hit" << std::endl;
-			}
-			else if (actor2->getName() == "spike" && actor1->getName() != "mummy") {
-				actorsToRemove.push_back(actor2);
-
-				if (strstr(actor1->getName(), "enemy") != nullptr) {
-					std::cout << "hit enemy" << std::endl;
+			// If spike hits something except us
+			if (actor1->getName() == "spike" && actor2->getName() != "mummy") 
+			{
+				// Make sure to remove spike just once
+				if (std::find(actorsToRemove.begin(), actorsToRemove.end(), actor1) == actorsToRemove.end()) {
 					actorsToRemove.push_back(actor1);
 				}
-				std::cout << "hit" << std::endl;
-
+				// Delete Enemy if it was hit by spike
+				if (actor2->userData != nullptr) {
+					enemiesToRemove.push_back((unsigned int)actor2->userData); //get the id from the enemy to remove correct one
+					std::cout << "hit enemy" << std::endl;
+					//actorsToRemove.push_back(actor2);
+				}
+			}
+			else if (actor2->getName() == "spike" && actor1->getName() != "mummy") 
+			{
+				actorsToRemove.push_back(actor2); 
+				// Delete Enemy if it was hit by spike
+				if (actor2->userData != nullptr) {
+					std::cout << "hit enemy" << std::endl;
+					enemiesToRemove.push_back((unsigned int)actor1->userData);
+					//actorsToRemove.push_back(actor1);
+				}
 			}
 		}
 	}

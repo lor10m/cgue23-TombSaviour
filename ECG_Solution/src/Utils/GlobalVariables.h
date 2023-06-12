@@ -13,8 +13,8 @@ struct SpikeStruct {
 struct CactusStruct {
 	Model* model = NULL;
 	glm::mat4 modelMatrix;
-	//bool render;
 };
+
 
 class GlobalVariables {
 

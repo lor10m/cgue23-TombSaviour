@@ -81,7 +81,10 @@ private:
 
 
 	Assimp::Importer importer;
+	Assimp::Importer importer1;
 	const aiScene* scene = NULL;
+	const aiScene* scene1 = NULL;
+
 
 	unsigned int boneCounter = 0;
 	unsigned int numNodes;
@@ -118,6 +121,9 @@ private:
 
 public:
 
+	const aiAnimation* animation = NULL;
+	bool isDeadEnemy = false;
+
 	//indices, vertices and normals from all meshes
 	std::vector<unsigned int> indices;
 	std::vector<glm::vec3> normals;
@@ -129,6 +135,7 @@ public:
 	glm::mat4 physxRotate = glm::mat4(1.0f);
 
 	Model();
+	Model(string path);
 	void generateModel(string path);
 	void draw(Shader* shader);
 	void getBoneTransforms(float timeInSeconds, glm::mat4 globalTransform, std::vector<glm::mat4>& transforms);

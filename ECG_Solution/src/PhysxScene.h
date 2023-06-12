@@ -72,6 +72,8 @@ public:
 	unsigned int lifeCnt = 3;
 	int maxLifeNr = 3;
 
+	std::vector<unsigned int> enemiesToRemove;
+
 	PhysxScene(GLFWwindow* window, int lifeNumber);
 	void simulate(GLFWwindow* window,Camera* camera, float timeStep, std::map<unsigned int, SpikeStruct>& spikeStruct, std::map<unsigned int, CactusStruct>& cactusStruct);
 	void createTerrain(const char* heightmapPath);
@@ -93,6 +95,7 @@ public:
 	virtual void onWake(PxActor**, PxU32) {}
 	virtual void onSleep(PxActor**, PxU32) {}
 	virtual void onAdvance(const PxRigidBody* const*, const PxTransform*, const PxU32) {}
+
 	void mouseButtonCallback(GLFWwindow* window, Camera* camera);
 
 	int getLifeCnt();

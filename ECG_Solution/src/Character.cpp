@@ -173,3 +173,4 @@ glm::vec3 Character::getADdirection(GLFWwindow* window) {
 	}
 	return dirRight;
 }
+
