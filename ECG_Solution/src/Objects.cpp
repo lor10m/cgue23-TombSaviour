@@ -12,6 +12,7 @@ Objects::Objects(GLFWwindow* window, Camera* camera, PhysxScene* physxScene)
 	createPyramid();
 	createPalmTree();
 	createPointLightCube();
+	createVideoWall();
 
 	createTestCube();
 
@@ -90,14 +91,14 @@ void Objects::createPalmTree()
 
 void Objects::createPyramid()
 {
-	glm::vec3 pyramidRotate = glm::vec3(glm::radians(-90.0f), glm::radians(90.0f), glm::radians(0.0f));
-	glm::vec3 pyramidScale = glm::vec3(5, 5, 5);
+	glm::vec3 pyramidRotate = glm::vec3(glm::radians(0.0f), glm::radians(90.0f), glm::radians(0.0f));
+	glm::vec3 pyramidScale = glm::vec3(5,5,5);
 	glm::vec3 pyramidTranslate = glm::vec3(5.0, 25.64, 10.0);
 	Transform pyramidTransform;
 	pyramidTransform.translate(pyramidTranslate);
 	pyramidTransform.rotate(pyramidRotate);
 	pyramidTransform.scale(pyramidScale);
-	pyramid.generateModel("assets/objects/untitled5.obj"); //pyramid1	untitled5.obj
+	pyramid.generateModel("assets/objects/pyramid_final1.obj"); //pyramid1	untitled5.obj
 
 	pyramidShader.createPhongShader("assets/textures/sandklein.dds", "assets/textures/sandklein.dds", pyramidTransform.getMatrix(), 0.05f, 0.8f, 1.0f, 1.0f);
 	pyramidShader.setUniform1i("isAnimated", 0);
@@ -159,6 +160,23 @@ void Objects::createHduObject(GLFWwindow* window)
 	physxScene->setHDU(&hduObject);
 }
 
+void Objects::createVideoWall()
+{
+	glm::vec3 videoWallRotate = glm::vec3(glm::radians(0.0f), glm::radians(90.0f), glm::radians(0.0f));
+	glm::vec3 videoWallScale = glm::vec3(10, 10, 10);
+	glm::vec3 videoWallTranslate = glm::vec3(15.0, 25, -5.0);
+	Transform videoWallTransform;
+	videoWallTransform.translate(videoWallTranslate);
+	videoWallTransform.rotate(videoWallRotate);
+	videoWallTransform.scale(videoWallScale);
+	videoWall.generateModel("assets/objects/screen.obj");
+
+	videoWallShader.createPhongVideoTexShader("assets/textures/sandklein.dds", videoWallTransform.getMatrix(), 0.05f, 0.8f, 1.0f, 1.0f);
+	videoWallShader.setUniform1i("isAnimated", 0);
+
+	physxScene->createModel("videowall", videoWall.indices, videoWall.vertices, videoWall.normals, videoWallScale, videoWallTranslate, videoWallRotate);
+}
+
 void Objects::render(GLFWwindow* window, float currentTime, float dt, bool normalMapping)
 {
 
@@ -201,6 +219,11 @@ void Objects::render(GLFWwindow* window, float currentTime, float dt, bool norma
 	lightCubeShader.setUniformMatrix4fv("viewMatrix", 1, GL_FALSE, camera->getTransformMatrix());
 	lightCubeShader.setUniform3f("eyePos", camera->cameraPosition.x, camera->cameraPosition.y, camera->cameraPosition.z);
 	pointLightCube.draw(&lightCubeShader);
+
+	// render videowall
+	videoWallShader.setUniformMatrix4fv("viewMatrix", 1, GL_FALSE, camera->getTransformMatrix());
+	videoWallShader.setUniform3f("eyePos", camera->cameraPosition.x, camera->cameraPosition.y, camera->cameraPosition.z);
+	videoWall.draw(&videoWallShader);
 
 	//render enemy
 	enemyShader.setUniformMatrix4fv("viewMatrix", 1, GL_FALSE, camera->getTransformMatrix());

@@ -101,6 +101,9 @@ target_include_directories(${PROJECT_NAME} PRIVATE
 target_include_directories(${PROJECT_NAME} PRIVATE
     "../external/include/assimp"
 )
+target_include_directories(${PROJECT_NAME} PRIVATE
+    "../external/include/opencv"
+)
 
 ################################################################################
 # Compile definitions
@@ -197,6 +200,8 @@ if(WIN32)
         "PhysXCooking_64.lib"
         "assimp-vc143-mt.lib"
         "PhysXCharacterKinematic_static_64.lib"
+        #opencv_world310d.lib"
+        #"opencv_world310.lib"
     )
 else()
     set(GLEW_USE_STATIC_LIBS TRUE)
@@ -211,12 +216,19 @@ else()
         ${GLEW_STATIC_LIBRARIES} # ATTENTION: order is important, this must come before GL
         ${OPENGL_LIBRARIES}
     )
+
+    # OpenCV
+    find_package(OpenCV REQUIRED)
+    target_include_directories(${PROJECT_NAME} PRIVATE ${OpenCV_INCLUDE_DIRS})
+    target_link_libraries(${PROJECT_NAME} PRIVATE ${OpenCV_LIBRARIES})
+
 endif()
 
 if(WIN32)
     list(APPEND ADDITIONAL_LIBRARY_DEPENDENCIES "glfw3_mt")
 else()
     list(APPEND ADDITIONAL_LIBRARY_DEPENDENCIES "glfw")
+    list(APPEND ADDITIONAL_LIBRARY_DEPENDENCIES "opencv")
 endif()
 
 if (TARGET ECG_Library)
@@ -239,6 +251,7 @@ target_link_directories(${PROJECT_NAME} PRIVATE
 if(CMAKE_BUILD_TYPE MATCHES "Debug")
     target_link_directories(${PROJECT_NAME} PRIVATE "../external/lib/PhysxDebug")
     target_link_directories(${PROJECT_NAME} PRIVATE "../external/lib/AssimpDebug")
+    target_link_directories(${PROJECT_NAME} PRIVATE "../external/lib/OpenCV")
 
     file(COPY "assimp/assimp-vc143-mtd.dll"
         DESTINATION ${EXECUTABLE_OUTPUT_PATH})
@@ -246,17 +259,30 @@ if(CMAKE_BUILD_TYPE MATCHES "Debug")
         "assimp-vc143-mtd.lib"
     )
 
+    #file(COPY "opencv_world310d.dll"
+    #    DESTINATION ${EXECUTABLE_OUTPUT_PATH})
+    #list(APPEND ADDITIONAL_LIBRARY_DEPENDENCIES # this doesn't seem to do anything
+    #    "opencv_world310d.lib"
+    #)
+
 endif()
 
 if(CMAKE_BUILD_TYPE MATCHES "Release")
     target_link_directories(${PROJECT_NAME} PRIVATE "../external/lib/PhysxRelease")
     target_link_directories(${PROJECT_NAME} PRIVATE "../external/lib/AssimpRelease")
+    target_link_directories(${PROJECT_NAME} PRIVATE "../external/lib/OpenCV")
 
     file(COPY "assimp/assimp-vc143-mt.dll"
         DESTINATION ${EXECUTABLE_OUTPUT_PATH})
     list(APPEND ADDITIONAL_LIBRARY_DEPENDENCIES # this doesn't seem to do anything
         "assimp-vc143-mt.lib"
     )
+
+    #file(COPY "opencv_world310.dll"
+    #    DESTINATION ${EXECUTABLE_OUTPUT_PATH})
+    #list(APPEND ADDITIONAL_LIBRARY_DEPENDENCIES # this doesn't seem to do anything
+    #    "opencv_world310.lib"
+    #)
 
 endif()
 

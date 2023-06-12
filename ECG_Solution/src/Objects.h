@@ -24,6 +24,7 @@ private:
 	Model enemyModel;
 	Model palmTree;
 	Model pyramid;
+	Model videoWall;
 
 	Model pointLightCube;
 
@@ -40,6 +41,7 @@ private:
 	Shader pyramidShader;
 	Shader cactusShader;
 	Shader spikeShader;
+	Shader videoWallShader;
 
 	Shader lightCubeShader;
 
@@ -73,6 +75,7 @@ public:
 	void createPointLightCube();
 	void createTestCube();
 	void createHduObject(GLFWwindow* window);
+	void createVideoWall();
 	void deleteObjects();
 	void createCactus(glm::vec3 position);
 };

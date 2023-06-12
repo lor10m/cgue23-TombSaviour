@@ -19,11 +19,16 @@ private:
     GLuint specularTexture = 0;
     GLuint normalTexture = 0;
     std::unordered_map<std::string, GLint> uniformLocationMap;
+
+    std::vector<GLuint> videoTexture;
+
 public:
     Shader();
     ~Shader();
 
     void createPhongShader(const std::string& diffuseTexture, const std::string& specularTexture, glm::mat4 modelMatrix, float ka, float kd, float ks, int alpha);
+
+    void createPhongVideoTexShader(const std::string& videoPath, glm::mat4 modelMatrix, float ka, float kd, float ks, int alpha);
 
     void createNormalShader(const char* diffuseTexture, const char* specularTexture, const char* normalTexture, glm::mat4 modelMatrix);
 
@@ -35,6 +40,7 @@ public:
     void activate();
     void loadDDSTexture(const std::string& texturePath, int unit);
     void loadHUDTexture(const std::string& texturePath, int unit);
+    void loadVideoTexture(const std::string& texturePath, int unit);
     void loadTexture(const char* texturePath, int unit);
     void setUniform4f(const std::string& name, float v1, float v2, float v3, float v4);
     void setUniform3f(const std::string& name, float v1, float v2, float v3);
