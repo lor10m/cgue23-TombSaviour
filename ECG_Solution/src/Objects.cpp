@@ -164,15 +164,43 @@ void Objects::createHduObject(GLFWwindow* window)
 
 void Objects::render(GLFWwindow* window, float currentTime, float dt, bool normalMapping)
 {
-
 	//TODO load textures in Model.cpp instead of shader and use 1 shader for (almost) all objects
 
 	// Character: 
 	mummy.pollInput(window, dt);
 
-	//TODO edit shader to do this without projection matrix because TransformMatrix from cam is already view * projection
 	glm::mat4 projection = glm::mat4(1.0f);
 	glm::mat4 viewMatrix = camera->getTransformMatrix();
+
+	// simulate physx
+	physxScene->simulate(window, camera, (1.0f / 40.0f), spikes, cacti);
+
+	//render enemies
+	std::vector<unsigned int> enemiesToRemove = physxScene->enemiesToRemove; //get enemies that have been hit 
+	physxScene->enemiesToRemove.clear();
+
+	enemyShader.setUniformMatrix4fv("viewMatrix", 1, GL_FALSE, camera->getTransformMatrix());
+	enemyShader.setUniform3f("eyePos", camera->cameraPosition.x, camera->cameraPosition.y, camera->cameraPosition.z);
+
+	for (unsigned int i = 0; i < enemies.size(); i++)
+	{
+		if (std::find(enemiesToRemove.begin(), enemiesToRemove.end(), i + 1) != enemiesToRemove.end()) //if enemy was hit by spike
+		{
+			enemies[i].enemy->isDead = true;
+		}
+
+		enemies[i].enemy->move(enemyShader, enemies[i].modelMatrix, currentTime, mummy.getPosition(), 50, dt); //move physx enemy controller & render object
+
+		if (enemies[i].enemy->shouldBeDeleted)
+		{
+			enemies.erase(enemies.begin() + i); //remove enemy if dying animation is done 
+		}
+	}
+
+	// ALL ENEMIES DEAD!! YOU WON
+	if (enemies.size() == 0) {
+		hduObject.showGameOverScreen();
+	}
 
 	// render the terrain
 	terrainShader.setUniformMatrix4fv("projection", 1, GL_FALSE, projection);
@@ -219,30 +247,7 @@ void Objects::render(GLFWwindow* window, float currentTime, float dt, bool norma
 		}
 	}
 
-	// simulate physx
-	physxScene->simulate(window, camera, (1.0f / 40.0f), spikes, cacti);
 
-	//render enemies
-	std::vector<unsigned int> enemiesToRemove = physxScene->enemiesToRemove;
-	physxScene->enemiesToRemove.clear();
-
-	enemyShader.setUniformMatrix4fv("viewMatrix", 1, GL_FALSE, camera->getTransformMatrix());
-	enemyShader.setUniform3f("eyePos", camera->cameraPosition.x, camera->cameraPosition.y, camera->cameraPosition.z);
-
-	for(unsigned int i = 0; i < enemies.size(); i++)
-	{
-		if (std::find(enemiesToRemove.begin(), enemiesToRemove.end(), i + 1) != enemiesToRemove.end()) 
-		{
-			enemies[i].enemy->isDead = true;
-		}
-
-		enemies[i].enemy->move(enemyShader, enemies[i].modelMatrix, currentTime, mummy.getPosition(), 50, dt);
-
-		if (enemies[i].enemy->shouldBeDeleted) 
-		{
-			enemies.erase(enemies.begin() + i);
-		}
-	}
 	renderTestCube(normalMapping);
 	
 
