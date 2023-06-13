@@ -12,18 +12,6 @@ PxFilterFlags CollisionFilterShader(
 {
 	pairFlags = PxPairFlag::eCONTACT_DEFAULT | PxPairFlag::eNOTIFY_TOUCH_FOUND;
 
-	//if ((filterData0.word0 == 2) || (filterData1.word0 == 2)) // if one is fluffy
-	//{
-	//	pairFlags |= PxPairFlag::eNOTIFY_TOUCH_PERSISTS; // to check if fluffy is currently colliding with something
-	//}
-
-	//if ((filterData0.word0 == PxU32(3)) || (filterData1.word0 == PxU32(3))) // if one is lava
-	//{
-	//	pairFlags |= PxPairFlag::eNOTIFY_CONTACT_POINTS; // to get particle spawn position
-	//}
-
-	//pairFlags = PxPairFlag::eCONTACT_DEFAULT;
-
 	return PxFilterFlag::eDEFAULT;
 }
 
@@ -71,8 +59,8 @@ PhysxScene::PhysxScene(GLFWwindow* window, int lifeNumber)
 		std::cerr << ("Failed to init cooking") << std::endl;
 	}
 
-	lifeCnt = lifeNumber;
-	maxLifeNr = lifeNumber;
+	//lifeCnt = lifeNumber;
+	//maxLifeNr = lifeNumber;
 
 }
 
@@ -303,11 +291,6 @@ void PhysxScene::mouseButtonCallback(GLFWwindow* window, Camera* camera)
 	}
 }
 
-int PhysxScene::getLifeCnt() {
-	return lifeCnt;
-}
-
-
 void PhysxScene::pickUpNearestObject(Camera* camera)
 {
 	float pickUpDistance = 2.0f;
@@ -340,10 +323,6 @@ void PhysxScene::throwSpike(Camera* camera)
 	pickedUpSpikes--;
 	hdu->updateSpikeCount(int(pickedUpSpikes));
 	
-	// TODO move into callback/crash class: => ALSO: stop the whole game if 0 lifes
-	//lifeCnt--;
-	//hdu->updateLifeCount(lifeCnt >= 0 ? lifeCnt : 0);
-
 	// Get one of the spikes
 	spikes[thrownSpikes].isThrownOrPickedUp = true;
 	PxRigidDynamic* object = spikes[thrownSpikes].actor;
@@ -400,7 +379,6 @@ void PhysxScene::onContact(const PxContactPairHeader& pairHeader, const PxContac
 				if (actor2->userData != nullptr) {
 					enemiesToRemove.push_back((unsigned int)actor2->userData); //get the id from the enemy to remove correct one
 					std::cout << "hit enemy" << std::endl;
-					//actorsToRemove.push_back(actor2);
 				}
 			}
 			else if (actor2->getName() == "spike" && actor1->getName() != "mummy") 
@@ -410,7 +388,6 @@ void PhysxScene::onContact(const PxContactPairHeader& pairHeader, const PxContac
 				if (actor2->userData != nullptr) {
 					std::cout << "hit enemy" << std::endl;
 					enemiesToRemove.push_back((unsigned int)actor1->userData);
-					//actorsToRemove.push_back(actor1);
 				}
 			}
 		}
@@ -428,4 +405,20 @@ void PhysxScene::deleteScene()
 	//scene->release();
 	//physics->release();
 	//foundation->release();
+}
+
+unsigned int PhysxScene::getMummyLiveCount() {
+	return mummyLiveCount;
+}
+
+
+void PhysxScene::decreaseMummyLive()
+{
+	if (mummyLiveCount == 0) {
+		hdu->showGameOverScreen();
+	}
+	else {
+		mummyLiveCount--;
+		hdu->updateLifeCount(mummyLiveCount >= 0 ? mummyLiveCount : 0);
+	}
 }

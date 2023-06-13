@@ -16,8 +16,9 @@ Objects::Objects(GLFWwindow* window, Camera* camera, PhysxScene* physxScene)
 	enemyShader.createPhongShader(glm::mat4(0.0f), 0.1f, 1.0f, 0.2f, 32);
 	enemyShader.setUniform1i("isAnimated", 1);
 
+	// Create Enemies
 	for (unsigned int i = 0; i < numEnemies; i++) {
-		createEnemy(glm::vec3(10 * i, 2.0f, 0.0f));
+		createEnemy(glm::vec3(10 + i * 6, 3.0f, 2.0f));
 	}
 
 	cactusShader.createPhongShader(glm::mat4(0.0f), 0.1f, 1.0f, 0.1f, 2);
@@ -68,9 +69,9 @@ void Objects::createEnemy(glm::vec3 position)
 	enemyStruct.id = enemyCounter;
 	enemyStruct.modelMatrix = modelTransform.getMatrix();
 	enemyStruct.enemyModel = std::make_shared<Model>("assets/models/eve.dae");
-	enemyStruct.enemy = std::make_shared<Enemy>(enemyCounter, enemyStruct.enemyModel, physxScene, controllerManager, modelScale, glm::vec3(position.x, 25.64f, position.z));
+	enemyStruct.enemy = std::make_shared<Enemy>(enemyCounter, enemyStruct.enemyModel, physxScene, controllerManager, modelScale, glm::vec3(position.x, 28.64f, position.z));
 
-	enemies[enemyCounter] = enemyStruct;
+	enemies.push_back(enemyStruct);
 	enemyCounter++;
 }
 
@@ -156,7 +157,7 @@ void Objects::createSpike()
 
 void Objects::createHduObject(GLFWwindow* window)
 {
-	hduObject.createHdu(window, camera, physxScene->getLifeCnt());
+	hduObject.createHdu(window, camera, physxScene->getMummyLiveCount());
 	physxScene->setHDU(&hduObject);
 }
 
@@ -218,8 +219,6 @@ void Objects::render(GLFWwindow* window, float currentTime, float dt, bool norma
 		}
 	}
 
-	hduObject.drawHDU(window);
-
 	// simulate physx
 	physxScene->simulate(window, camera, (1.0f / 40.0f), spikes, cacti);
 
@@ -230,54 +229,26 @@ void Objects::render(GLFWwindow* window, float currentTime, float dt, bool norma
 	enemyShader.setUniformMatrix4fv("viewMatrix", 1, GL_FALSE, camera->getTransformMatrix());
 	enemyShader.setUniform3f("eyePos", camera->cameraPosition.x, camera->cameraPosition.y, camera->cameraPosition.z);
 
-	for (const auto& pair : enemies)
+	for(unsigned int i = 0; i < enemies.size(); i++)
 	{
-		if (std::find(enemiesToRemove.begin(), enemiesToRemove.end(), pair.second.id) != enemiesToRemove.end() && std::find(deadEnemyIndices.begin(), deadEnemyIndices.end(), pair.second.id) == deadEnemyIndices.end()) //if enemy is dead
+		if (std::find(enemiesToRemove.begin(), enemiesToRemove.end(), i + 1) != enemiesToRemove.end()) 
 		{
-			pair.second.enemy->isDead = true;
-			deadEnemyIndices.push_back(pair.first); //either that or just don't clear dead Enemy vector (enemiesToRemove)
+			enemies[i].enemy->isDead = true;
 		}
 
-		pair.second.enemy->move(enemyShader, pair.second.modelMatrix, currentTime, mummy.getPosition(), 50, dt);
+		enemies[i].enemy->move(enemyShader, enemies[i].modelMatrix, currentTime, mummy.getPosition(), 50, dt);
 
+		if (enemies[i].enemy->shouldBeDeleted) 
+		{
+			enemies.erase(enemies.begin() + i);
+		}
 	}
-
-	for (unsigned int i : deadEnemyIndices) //either that or just don't clear dead Enemy vector (enemiesToRemove)
-	{
-		//if (enemies[i].enemy->shouldBeDeleted) {
-		//	std::cout << enemies[i].enemy->isDead << std::endl;
-
-		//	enemies.erase(i);
-		//}
-	}
-
-	//render test cube
-	Transform t;
-	t.translate(glm::vec3(1.0f, 27.0, 0.0));
-
-	testCubeShader.setUniformMatrix4fv("modelMatrix", 1, GL_FALSE, t.getMatrix());
-	testCubeShader.setUniformMatrix4fv("viewMatrix", 1, GL_FALSE, camera->getTransformMatrix());
-	testCubeShader.setUniform3f("eyePos", camera->cameraPosition.x, camera->cameraPosition.y, camera->cameraPosition.z);
+	renderTestCube(normalMapping);
 
 
-	glm::vec3 diffuseColor = glm::vec3(1.0f, 1.0f, 1.0f) * 1.5f; // lightColor * diffuseStrength
-	glm::vec3 ambientColor = diffuseColor * 0.3f;//diffuseColor * ambientStrength;
+	// Draw HDU last
+	hduObject.drawHDU(window);
 
-	testCubeShader.setUniform3f("light.position", 1.2f, 28.0f, 2.0f);
-	testCubeShader.setUniform3f("light.ambientIntensity", ambientColor.x, ambientColor.y, ambientColor.z);
-	testCubeShader.setUniform3f("light.diffuseIntensity", diffuseColor.x, diffuseColor.y, diffuseColor.z);
-	testCubeShader.setUniform3f("light.specularIntensity", 1.0f, 1.0f, 1.0f);
-	testCubeShader.setUniform1f("light.constant", 1);
-	testCubeShader.setUniform1f("light.linear", 0.10f);
-	testCubeShader.setUniform1f("light.quadratic", 0.065f);
-
-	testCubeShader.setUniform1i("disableAttenuation", true);
-	testCubeShader.setUniform1i("invertNormals", false);
-	testCubeShader.setUniform1i("normalMapping", normalMapping);
-
-	glBindVertexArray(vao);
-	glDrawArrays(GL_TRIANGLES, 0, 36);
-	glBindVertexArray(0);
 }
 
 void Objects::deleteObjects()
@@ -425,4 +396,35 @@ void Objects::createTestCube()
 
 	glBindVertexArray(0);
 
+}
+
+void Objects::renderTestCube(bool normalMapping)
+{
+	//render test cube
+	Transform t;
+	t.translate(glm::vec3(1.0f, 27.0, 0.0));
+
+	testCubeShader.setUniformMatrix4fv("modelMatrix", 1, GL_FALSE, t.getMatrix());
+	testCubeShader.setUniformMatrix4fv("viewMatrix", 1, GL_FALSE, camera->getTransformMatrix());
+	testCubeShader.setUniform3f("eyePos", camera->cameraPosition.x, camera->cameraPosition.y, camera->cameraPosition.z);
+
+
+	glm::vec3 diffuseColor = glm::vec3(1.0f, 1.0f, 1.0f) * 1.5f; // lightColor * diffuseStrength
+	glm::vec3 ambientColor = diffuseColor * 0.3f;//diffuseColor * ambientStrength;
+
+	testCubeShader.setUniform3f("light.position", 1.2f, 28.0f, 2.0f);
+	testCubeShader.setUniform3f("light.ambientIntensity", ambientColor.x, ambientColor.y, ambientColor.z);
+	testCubeShader.setUniform3f("light.diffuseIntensity", diffuseColor.x, diffuseColor.y, diffuseColor.z);
+	testCubeShader.setUniform3f("light.specularIntensity", 1.0f, 1.0f, 1.0f);
+	testCubeShader.setUniform1f("light.constant", 1);
+	testCubeShader.setUniform1f("light.linear", 0.10f);
+	testCubeShader.setUniform1f("light.quadratic", 0.065f);
+
+	testCubeShader.setUniform1i("disableAttenuation", true);
+	testCubeShader.setUniform1i("invertNormals", false);
+	testCubeShader.setUniform1i("normalMapping", normalMapping);
+
+	glBindVertexArray(vao);
+	glDrawArrays(GL_TRIANGLES, 0, 36);
+	glBindVertexArray(0);
 }

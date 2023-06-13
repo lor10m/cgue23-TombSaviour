@@ -5,8 +5,7 @@
 
 Enemy::Enemy(unsigned int id, std::shared_ptr<Model> model2, PhysxScene* physxScene, PxControllerManager* enegManager, glm::vec3 scalingFactor, glm::vec3 position)
 {
-	// create PxController: 
-	//PxControllerManager* enegManager = PxCreateControllerManager(*physxScene->scene);
+	scene = physxScene;
 	PxCapsuleControllerDesc enecDesc;
 	enecDesc.position = PxExtendedVec3{ position.x, position.y, position.z };
 	enecDesc.contactOffset = 0.05f;
@@ -83,7 +82,7 @@ void Enemy::move(Shader& enemyShader,glm::mat4 modelMatrix, float currentTime, g
 		setPosition();
 
 		if (!colliding) {
-			model->animation = nullptr;
+			model->animation = nullptr; // use default animation if enemy is not colliding with mummy
 		}
 	}
 }
@@ -118,13 +117,13 @@ void Enemy::killEnemy()
 void Enemy::onControllerHit(const physx::PxControllersHit&)
 {
 	hitCounter++;
-
 	colliding = true;
+	model->animation = punchingScene->mAnimations[0];
 
-	if (hitCounter == 200) {
+	if (hitCounter == 300) {
 		// Leben abziehen
+		scene->decreaseMummyLive();
 		hitCounter = 0;
-		model->animation = punchingScene->mAnimations[0];
 		std::cout << "controller hit " << std::endl;
 	}
 

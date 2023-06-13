@@ -29,7 +29,7 @@ struct StaticActor {
 class PhysxScene : public PxSimulationEventCallback
 {
 private:
-
+	
 	PxDefaultAllocator defaultAllocatorCallback;
 	PxDefaultErrorCallback defaultErrorCallback;
 	PxDefaultCpuDispatcher* dispatcher = NULL;
@@ -39,6 +39,9 @@ private:
 	PxCooking* cooking = NULL;
 	PxPvd* pvd = NULL;
 	PxRigidDynamic* playerActor;
+
+	unsigned int mummyLiveCount = 3;
+	unsigned int maxLives = 3;
 
 	Character* mummy;
 	Hdu* hdu;
@@ -69,8 +72,8 @@ public:
 	unsigned int pickedUpSpikes = 0;
 	unsigned int thrownSpikes = 0;
 	unsigned int spickesPerCactus = 5;
-	unsigned int lifeCnt = 3;
-	int maxLifeNr = 3;
+	//unsigned int lifeCnt = 3;
+	//int maxLifeNr = 3;
 
 	std::vector<unsigned int> enemiesToRemove;
 
@@ -98,7 +101,9 @@ public:
 
 	void mouseButtonCallback(GLFWwindow* window, Camera* camera);
 
-	int getLifeCnt();
+	unsigned int getMummyLiveCount();
 
 	void deleteScene();
+
+	void decreaseMummyLive();
 };

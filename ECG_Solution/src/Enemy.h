@@ -7,12 +7,12 @@
 
 using namespace physx;
 
-
 class Enemy : public PxUserControllerHitReport
 {
 
 private:
 
+	PhysxScene* scene;
 	Assimp::Importer punchingImporter;
 	const aiScene* punchingScene = NULL;
 

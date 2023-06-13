@@ -1,32 +1,12 @@
 #include "Shader.h"
 #include "Utils/stb_image.h"
 #include <iostream>
-#include <opencv2/opencv.hpp>
-#include <opencv2/video.hpp>
-#include <opencv2/core.hpp>
-#include <opencv2/imgcodecs.hpp>
-#include <opencv2/highgui.hpp>
 
-#include <filesystem>
-
-using namespace cv;
-using namespace std;
-
-namespace fs = std::filesystem;
 
 Shader::Shader() {}
 
 void Shader::createPhongShader(const std::string& diffuseTexture, const std::string& specularTexture, glm::mat4 modelMatrix, float ka, float kd, float ks, int alpha) {
 	shader = glCreateProgram();
-
-	Mat img3 = imread("assets/textures/brick.jpg");
-
-	VideoCapture video("assets/box.mp4");
-
-	if (!video.isOpened()) {
-		return;
-		std::cout << "No video";
-	}
 
 	GLuint vertexShader = compileShader(GL_VERTEX_SHADER, "assets/shaders/phong.vsh");
 	GLuint fragmentShader = compileShader(GL_FRAGMENT_SHADER, "assets/shaders/phong.fs");
