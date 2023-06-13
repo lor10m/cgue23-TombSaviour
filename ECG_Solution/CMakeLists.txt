@@ -280,7 +280,6 @@ if(CMAKE_BUILD_TYPE MATCHES "Debug")
     target_link_directories(${PROJECT_NAME} PRIVATE "../external/lib/PhysxDebug")
     target_link_directories(${PROJECT_NAME} PRIVATE "../external/lib/AssimpDebug")
     target_link_directories(${PROJECT_NAME} PRIVATE "../external/lib/opencvDebug")
-    target_link_directories(${PROJECT_NAME} PRIVATE "../external/lib/opencv/opencv_world470d.lib")
 
     file(COPY "assimp/assimp-vc143-mtd.dll"
         DESTINATION ${EXECUTABLE_OUTPUT_PATH})
@@ -291,7 +290,6 @@ if(CMAKE_BUILD_TYPE MATCHES "Release")
     target_link_directories(${PROJECT_NAME} PRIVATE "../external/lib/PhysxRelease")
     target_link_directories(${PROJECT_NAME} PRIVATE "../external/lib/AssimpRelease")
     target_link_directories(${PROJECT_NAME} PRIVATE "../external/lib/opencvRelease")
-    target_link_directories(${PROJECT_NAME} PRIVATE "../external/lib/opencv/opencv_world470.lib")
 
     file(COPY "assimp/assimp-vc143-mt.dll"
         DESTINATION ${EXECUTABLE_OUTPUT_PATH})

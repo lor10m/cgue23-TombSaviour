@@ -39,7 +39,7 @@ public:
 	void calculatePosition();
 	void updateSpikeCount(int newNumber);
 	void updateLifeCount(int newLifeNumber);
-	void showGameOverScreen();
+	void showBigScreen(string screenKey);
 	float getFullscreenHDUScale();
 
 };

@@ -410,27 +410,22 @@ unsigned int Model::FindPosition(float AnimationTime, const aiNodeAnim* pNodeAni
 void Model::draw(Shader* shader)
 {
 	for (unsigned int i = 0; i < modelMeshes.size(); i++) {
+		glBindVertexArray(modelMeshes[i].vao);	// needed?
 
+		// This is only for models that have texture location information
 		for (unsigned int i = 0; i < textures.size(); i++) {
-
 			std::string name = textures[i].type;
-
 			int x = 0;
 			if (name == "specularTexture") x = 1;
-
 			glActiveTexture(GL_TEXTURE0 + x);
 			glBindTexture(GL_TEXTURE_2D, textures[i].handle);
 			shader->setUniform1i(name, x);
-
 		}
 
 		glBindVertexArray(modelMeshes[i].vao);
-
 		glDrawElements(GL_TRIANGLES, modelMeshes[i].indices.size(), GL_UNSIGNED_INT, 0);
-
 		glBindVertexArray(0);
 	}
-
 }
 
 float Model::getAnimationDuration()

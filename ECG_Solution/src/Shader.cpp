@@ -85,9 +85,100 @@ void Shader::createPhongShader(glm::mat4 modelMatrix, float ka, float kd, float 
 	DirectionalLight directionalLight1({ 0, -1, 0 }, { 1.5f, 1.5f, 1.5f });
 	//addUniformPointLight("pointLight", pointLight1);
 	addUniformDirectionalLight("directionalLight", directionalLight1);
-
 }
 
+void Shader::createPhongVideoTexShader(const std::string& videoPath, glm::mat4 modelMatrix, float ka, float kd, float ks, int alpha) {
+	shader = glCreateProgram();
+
+	GLuint vertexShader = compileShader(GL_VERTEX_SHADER, "assets/shaders/phong.vsh");
+	GLuint fragmentShader = compileShader(GL_FRAGMENT_SHADER, "assets/shaders/phong.fs");
+
+	glAttachShader(shader, vertexShader);
+	glAttachShader(shader, fragmentShader);
+	glLinkProgram(shader);
+	glValidateProgram(shader);
+
+	glDeleteShader(vertexShader);
+	glDeleteShader(fragmentShader);
+
+	loadVideoTexture(videoPath, 0);
+	setUniform1f("ka", ka);
+	setUniform1f("kd", kd);
+	setUniform1f("ks", ks);
+	setUniform1i("alpha", alpha);
+	setUniformMatrix4fv("modelMatrix", 1, GL_FALSE, modelMatrix);
+
+	//TODO: lights
+	PointLight pointLight1({ 0, 50, 0 }, { 100, 100, 100 }, { 1.0f, 0.4f, 0.1f });
+	DirectionalLight directionalLight1({ 0, -1, -1 }, { 0.8f, 0.8f, 0.8f });
+	addUniformPointLight("pointLight", pointLight1);
+	addUniformDirectionalLight("directionalLight", directionalLight1);
+}
+
+//void Shader::loadDDSTexture(const std::string& texturePath, int unit) {
+//	DDSImage ddsImage = loadDDS(texturePath.c_str());
+//
+//	//std::cout << "textureSize of texture: " << texturePath << " size: " << ddsImage.height << ", " << ddsImage.width;
+//	if (unit == 0) {
+//		glGenTextures(1, &diffuseTexture);
+//		glBindTexture(GL_TEXTURE_2D, diffuseTexture);
+//	}
+//	else if (unit == 1) {
+//		glGenTextures(1, &specularTexture);
+//		glBindTexture(GL_TEXTURE_2D, specularTexture);
+//	}
+//	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+//	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+//	glCompressedTexImage2D(GL_TEXTURE_2D, 0, ddsImage.format, ddsImage.width, ddsImage.height, 0, ddsImage.size, ddsImage.data);
+//	glGenerateMipmap(GL_TEXTURE_2D);
+//}
+
+void Shader::loadVideoTexture(const std::string& videoTexturePath, int unit) {
+
+	std::cout << "\nOpenCV version is: " << CV_VERSION << "**************\n" << endl;
+
+	std::cout << videoTexturePath;
+	VideoCapture video(videoTexturePath);
+	
+	if (!video.isOpened()) {
+		return;
+		std::cout << "No video";
+	}
+
+	cv::Mat frame;
+	while (video.read(frame)) {
+		GLuint texture;
+		glGenTextures(1, &texture);
+		glBindTexture(GL_TEXTURE_2D, texture);
+
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+		GLenum format;
+		GLenum type;
+		if (frame.channels() == 3) {
+			format = GL_BGR;
+			type = GL_UNSIGNED_BYTE;
+		}
+		else if (frame.channels() == 4) {
+			format = GL_BGRA;
+			type = GL_UNSIGNED_BYTE;
+		}
+		else {
+			// Ungültiges Bildformat
+			glDeleteTextures(1, &texture);
+			continue;
+		}
+
+		// Bild auf die OpenGL-Textur laden
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, frame.cols, frame.rows, 0, format, type, frame.data);
+		glGenerateMipmap(GL_TEXTURE_2D);
+
+		videoTextures.push_back(texture);
+	}
+}
 
 void Shader::createTerrainShader()
 {
@@ -171,6 +262,13 @@ void Shader::activate() {
 		glBindTexture(GL_TEXTURE_2D, specularTexture);
 		glUniform1i(getUniformLocation("normalTexture"), 2);
 	}
+
+	if (videoTextures.size() > 0) {
+		glActiveTexture(GL_TEXTURE0 + 0);
+		glBindTexture(GL_TEXTURE_2D, videoTextures[20]);
+		glUniform1i(getUniformLocation("diffuseTexture"), 0);
+	}
+
 }
 
 Shader::~Shader() {
@@ -355,5 +453,13 @@ void Shader::changeShader(std::shared_ptr<Camera> camera)
 	setUniform("viewProjectionMat", camera->getViewProjMat());
 	setUniform("cameraWorld", camera->getWorldPosition());
 	setUniform("brightness", GlobalManager::get().getBrightness());*/
+}
+
+
+void Shader::cleanupVideoTextures() {		// TODO: use this somewhere
+	for (GLuint texture : videoTextures) {
+		glDeleteTextures(1, &texture);
+	}
+	videoTextures.clear();
 }
 
