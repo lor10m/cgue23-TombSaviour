@@ -415,7 +415,7 @@ unsigned int PhysxScene::getMummyLiveCount() {
 void PhysxScene::decreaseMummyLive()
 {
 	if (mummyLiveCount == 0) {
-		hdu->showGameOverScreen();
+		hdu->showBigScreen("loseEndscreen");
 	}
 	else {
 		mummyLiveCount--;

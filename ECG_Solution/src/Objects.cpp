@@ -217,7 +217,7 @@ void Objects::render(GLFWwindow* window, float currentTime, float dt, bool norma
 
 	// ALL ENEMIES DEAD!! YOU WON
 	if (enemies.size() == 0) {
-		hduObject.showGameOverScreen();
+		hduObject.showBigScreen("winEndscreen");
 	}
 
 	// render the terrain
