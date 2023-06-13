@@ -244,7 +244,7 @@ void Objects::render(GLFWwindow* window, float currentTime, float dt, bool norma
 		}
 	}
 	renderTestCube(normalMapping);
-
+	
 
 	// Draw HDU last
 	hduObject.drawHDU(window);
