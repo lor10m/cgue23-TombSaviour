@@ -30,6 +30,8 @@ set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT $
 # OpenGL
 find_package(OpenGL REQUIRED)
 
+#find_package(OpenCV REQUIRED)
+
 ################################################################################
 # Target
 ################################################################################
@@ -61,9 +63,32 @@ file(COPY "physx/PhysXGpu_64.dll"
 
 file(COPY "assimp/assimp-vc143-mt.dll"
     DESTINATION ${EXECUTABLE_OUTPUT_PATH})
+
 file(COPY "assimp/assimp-vc143-mtd.dll"
     DESTINATION ${EXECUTABLE_OUTPUT_PATH})
+ 
+    if(CMAKE_BUILD_TYPE MATCHES "Release")
+        file(COPY "opencv/opencv_world470.dll"
+            DESTINATION ${EXECUTABLE_OUTPUT_PATH})
 
+        file(COPY "opencv/opencv_videoio_ffmpeg470_64.dll"
+            DESTINATION ${EXECUTABLE_OUTPUT_PATH})
+
+        file(COPY "opencv/opencv_videoio_msmf470_64.dll"
+            DESTINATION ${EXECUTABLE_OUTPUT_PATH})
+    endif()
+    
+    if(CMAKE_BUILD_TYPE MATCHES "Debug")
+        file(COPY "opencv/opencv_world470d.dll"
+            DESTINATION ${EXECUTABLE_OUTPUT_PATH})
+
+        file(COPY "opencv/opencv_world470d.dll"
+            DESTINATION ${EXECUTABLE_OUTPUT_PATH})
+
+        file(COPY "opencv/opencv_videoio_msmf470_64d.dll"
+            DESTINATION ${EXECUTABLE_OUTPUT_PATH})
+    endif()
+      
 set_target_properties(${PROJECT_NAME} PROPERTIES
     VS_GLOBAL_KEYWORD "Win32Proj"
 )
@@ -100,6 +125,9 @@ target_include_directories(${PROJECT_NAME} PRIVATE
 )
 target_include_directories(${PROJECT_NAME} PRIVATE
     "../external/include/assimp"
+)
+target_include_directories(${PROJECT_NAME} PRIVATE
+    "../external/include/opencv2"
 )
 
 ################################################################################
@@ -198,6 +226,18 @@ if(WIN32)
         "assimp-vc143-mt.lib"
         "PhysXCharacterKinematic_static_64.lib"
     )
+    if(CMAKE_BUILD_TYPE MATCHES "Release")
+        list(APPEND ADDITIONAL_LIBRARY_DEPENDENCIES
+            "opencv_world470.lib"
+        )
+    endif()
+
+    if(CMAKE_BUILD_TYPE MATCHES "Debug")
+        list(APPEND ADDITIONAL_LIBRARY_DEPENDENCIES
+            "opencv_world470d.lib"
+        )
+    endif()
+
 else()
     set(GLEW_USE_STATIC_LIBS TRUE)
     find_package(GLEW REQUIRED)
@@ -239,24 +279,22 @@ target_link_directories(${PROJECT_NAME} PRIVATE
 if(CMAKE_BUILD_TYPE MATCHES "Debug")
     target_link_directories(${PROJECT_NAME} PRIVATE "../external/lib/PhysxDebug")
     target_link_directories(${PROJECT_NAME} PRIVATE "../external/lib/AssimpDebug")
+    target_link_directories(${PROJECT_NAME} PRIVATE "../external/lib/opencvDebug")
+    target_link_directories(${PROJECT_NAME} PRIVATE "../external/lib/opencv/opencv_world470d.lib")
 
     file(COPY "assimp/assimp-vc143-mtd.dll"
         DESTINATION ${EXECUTABLE_OUTPUT_PATH})
-    list(APPEND ADDITIONAL_LIBRARY_DEPENDENCIES     # this doesn't seem to do anything
-        "assimp-vc143-mtd.lib"
-    )
 
 endif()
 
 if(CMAKE_BUILD_TYPE MATCHES "Release")
     target_link_directories(${PROJECT_NAME} PRIVATE "../external/lib/PhysxRelease")
     target_link_directories(${PROJECT_NAME} PRIVATE "../external/lib/AssimpRelease")
+    target_link_directories(${PROJECT_NAME} PRIVATE "../external/lib/opencvRelease")
+    target_link_directories(${PROJECT_NAME} PRIVATE "../external/lib/opencv/opencv_world470.lib")
 
     file(COPY "assimp/assimp-vc143-mt.dll"
         DESTINATION ${EXECUTABLE_OUTPUT_PATH})
-    list(APPEND ADDITIONAL_LIBRARY_DEPENDENCIES # this doesn't seem to do anything
-        "assimp-vc143-mt.lib"
-    )
 
 endif()
 
