@@ -19,6 +19,9 @@ private:
     GLuint specularTexture = 0;
     GLuint normalTexture = 0;
     std::unordered_map<std::string, GLint> uniformLocationMap;
+
+    std::vector<GLuint> videoTextures;
+
 public:
     Shader();
     ~Shader();
@@ -28,6 +31,8 @@ public:
     void createNormalShader(const char* diffuseTexture, const char* specularTexture, const char* normalTexture, glm::mat4 modelMatrix);
 
     void createPhongShader(glm::mat4 modelMatrix, float ka, float kd, float ks, int alpha);
+    void createPhongVideoTexShader(const std::string& videoPath, glm::mat4 modelMatrix, float ka, float kd, float ks, int alpha);
+    void loadVideoTexture(const std::string& videoTexturePath, int unit);
     void createTerrainShader();
     void createSimpleShader(glm::vec3 color, glm::mat4 modelMatrix);
  
@@ -45,9 +50,13 @@ public:
     void createHDUShader(const std::string& texturePath);
     void changeTexture(const std::string& newTexturePath);
     void changeShader(std::shared_ptr<Camera> camera);
+    void cleanupVideoTextures();
     void addUniformPointLight(const std::string& name, PointLight pointLight);
     void addUniformDirectionalLight(const std::string& name, DirectionalLight directionalLight);
     void addUniformSpotLight(const std::string& name, SpotLight spotLight);
     GLint getUniformLocation(const std::string& name);
 
+    std::vector<GLuint>& getVideoTextures() {
+        return videoTextures;
+    }
 };

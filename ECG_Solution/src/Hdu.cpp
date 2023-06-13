@@ -160,7 +160,7 @@ void Hdu::updateSpikeCount(int newNumber) {
 void Hdu::updateLifeCount(int newLifeNumber) {
 
 	if (newLifeNumber == 0) {
-		showGameOverScreen();
+		showBigScreen("loseEndscreen");
 	}
 	else if (newLifeNumber > currentLifeNr) {			// life won (TODO: OPTIONAL)
 		float i = 1;
@@ -192,19 +192,20 @@ void Hdu::updateLifeCount(int newLifeNumber) {
 
 }
 
-void Hdu::showGameOverScreen() {
+void Hdu::showBigScreen(string screenKey) {
+	// screenKey: loseEndscreen ODER winEndscreen
 
 	hduDataMap.clear();
-	hduDataMap["GameOver"].simpleShader.createHDUShader("assets/textures/hdu/gameover.dds");
+	hduDataMap[screenKey].simpleShader.createHDUShader("assets/textures/hdu/" + screenKey + ".dds");
 
 	// Endbild erstreckt sich über ganzen Screen:
-	hduDataMap["GameOver"].transform.translate(glm::vec3(0.0f, 0.0f, 0.0f)).scale(glm::vec3(getFullscreenHDUScale() * 2.0f));
+	hduDataMap[screenKey].transform.translate(glm::vec3(0.0f, 0.0f, 0.0f)).scale(glm::vec3(getFullscreenHDUScale() * 2.0f));
 
 	// Alternative: schön rechteckig, aber bei Fullscreen immer noch Spiel auf der Seite sichtbar:
 	//hduDataMap["GameOver"].scaleMulti = 4.0f;
 	//hduDataMap["GameOver"].transform.translate(glm::vec3(0.0f, 0.0f, 0.0f)).scale(hduDataMap["GameOver"].getScale(widthScale, heightScale));
 
-	hduDataMap["GameOver"].model.generateModel("assets/objects/screen.obj");
+	hduDataMap[screenKey].model.generateModel("assets/objects/screen.obj");
 	std::cout << "\nMuhahah you lost! >:( \n";
 }
 

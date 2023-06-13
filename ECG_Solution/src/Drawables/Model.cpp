@@ -410,27 +410,41 @@ unsigned int Model::FindPosition(float AnimationTime, const aiNodeAnim* pNodeAni
 void Model::draw(Shader* shader)
 {
 	for (unsigned int i = 0; i < modelMeshes.size(); i++) {
+		glBindVertexArray(modelMeshes[i].vao);	// needed?
 
-		for (unsigned int i = 0; i < textures.size(); i++) {
+		//for (unsigned int i = 0; i < textures.size(); i++) {
+		//	std::string name = textures[i].type;
+		//	int x = 0;
+		//	if (name == "specularTexture") x = 1;
+		//	glActiveTexture(GL_TEXTURE0 + x);
+		//	glBindTexture(GL_TEXTURE_2D, textures[i].handle);
+		//	shader->setUniform1i(name, x);
+		//}
 
-			std::string name = textures[i].type;
+		for (unsigned int j = 0; j < textures.size(); j++) {
+			std::string name = textures[j].type;
+			int textureUnit = 0;
 
-			int x = 0;
-			if (name == "specularTexture") x = 1;
-
-			glActiveTexture(GL_TEXTURE0 + x);
-			glBindTexture(GL_TEXTURE_2D, textures[i].handle);
-			shader->setUniform1i(name, x);
-
+			if (name == "specularTexture")
+				textureUnit = 1;
+			else if (name == "videoTexture") {
+				textureUnit = 2;
+				std::vector<GLuint>& videoTextures = shader->getVideoTextures();
+				glActiveTexture(GL_TEXTURE2);
+				glBindTexture(GL_TEXTURE_2D, videoTextures[0]);
+				shader->setUniform1i(name, textureUnit);
+			}
+			else {
+				glActiveTexture(GL_TEXTURE0 + textureUnit);
+				glBindTexture(GL_TEXTURE_2D, textures[j].handle);
+				shader->setUniform1i(name, textureUnit);
+			}
 		}
 
 		glBindVertexArray(modelMeshes[i].vao);
-
 		glDrawElements(GL_TRIANGLES, modelMeshes[i].indices.size(), GL_UNSIGNED_INT, 0);
-
 		glBindVertexArray(0);
 	}
-
 }
 
 float Model::getAnimationDuration()

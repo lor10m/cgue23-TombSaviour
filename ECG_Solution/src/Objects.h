@@ -30,6 +30,7 @@ private:
 	Terrain terrain;
 	Model palmTree;
 	Model pyramid;
+	Model videoWall;
 	Model pointLightCube;
 
 	unsigned int vao;
@@ -44,6 +45,7 @@ private:
 	Shader pyramidShader;
 	Shader cactusShader;
 	Shader spikeShader;
+	Shader videoWallShader;
 	Shader lightCubeShader;
 
 	Character mummy;
@@ -85,6 +87,7 @@ public:
 	void createPointLightCube();
 	void createTestCube();
 	void createHduObject(GLFWwindow* window);
+	void createVideoWall();
 	void deleteObjects();
 	void createCactus(glm::vec3 position);
 };
