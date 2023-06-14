@@ -124,7 +124,6 @@ void Enemy::onControllerHit(const physx::PxControllersHit&)
 		// Leben abziehen
 		scene->decreaseMummyLive();
 		hitCounter = 0;
-		std::cout << "controller hit " << std::endl;
 	}
 
 }

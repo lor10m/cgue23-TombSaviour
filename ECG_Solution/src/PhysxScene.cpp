@@ -366,8 +366,6 @@ void PhysxScene::onContact(const PxContactPairHeader& pairHeader, const PxContac
 
 		if (cp.events & PxPairFlag::eNOTIFY_TOUCH_FOUND)
 		{
-			std::cout << actor1->getName() << " " << actor2->getName() << std::endl;
-
 			// If spike hits something except us
 			if (actor1->getName() == "spike" && actor2->getName() != "mummy") 
 			{
@@ -414,8 +412,10 @@ unsigned int PhysxScene::getMummyLiveCount() {
 
 void PhysxScene::decreaseMummyLive()
 {
-	if (mummyLiveCount == 0) {
+	if (mummyLiveCount == 1) {
+		mummyLiveCount--;
 		hdu->showBigScreen("loseEndscreen");
+		std::cout << "\nMuhahah you lost! >:( \n " << std::endl;
 	}
 	else {
 		mummyLiveCount--;

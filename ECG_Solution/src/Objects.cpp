@@ -116,7 +116,7 @@ void Objects::createPyramid()
 {
 	glm::vec3 pyramidRotate = glm::vec3(glm::radians(0.0f), glm::radians(90.0f), glm::radians(0.0f));
 	glm::vec3 pyramidScale = glm::vec3(5, 5, 5);
-	glm::vec3 pyramidTranslate = glm::vec3(5.0, 25.64, 10.0);
+	glm::vec3 pyramidTranslate = glm::vec3(16.0, 25.64, 15.0);
 	Transform pyramidTransform;
 	pyramidTransform.translate(pyramidTranslate);
 	pyramidTransform.rotate(pyramidRotate);
@@ -166,7 +166,7 @@ void Objects::createVideoWall()
 {
 	glm::vec3 videoWallRotate = glm::vec3(glm::radians(0.0f), glm::radians(90.0f), glm::radians(0.0f));
 	glm::vec3 videoWallScale = glm::vec3(10, 10, 10);
-	glm::vec3 videoWallTranslate = glm::vec3(15.0, 25, -5.0);
+	glm::vec3 videoWallTranslate = glm::vec3(45.0, 25, -5.0);
 	Transform videoWallTransform;
 	videoWallTransform.translate(videoWallTranslate);
 	videoWallTransform.rotate(videoWallRotate);
@@ -182,8 +182,19 @@ void Objects::createVideoWall()
 
 void Objects::render(GLFWwindow* window, float currentTime, float dt, bool normalMapping)
 {
-	//TODO load textures in Model.cpp instead of shader and use 1 shader for (almost) all objects
+	// ALL ENEMIES DEAD!!
+	if (enemies.size() == 0) {
+		hduObject.drawHDU(window);
+		return;
+	}
 
+	// YOU ARE DEAD!!
+	if (physxScene->getMummyLiveCount() == 0) {
+		hduObject.drawHDU(window);
+		return;
+	}
+
+	//TODO maybe load textures in Model.cpp instead of shader and use 1 shader for (almost) all objects
 	// Character: 
 	mummy.pollInput(window, dt);
 
@@ -215,9 +226,9 @@ void Objects::render(GLFWwindow* window, float currentTime, float dt, bool norma
 		}
 	}
 
-	// ALL ENEMIES DEAD!! YOU WON
 	if (enemies.size() == 0) {
 		hduObject.showBigScreen("winEndscreen");
+		std::cout << "\nYou've won for now but we will get you soon! >:(" << std::endl;
 	}
 
 	// render the terrain
@@ -252,9 +263,9 @@ void Objects::render(GLFWwindow* window, float currentTime, float dt, bool norma
 	videoWall.draw(&videoWallShader);
 
 	//render light cube
-	lightCubeShader.setUniformMatrix4fv("viewMatrix", 1, GL_FALSE, camera->getTransformMatrix());
-	lightCubeShader.setUniform3f("eyePos", camera->cameraPosition.x, camera->cameraPosition.y, camera->cameraPosition.z);
-	pointLightCube.draw(&lightCubeShader);
+	//lightCubeShader.setUniformMatrix4fv("viewMatrix", 1, GL_FALSE, camera->getTransformMatrix());
+	//lightCubeShader.setUniform3f("eyePos", camera->cameraPosition.x, camera->cameraPosition.y, camera->cameraPosition.z);
+	//pointLightCube.draw(&lightCubeShader);
 
 	//render spikes
 	for (const auto& pair : spikes) {
@@ -273,7 +284,6 @@ void Objects::render(GLFWwindow* window, float currentTime, float dt, bool norma
 
 	renderTestCube(normalMapping);
 	
-
 	// Draw HDU last
 	hduObject.drawHDU(window);
 
@@ -285,11 +295,11 @@ void Objects::deleteObjects()
 	physxScene->deleteScene();
 }
 
-//TODO berechnung in drawables verschieben
+//TODO berechnung in drawables verschieben bzw. removen und für das object in der pyramide verwenden
 void Objects::createTestCube()
 {
 	Transform t;
-	t.translate(glm::vec3(0.0f, 27.0, 0.0));
+	t.translate(glm::vec3(5.0f, 27.0, 25.0));
 	testCubeShader.createNormalShader("assets/textures/brickwall.jpg", "assets/textures/brickwall.jpg", "assets/textures/brickwall_normal.jpg", t.getMatrix());
 
 	float vertices[] = {
@@ -430,7 +440,7 @@ void Objects::renderTestCube(bool normalMapping)
 {
 	//render test cube
 	Transform t;
-	t.translate(glm::vec3(1.0f, 27.0, 0.0));
+	t.translate(glm::vec3(5.0f, 27.0, 25.0));
 
 	testCubeShader.setUniformMatrix4fv("modelMatrix", 1, GL_FALSE, t.getMatrix());
 	testCubeShader.setUniformMatrix4fv("viewMatrix", 1, GL_FALSE, camera->getTransformMatrix());
