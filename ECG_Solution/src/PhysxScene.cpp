@@ -59,7 +59,7 @@ PhysxScene::PhysxScene(GLFWwindow* window, int lifeNumber)
 		std::cerr << ("Failed to init cooking") << std::endl;
 	}
 
-	//lifeCnt = lifeNumber;
+	mummyLiveCount = lifeNumber;
 	//maxLifeNr = lifeNumber;
 
 }

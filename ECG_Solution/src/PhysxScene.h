@@ -40,7 +40,7 @@ private:
 	PxPvd* pvd = NULL;
 	PxRigidDynamic* playerActor;
 
-	unsigned int mummyLiveCount = 3;
+	unsigned int mummyLiveCount = 5;
 	unsigned int maxLives = 3;
 
 	Character* mummy;
