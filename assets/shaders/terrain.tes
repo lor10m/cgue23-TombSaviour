@@ -14,7 +14,7 @@ out vec4 textPos;
 
 out vec3 fragPos;
 out vec4 fragPosLightSpace;
-out vec4 fragNormal;
+//out vec4 fragNormal;
 
 void main()
 {
@@ -46,8 +46,8 @@ void main()
     vec4 p = (p1 - p0) * v + p0 + normal * Height;
 
     textPos = p;
-    fragPos = vec3(model * p)
-    fragNormal = transpose(inverse(mat3(model))) * normal;
+    fragPos = vec3(model * p);
+    //fragNormal = transpose(inverse(mat3(model))) * normal;
     fragPosLightSpace = lightSpaceMatrix * vec4(fragPos, 1.0);
 
     gl_Position = projection * view * model * p;

@@ -223,7 +223,7 @@ void Objects::render(GLFWwindow* window, float currentTime, float dt, bool norma
 	}
 
 	// render the terrain
-	terrainDepthMap.render(&terrainDepthMapShader, &terrainShader, &terrain, viewMatrix, projection);
+	//terrainDepthMap.render(&terrainDepthMapShader, &terrainShader, &terrain, viewMatrix, projection);
 
 	// render cactus
 	for (const auto& pair : cacti) {

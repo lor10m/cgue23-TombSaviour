@@ -5,7 +5,7 @@ in vec4 textPos;
 
 in vec3 fragPos;
 in vec4 fragPosLightSpace;
-in vec4 fragNormal;
+//in vec4 fragNormal;
 
 uniform sampler2D surfaceTexture;
 uniform sampler2D shadowMap;
@@ -34,7 +34,7 @@ void main()
     float h = (Height) / 205.0f;
     vec3 terrainColor = texture(surfaceTexture, texCoord).rgb * h;
     
-    float shadow = ShadowCalculation(FragPosLightSpace);
+    float shadow = ShadowCalculation(fragPosLightSpace);
     vec3 lighting = (1.0 - shadow) * terrainColor;
     
     FragColor = vec4(lighting, 1.0);
