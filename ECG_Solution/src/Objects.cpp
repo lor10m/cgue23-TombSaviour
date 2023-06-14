@@ -44,11 +44,13 @@ Objects::Objects(GLFWwindow* window, Camera* camera, PhysxScene* physxScene)
 void Objects::createTerrain()
 {
 
-	terrainShader.createTerrainShader();
+	terrainShader.createTerrainShader("assets/shaders/terrainFragment.fs", "assets/shaders/terrain.tes");
+	terrainDepthMapShader.createTerrainShader("assets/shaders/simpleDepth.fs", "assets/shaders/simpleDepth.tes");
 
 	const char* heightmap_path = "assets/heightmaps/hm4_dark.png";
-	terrain = Terrain(&terrainShader, "assets/textures/sand.png", heightmap_path);
+	terrain = Terrain("assets/textures/sand.png", heightmap_path);
 
+	terrainDepthMap.createTerrainDepthMap();
 	physxScene->createTerrain(heightmap_path);
 
 }
@@ -221,10 +223,7 @@ void Objects::render(GLFWwindow* window, float currentTime, float dt, bool norma
 	}
 
 	// render the terrain
-	terrainShader.setUniformMatrix4fv("projection", 1, GL_FALSE, projection);
-	terrainShader.setUniformMatrix4fv("view", 1, GL_FALSE, viewMatrix);
-	terrainShader.setUniformMatrix4fv("model", 1, GL_FALSE, glm::mat4(1.0f));
-	terrain.render();
+	terrainDepthMap.render(&terrainDepthMapShader, &terrainShader, &terrain, viewMatrix, projection);
 
 	// render cactus
 	for (const auto& pair : cacti) {

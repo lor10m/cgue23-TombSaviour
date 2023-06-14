@@ -10,6 +10,7 @@
 #include "Drawables/Cube.h"
 #include "Hdu.h"
 #include "Utils/GlobalVariables.h"
+#include "DepthMap.h"
 
 
 struct EnemyStruct {
@@ -29,6 +30,7 @@ private:
 
 	Hdu hduObject;
 
+	DepthMap terrainDepthMap;
 	Terrain terrain;
 	Model palmTree;
 	Model pyramid;
@@ -42,6 +44,7 @@ private:
 
 	Shader testCubeShader;
 
+	Shader terrainDepthMapShader;
 	Shader terrainShader;
 	Shader palmTreeShader;
 	Shader pyramidShader;

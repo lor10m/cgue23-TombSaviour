@@ -125,24 +125,6 @@ void Shader::createPhongVideoTexShader(const std::string& videoPath, glm::mat4 m
 	addUniformDirectionalLight("directionalLight", directionalLight1);
 }
 
-//void Shader::loadDDSTexture(const std::string& texturePath, int unit) {
-//	DDSImage ddsImage = loadDDS(texturePath.c_str());
-//
-//	//std::cout << "textureSize of texture: " << texturePath << " size: " << ddsImage.height << ", " << ddsImage.width;
-//	if (unit == 0) {
-//		glGenTextures(1, &diffuseTexture);
-//		glBindTexture(GL_TEXTURE_2D, diffuseTexture);
-//	}
-//	else if (unit == 1) {
-//		glGenTextures(1, &specularTexture);
-//		glBindTexture(GL_TEXTURE_2D, specularTexture);
-//	}
-//	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-//	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-//	glCompressedTexImage2D(GL_TEXTURE_2D, 0, ddsImage.format, ddsImage.width, ddsImage.height, 0, ddsImage.size, ddsImage.data);
-//	glGenerateMipmap(GL_TEXTURE_2D);
-//}
-
 void Shader::loadVideoTexture(const std::string& videoTexturePath, int unit) {
 
 	std::cout << "\nOpenCV version is: " << CV_VERSION << "**************\n" << endl;
@@ -190,13 +172,13 @@ void Shader::loadVideoTexture(const std::string& videoTexturePath, int unit) {
 	}
 }
 
-void Shader::createTerrainShader()
+void Shader::createTerrainShader(const char* fragmentShaderPath, const char* tessEvalShaderPath)
 {
 	shader = glCreateProgram();
 	GLuint vertexShader = compileShader(GL_VERTEX_SHADER, "assets/shaders/terrainVertex.vs");
-	GLuint fragmentShader = compileShader(GL_FRAGMENT_SHADER, "assets/shaders/terrainFragment.fs");
+	GLuint fragmentShader = compileShader(GL_FRAGMENT_SHADER, fragmentShaderPath);
 	unsigned int tessControlShader = compileShader(GL_TESS_CONTROL_SHADER, "assets/shaders/terrain.tcs");
-	unsigned int tessEvalShader = compileShader(GL_TESS_EVALUATION_SHADER, "assets/shaders/terrain.tes");
+	unsigned int tessEvalShader = compileShader(GL_TESS_EVALUATION_SHADER, tessEvalShaderPath);
 
 	glAttachShader(shader, vertexShader);
 	glAttachShader(shader, fragmentShader);
@@ -209,6 +191,24 @@ void Shader::createTerrainShader()
 	glDeleteShader(fragmentShader);
 	glDeleteShader(tessControlShader);
 	glDeleteShader(tessEvalShader);
+}
+
+void Shader::createDepthMapShader()
+{
+	shader = glCreateProgram();
+
+	GLuint vertexShader = compileShader(GL_VERTEX_SHADER, "assets/shaders/simpleDepth.vsh");
+	GLuint fragmentShader = compileShader(GL_FRAGMENT_SHADER, "assets/shaders/simpleDepth.fs");
+
+	glAttachShader(shader, vertexShader);
+	glAttachShader(shader, fragmentShader);
+	glLinkProgram(shader);
+	glValidateProgram(shader);
+
+	glDeleteShader(vertexShader);
+	glDeleteShader(fragmentShader);
+
+	glUseProgram(shader); //glaub hier nicht wichtig
 }
 
 void Shader::createSimpleShader(glm::vec3 color, glm::mat4 modelMatrix)
@@ -455,6 +455,12 @@ void Shader::setUniformMatrix4fv(const std::string& name, int size, GLboolean tr
 void Shader::setUniformMatrix4fv(const std::string& name, int size, GLboolean transposed, GLfloat* matrix) {
 	activate();
 	glUniformMatrix4fv(getUniformLocation(name), size, transposed, matrix);
+}
+
+void Shader::setVec3(const std::string& name, const glm::vec3& value)
+{
+	activate();
+	glUniform3fv(getUniformLocation(name), 1, &value[0]);
 }
 
 void Shader::changeShader(std::shared_ptr<Camera> camera)

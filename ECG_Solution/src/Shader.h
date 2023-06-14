@@ -27,13 +27,12 @@ public:
     ~Shader();
 
     void createPhongShader(const std::string& diffuseTexture, const std::string& specularTexture, glm::mat4 modelMatrix, float ka, float kd, float ks, int alpha);
-
     void createNormalShader(const char* diffuseTexture, const char* specularTexture, const char* normalTexture, glm::mat4 modelMatrix);
-
     void createPhongShader(glm::mat4 modelMatrix, float ka, float kd, float ks, int alpha);
     void createPhongVideoTexShader(const std::string& videoPath, glm::mat4 modelMatrix, float ka, float kd, float ks, int alpha);
     void loadVideoTexture(const std::string& videoTexturePath, int unit);
-    void createTerrainShader();
+    void createTerrainShader(const char* fragmentShaderPath, const char* tessEvalShaderPath);
+    void createDepthMapShader();
     void createSimpleShader(glm::vec3 color, glm::mat4 modelMatrix);
  
     GLuint compileShader(GLuint type, const std::string& path) const;
@@ -45,6 +44,7 @@ public:
     void setUniform3f(const std::string& name, float v1, float v2, float v3);
     void setUniform1f(const std::string& name, float v);
     void setUniform1i(const std::string& name, int v);
+    void setVec3(const std::string& name, const glm::vec3& value);
     void setUniformMatrix4fv(const std::string& name, int size, GLboolean transposed, glm::mat4 matrix);
     void setUniformMatrix4fv(const std::string& name, int size, GLboolean transposed, GLfloat* matrix);
     void createHDUShader(const std::string& texturePath);

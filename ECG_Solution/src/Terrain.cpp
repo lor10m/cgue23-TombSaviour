@@ -2,11 +2,9 @@
 
 Terrain::Terrain(){}
 
-Terrain::Terrain(Shader* tessHeightMapShader, const char* texturePath, const char* heightmapPath) {
+Terrain::Terrain(const char* texturePath, const char* heightmapPath) {
 
-	shader = tessHeightMapShader;
-
-	shader->activate();
+	//shader->activate();
 	surfaceTexture.genTexture(texturePath);
 	heightmapTexture.genTexture(heightmapPath);
 
@@ -67,7 +65,7 @@ Terrain::Terrain(Shader* tessHeightMapShader, const char* texturePath, const cha
 
 }
 
-void Terrain::render() {
+void Terrain::render(Shader* shader, GLuint depthMap) {
 
 	shader->activate();
 
@@ -77,9 +75,16 @@ void Terrain::render() {
 	surfaceTexture.bind(1);
 	shader->setUniform1i("surfaceTexture", 1);
 
+	if (depthMap != -1) {
+		glActiveTexture(GL_TEXTURE0 + 2);
+		glBindTexture(GL_TEXTURE_2D, depthMap);
+		shader->setUniform1i("shadowMap", 2);
+	}
+
 	glBindVertexArray(terrainVAO);
 	glDrawArrays(GL_PATCHES, 0, NUM_PATCH_PTS * rez * rez);
 }
+
 
 void Terrain::deleteTerrain() {
 	glDeleteVertexArrays(1, &terrainVAO);

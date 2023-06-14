@@ -21,9 +21,9 @@ private:
 	Shader* shader;
 
 public:
-	Terrain(Shader* tessHeightMapShader, const char* texturePath, const char* heightmapPath);
+	Terrain(const char* texturePath, const char* heightmapPath);
 	Terrain();
-	void render();
+	void render(Shader* shader, GLuint depthMap);
 	void deleteTerrain();
 	int verticesCount;
 	physx::PxVec3 physicsVertices[20*20*4];
