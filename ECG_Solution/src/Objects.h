@@ -77,6 +77,7 @@ private:
 	void createSpike();
 
 	double physxDeltaTime = 0.0;
+	float elapsedTime = 0.0f;
 
 	void renderTestCube(bool normalMapping);
 	

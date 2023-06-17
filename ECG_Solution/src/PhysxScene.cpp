@@ -59,7 +59,7 @@ PhysxScene::PhysxScene(GLFWwindow* window, int lifeNumber)
 		std::cerr << ("Failed to init cooking") << std::endl;
 	}
 
-	//lifeCnt = lifeNumber;
+	mummyLiveCount = lifeNumber;
 	//maxLifeNr = lifeNumber;
 
 }
@@ -90,7 +90,7 @@ void PhysxScene::createTerrain(const char* heightmapPath)
 
 	PxHeightField* heightField = cooking->createHeightField(heightFieldDesc, physics->getPhysicsInsertionCallback());
 	PxHeightFieldGeometry heightFieldGeom(heightField, PxMeshGeometryFlags(), 1.0f, 1.0f, 1.0f);
-	
+
 	PxTransform transform(PxVec3(-width / 2, 0.0f, -width / 2), PxQuat(PxIdentity));
 
 	PxMaterial* material = physics->createMaterial(0.5f, 0.5f, 0.1f);
@@ -322,7 +322,7 @@ void PhysxScene::throwSpike(Camera* camera)
 {
 	pickedUpSpikes--;
 	hdu->updateSpikeCount(int(pickedUpSpikes));
-	
+
 	// Get one of the spikes
 	spikes[thrownSpikes].isThrownOrPickedUp = true;
 	PxRigidDynamic* object = spikes[thrownSpikes].actor;
@@ -366,10 +366,8 @@ void PhysxScene::onContact(const PxContactPairHeader& pairHeader, const PxContac
 
 		if (cp.events & PxPairFlag::eNOTIFY_TOUCH_FOUND)
 		{
-			std::cout << actor1->getName() << " " << actor2->getName() << std::endl;
-
 			// If spike hits something except us
-			if (actor1->getName() == "spike" && actor2->getName() != "mummy") 
+			if (actor1->getName() == "spike" && actor2->getName() != "mummy")
 			{
 				// Make sure to remove spike just once
 				if (std::find(actorsToRemove.begin(), actorsToRemove.end(), actor1) == actorsToRemove.end()) {
@@ -381,9 +379,9 @@ void PhysxScene::onContact(const PxContactPairHeader& pairHeader, const PxContac
 					std::cout << "hit enemy" << std::endl;
 				}
 			}
-			else if (actor2->getName() == "spike" && actor1->getName() != "mummy") 
+			else if (actor2->getName() == "spike" && actor1->getName() != "mummy")
 			{
-				actorsToRemove.push_back(actor2); 
+				actorsToRemove.push_back(actor2);
 				// Delete Enemy if it was hit by spike
 				if (actor2->userData != nullptr) {
 					std::cout << "hit enemy" << std::endl;
@@ -414,8 +412,10 @@ unsigned int PhysxScene::getMummyLiveCount() {
 
 void PhysxScene::decreaseMummyLive()
 {
-	if (mummyLiveCount == 0) {
+	if (mummyLiveCount == 1) {
+		mummyLiveCount--;
 		hdu->showBigScreen("loseEndscreen");
+		std::cout << "\nMuhahah you lost! >:( \n " << std::endl;
 	}
 	else {
 		mummyLiveCount--;

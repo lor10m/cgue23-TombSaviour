@@ -144,17 +144,15 @@ void Shader::createPhongVideoTexShader(const std::string& videoPath, glm::mat4 m
 //}
 
 void Shader::loadVideoTexture(const std::string& videoTexturePath, int unit) {
+	//std::cout << "\nOpenCV version is: " << CV_VERSION << "**************\n" << endl;
 
-	std::cout << "\nOpenCV version is: " << CV_VERSION << "**************\n" << endl;
-
-	std::cout << videoTexturePath;
 	VideoCapture video(videoTexturePath);
 	
 	if (!video.isOpened()) {
 		return;
 		std::cout << "No video";
 	}
-
+	int i = 0;
 	cv::Mat frame;
 	while (video.read(frame)) {
 		GLuint texture;
@@ -177,17 +175,16 @@ void Shader::loadVideoTexture(const std::string& videoTexturePath, int unit) {
 			type = GL_UNSIGNED_BYTE;
 		}
 		else {
-			// Ungültiges Bildformat
 			glDeleteTextures(1, &texture);
 			continue;
 		}
-
-		// Bild auf die OpenGL-Textur laden
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, frame.cols, frame.rows, 0, format, type, frame.data);
 		glGenerateMipmap(GL_TEXTURE_2D);
 
 		videoTextures.push_back(texture);
 	}
+	//std::cout << videoTextures.size();
+	videoFrameCount = videoTextures.size();
 }
 
 void Shader::createTerrainShader()
@@ -275,10 +272,9 @@ void Shader::activate() {
 
 	if (videoTextures.size() > 0) {
 		glActiveTexture(GL_TEXTURE0 + 0);
-		glBindTexture(GL_TEXTURE_2D, videoTextures[20]);
+		glBindTexture(GL_TEXTURE_2D, videoTextures[getcurrentFrameIndex()]);
 		glUniform1i(getUniformLocation("diffuseTexture"), 0);
 	}
-
 }
 
 Shader::~Shader() {
@@ -359,6 +355,35 @@ GLint Shader::getUniformLocation(const std::string& name) {
 	uniformLocationMap[name] = id;
 	return id;
 }
+
+int Shader::getcurrentFrameIndex() {
+	//std::cout << "Elapsed time: " << elapsedTime << endl;
+	//std::cout << frameDuration << endl;
+	//std::cout << videoFrameCount << endl;
+
+	float elapsedFrames = elapsedTime / frameDuration;
+	
+	int totalFrames = videoFrameCount * 2;
+
+	int crrFrameIndex = static_cast<int>(std::round(elapsedFrames)) % totalFrames;
+
+	if (crrFrameIndex >= videoFrameCount) {
+		crrFrameIndex = totalFrames - crrFrameIndex;
+		if (crrFrameIndex >= videoFrameCount) {
+			crrFrameIndex = videoFrameCount - 1;
+		}
+		else if (crrFrameIndex < 0) {
+			crrFrameIndex = 0;
+		}
+	}
+	//std::cout << "currentFrameIndex: " << crrFrameIndex << endl;
+	return crrFrameIndex;
+}
+
+void Shader::setCurrentFrame(float elapsedTimeInput) {
+	elapsedTime = elapsedTimeInput;
+}
+
 
 void Shader::loadDDSTexture(const std::string& texturePath, int unit) {
 	DDSImage ddsImage = loadDDS(texturePath.c_str());

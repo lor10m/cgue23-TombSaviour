@@ -21,6 +21,10 @@ private:
     std::unordered_map<std::string, GLint> uniformLocationMap;
 
     std::vector<GLuint> videoTextures;
+    float elapsedTime = 0.0f;
+    float desiredFrameRate = 25.0f; // desired frame rate => at least 24 per second
+    float frameDuration = 1.0f / desiredFrameRate;
+    int videoFrameCount;
 
 public:
     Shader();
@@ -55,6 +59,9 @@ public:
     void addUniformDirectionalLight(const std::string& name, DirectionalLight directionalLight);
     void addUniformSpotLight(const std::string& name, SpotLight spotLight);
     GLint getUniformLocation(const std::string& name);
+    int getcurrentFrameIndex();
+    void setVideoFrameCount(int videoFrameCnt);
+    void setCurrentFrame(float currFrame);
 
     std::vector<GLuint>& getVideoTextures() {
         return videoTextures;

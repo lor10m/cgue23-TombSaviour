@@ -30,19 +30,19 @@ void Hdu::initGameHDU(int lifeStartNumber) {
 	// cacti HDU
 	hduDataMap["Cacti"].simpleShader.createHDUShader("assets/textures/hdu/spikes.dds");
 	hduDataMap["Cacti"].transform.translate(glm::vec3(hduDataMap["Cacti"].ndcXposition, 0.8f, 0.0f)).scale(hduDataMap["Cacti"].getScale(widthScale, heightScale));
-	hduDataMap["Cacti"].model.generateModel("assets/objects/screen.obj");
+	hduDataMap["Cacti"].model.generateModel("assets/objects/screenPanel.obj");
 
 	// tens HDU
 	hduDataMap["Tens"].simpleShader.createHDUShader("assets/textures/hdu/0.dds");
 	hduDataMap["Tens"].scaleMulti = 0.5f;
 	hduDataMap["Tens"].transform.translate(glm::vec3(hduDataMap["Tens"].ndcXposition, 0.8f, 0.0f)).scale(hduDataMap["Tens"].getScale(widthScale, heightScale));
-	hduDataMap["Tens"].model.generateModel("assets/objects/screen.obj");
+	hduDataMap["Tens"].model.generateModel("assets/objects/screenPanel.obj");
 
 	// units HDU
 	hduDataMap["Units"].simpleShader.createHDUShader("assets/textures/hdu/0.dds");
 	hduDataMap["Units"].scaleMulti = 0.5f;
 	hduDataMap["Units"].transform.translate(glm::vec3(hduDataMap["Units"].ndcXposition, 0.8f, 0.0f)).scale(hduDataMap["Units"].getScale(widthScale,heightScale));
-	hduDataMap["Units"].model.generateModel("assets/objects/screen.obj");
+	hduDataMap["Units"].model.generateModel("assets/objects/screenPanel.obj");
 
 	// lifes HDU
 	for (int i = 1; i <= maxLifeNr; i++) {
@@ -53,7 +53,7 @@ void Hdu::initGameHDU(int lifeStartNumber) {
 
 		hduDataMap[keyName].scaleMulti = 0.4f;
 		hduDataMap[keyName].transform.translate(glm::vec3(hduDataMap[keyName].ndcXposition, -0.85f, 0.0f)).scale(hduDataMap[keyName].getScale(widthScale, heightScale));
-		hduDataMap[keyName].model.generateModel("assets/objects/screen.obj");
+		hduDataMap[keyName].model.generateModel("assets/objects/screenPanel.obj");
 	}
 }
 
@@ -205,7 +205,7 @@ void Hdu::showBigScreen(string screenKey) {
 	//hduDataMap["GameOver"].scaleMulti = 4.0f;
 	//hduDataMap["GameOver"].transform.translate(glm::vec3(0.0f, 0.0f, 0.0f)).scale(hduDataMap["GameOver"].getScale(widthScale, heightScale));
 
-	hduDataMap[screenKey].model.generateModel("assets/objects/screen.obj");
+	hduDataMap[screenKey].model.generateModel("assets/objects/screenPanel.obj");
 	std::cout << "\nMuhahah you lost! >:( \n";
 }
 

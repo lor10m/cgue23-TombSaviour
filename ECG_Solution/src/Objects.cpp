@@ -171,9 +171,9 @@ void Objects::createVideoWall()
 	videoWallTransform.translate(videoWallTranslate);
 	videoWallTransform.rotate(videoWallRotate);
 	videoWallTransform.scale(videoWallScale);
-	videoWall.generateModel("assets/objects/screen.obj");
+	videoWall.generateModel("assets/objects/screenPanel.obj");
 
-	videoWallShader.createPhongVideoTexShader("assets/videos/videoShort.mp4", videoWallTransform.getMatrix(), 0.05f, 0.8f, 1.0f, 1.0f);
+	videoWallShader.createPhongVideoTexShader("assets/videos/videoWall.mp4", videoWallTransform.getMatrix(), 0.05f, 0.8f, 1.0f, 1.0f);
 	videoWallShader.setUniform1i("isAnimated", 0);
 
 	physxScene->createModel("videowall", videoWall.indices, videoWall.vertices, videoWall.normals, videoWallScale, videoWallTranslate, videoWallRotate);
@@ -249,6 +249,8 @@ void Objects::render(GLFWwindow* window, float currentTime, float dt, bool norma
 	// render videowall
 	videoWallShader.setUniformMatrix4fv("viewMatrix", 1, GL_FALSE, camera->getTransformMatrix());
 	videoWallShader.setUniform3f("eyePos", camera->cameraPosition.x, camera->cameraPosition.y, camera->cameraPosition.z);
+	elapsedTime += dt;
+	videoWallShader.setCurrentFrame(elapsedTime);
 	videoWall.draw(&videoWallShader);
 
 	//render light cube

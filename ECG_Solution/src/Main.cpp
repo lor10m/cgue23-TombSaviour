@@ -117,6 +117,7 @@ int main()
 	double initialTime = glfwGetTime();
 	int frameCount = 0;
 	double finalTime = 0;
+
 	// -----------
 	// render loop
 	// -----------
@@ -134,6 +135,7 @@ int main()
 
 		camera.pollMousePosition(window, isShooterCam());
 
+		std::cout << "currentFrame: " << currentFrame << std::endl;
 		objects.render(window, currentFrame, deltaTime, normalMappingActivated());
 
 		// glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)

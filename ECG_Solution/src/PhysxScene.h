@@ -29,7 +29,7 @@ struct StaticActor {
 class PhysxScene : public PxSimulationEventCallback
 {
 private:
-	
+
 	PxDefaultAllocator defaultAllocatorCallback;
 	PxDefaultErrorCallback defaultErrorCallback;
 	PxDefaultCpuDispatcher* dispatcher = NULL;
@@ -40,7 +40,7 @@ private:
 	PxPvd* pvd = NULL;
 	PxRigidDynamic* playerActor;
 
-	unsigned int mummyLiveCount = 3;
+	unsigned int mummyLiveCount = 5;
 	unsigned int maxLives = 3;
 
 	Character* mummy;
@@ -78,10 +78,10 @@ public:
 	std::vector<unsigned int> enemiesToRemove;
 
 	PhysxScene(GLFWwindow* window, int lifeNumber);
-	void simulate(GLFWwindow* window,Camera* camera, float timeStep, std::map<unsigned int, SpikeStruct>& spikeStruct, std::map<unsigned int, CactusStruct>& cactusStruct);
+	void simulate(GLFWwindow* window, Camera* camera, float timeStep, std::map<unsigned int, SpikeStruct>& spikeStruct, std::map<unsigned int, CactusStruct>& cactusStruct);
 	void createTerrain(const char* heightmapPath);
 	void createModel(const char* name, std::vector<unsigned int> indices, std::vector<glm::vec3> vertices, std::vector<glm::vec3> normals, glm::vec3 scale, glm::vec3 translate, glm::vec3 rotate);
-	
+
 	void setCharacter(Character* character);
 	void setHDU(Hdu* hduObj);
 	void createCactus(unsigned int index, glm::vec3 size, glm::vec3 position);
