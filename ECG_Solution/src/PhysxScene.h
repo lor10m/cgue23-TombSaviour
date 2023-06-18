@@ -61,7 +61,7 @@ private:
 	glm::mat4 cactusModelMatrix;
 
 	std::map<unsigned int, DynamicActor> spikes;
-	std::map<unsigned int, StaticActor> cacti;
+	std::map<unsigned int, DynamicActor> cacti;
 
 	std::vector<PxActor*> actorsToRemove;
 

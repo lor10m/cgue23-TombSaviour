@@ -174,14 +174,14 @@ void PhysxScene::createCactus(unsigned int index, glm::vec3 size, glm::vec3 posi
 	PxMaterial* material = physics->createMaterial(0.5f, 0.5f, 0.1f);
 	PxShape* shape = physics->createShape(boxGeometry, *material);
 
-	PxRigidStatic* staticActor = physics->createRigidStatic(PxTransform(PxIdentity));
+	PxRigidDynamic* staticActor = physics->createRigidDynamic(PxTransform(PxIdentity));
 	staticActor->attachShape(*shape);
 	PxTransform transform(PxVec3(position.x, position.y, position.z), PxIdentity);
 	staticActor->setGlobalPose(transform);
 	staticActor->setName("cactus");
 	scene->addActor(*staticActor);
 
-	StaticActor cactus;
+	DynamicActor cactus;
 	cactus.index = index;
 	cactus.actor = staticActor;
 	cacti[index] = cactus;
@@ -246,7 +246,10 @@ void PhysxScene::simulate(GLFWwindow* window, Camera* camera, float timeStep, st
 
 	actorsToRemove.clear();
 
-	for (auto& pair : cacti) {
+	for (auto& pair : cacti) 
+	{
+		glm::mat4 modelMat = cactusStruct[pair.second.index].modelMatrix;
+		cactusStruct[pair.second.index].modelMatrix[3][1] = pair.second.actor->getGlobalPose().p.y;
 		if (pair.second.isThrownOrPickedUp) {
 			cactusStruct.erase(pair.second.index);
 			cacti.erase(pair.second.index);
@@ -300,10 +303,10 @@ void PhysxScene::pickUpNearestObject(Camera* camera)
 
 	for (auto& pair : cacti)
 	{
-		PxRigidStatic* object = pair.second.actor;
+		PxRigidDynamic* object = pair.second.actor;
 		PxTransform objectPosition = object->getGlobalPose();
-		float distanceToMummy = sqrt(pow(objectPosition.p.x - mummyPos.x, 2) + pow(objectPosition.p.y - mummyPos.y, 2));
-
+		float distanceToMummy = sqrt(pow(objectPosition.p.x - mummyPos.x, 2) + pow(objectPosition.p.z - mummyPos.z, 2));
+		std::cout << distanceToMummy << std::endl;
 		if (distanceToMummy <= pickUpDistance && !pickedUp)
 		{
 			scene->removeActor(*object);
