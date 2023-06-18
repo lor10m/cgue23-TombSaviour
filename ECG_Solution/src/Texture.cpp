@@ -36,7 +36,7 @@ void Texture::genTexture(const char* texturePath)
 		else if (nrChannels == 4) {
 			format = GL_RGBA;
 		}
-		glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, data);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, format, GL_UNSIGNED_BYTE, data);
 		glGenerateMipmap(GL_TEXTURE_2D);
 		std::cout << "Loaded texture of size " << height << " x " << width << std::endl;
 	}

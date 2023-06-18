@@ -128,8 +128,8 @@ int main()
 		lastFrame = currentFrame;
 
 		// render
-		//glClearColor(0.9f, 0.9f, 0.9f, 1.0f);		// white/grey
-		glClearColor(0.7f, 0.7f, 1.0f, 1.0f);		// light blue
+		glClearColor(0.9f, 0.9f, 0.9f, 1.0f);		// white/grey
+		//glClearColor(0.7f, 0.7f, 1.0f, 1.0f);		// light blue
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		camera.pollMousePosition(window, isShooterCam());

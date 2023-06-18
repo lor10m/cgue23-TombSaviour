@@ -15,7 +15,7 @@ using namespace std;
 
 Shader::Shader() {}
 
-void Shader::createPhongShader(const std::string& diffuseTexture, const std::string& specularTexture, glm::mat4 modelMatrix, float ka, float kd, float ks, int alpha) {
+void Shader::createPhongShader(const std::string& diffuseTexture, const std::string& specularTexture, bool isDDS, glm::mat4 modelMatrix, float ka, float kd, float ks, int alpha) {
 	shader = glCreateProgram();
 
 	GLuint vertexShader = compileShader(GL_VERTEX_SHADER, "assets/shaders/phong.vsh");
@@ -29,18 +29,24 @@ void Shader::createPhongShader(const std::string& diffuseTexture, const std::str
 	glDeleteShader(vertexShader);
 	glDeleteShader(fragmentShader);
 
-	loadDDSTexture(diffuseTexture, 0);
-	loadDDSTexture(specularTexture, 1);
-	setUniform1f("ka", ka);
-	setUniform1f("kd", kd);
-	setUniform1f("ks", ks);
-	setUniform1i("alpha", alpha);
+	if (isDDS) {
+		loadDDSTexture(diffuseTexture, 0);
+		loadDDSTexture(specularTexture, 1);
+	}
+	else {
+		loadTexture(diffuseTexture.c_str(), 0);
+		loadTexture(specularTexture.c_str(), 1);
+	}
+	setUniform1f("ka", 0.3);
+	setUniform1f("kd", 0.3);
+	setUniform1f("ks", 0.3);
+	setUniform1i("alpha", 64);
 	setUniformMatrix4fv("modelMatrix", 1, GL_FALSE, modelMatrix);
 
 	//TODO: lights
-	PointLight pointLight1({ 0, 50, 0 }, { 100, 100, 100 }, { 1.0f, 0.4f, 0.1f });
-	DirectionalLight directionalLight1({ 0, -1, -1 }, { 0.8f, 0.8f, 0.8f });
-	addUniformPointLight("pointLight", pointLight1);
+	//PointLight pointLight1({ 0, 50, 0 }, { 100, 100, 100 }, { 1.0f, 0.4f, 0.1f });
+	DirectionalLight directionalLight1({ -0.2f, -1.0f, -0.3f }, { 0.8f, 0.8f, 0.8f });
+	//addUniformPointLight("pointLight", pointLight1);
 	addUniformDirectionalLight("directionalLight", directionalLight1);
 }
 
@@ -69,6 +75,42 @@ void Shader::createNormalShader(const char* diffuseTexturePath, const char* spec
 	glDeleteShader(fragmentShader);
 
 }
+void Shader::createDepthMapShader()
+{
+	shader = glCreateProgram();
+
+	GLuint vertexShader = compileShader(GL_VERTEX_SHADER, "assets/shaders/simpleDepth.vsh");
+	GLuint fragmentShader = compileShader(GL_FRAGMENT_SHADER, "assets/shaders/simpleDepth.fs");
+
+	glAttachShader(shader, vertexShader);
+	glAttachShader(shader, fragmentShader);
+	glLinkProgram(shader);
+	glValidateProgram(shader);
+
+	glDeleteShader(vertexShader);
+	glDeleteShader(fragmentShader);
+
+}
+
+void Shader::createDebugShadowShader()
+{
+	shader = glCreateProgram();
+
+	GLuint vertexShader = compileShader(GL_VERTEX_SHADER, "assets/shaders/shadowDebug.vsh");
+	GLuint fragmentShader = compileShader(GL_FRAGMENT_SHADER, "assets/shaders/shadowDebug.fs");
+
+	glUseProgram(shader);
+
+	glAttachShader(shader, vertexShader);
+	glAttachShader(shader, fragmentShader);
+	glLinkProgram(shader);
+	glValidateProgram(shader);
+
+	glDeleteShader(vertexShader);
+	glDeleteShader(fragmentShader);
+
+}
+
 
 void Shader::createPhongShader(glm::mat4 modelMatrix, float ka, float kd, float ks, int alpha) {
 	shader = glCreateProgram();
@@ -84,17 +126,17 @@ void Shader::createPhongShader(glm::mat4 modelMatrix, float ka, float kd, float 
 	glDeleteShader(vertexShader);
 	glDeleteShader(fragmentShader);
 
-	setUniform1f("ka", ka);
-	setUniform1f("kd", kd);
-	setUniform1f("ks", ks);
-	setUniform1i("alpha", alpha);
-	setUniformMatrix4fv("modelMatrix", 1, GL_FALSE, modelMatrix);
+	//setUniform1f("ka", 0.1);
+	//setUniform1f("kd", 0.7);
+	//setUniform1f("ks", 0.3);
+	//setUniform1i("alpha", 20);
+	//setUniformMatrix4fv("modelMatrix", 1, GL_FALSE, modelMatrix);
 
-	//TODO lights
-	//PointLight pointLight1({ 0, 50, 0 }, { 2, 2, 2}, {1.0f, 0.4f, 0.1f});
-	DirectionalLight directionalLight1({ 0, -1, 0 }, { 1.5f, 1.5f, 1.5f });
-	//addUniformPointLight("pointLight", pointLight1);
-	addUniformDirectionalLight("directionalLight", directionalLight1);
+	////TODO lights
+	////PointLight pointLight1({ 0, 50, 0 }, { 2, 2, 2}, {1.0f, 0.4f, 0.1f});
+	//DirectionalLight directionalLight1({ -0.2f, -1.0f, -0.3f }, { 1.0f, 1.0f, 1.0f });
+	////addUniformPointLight("pointLight", pointLight1);
+	//addUniformDirectionalLight("directionalLight", directionalLight1);
 }
 
 void Shader::createPhongVideoTexShader(const std::string& videoPath, glm::mat4 modelMatrix, float ka, float kd, float ks, int alpha) {
@@ -131,7 +173,7 @@ void Shader::loadVideoTexture(const std::string& videoTexturePath, int unit) {
 
 	std::cout << videoTexturePath;
 	VideoCapture video(videoTexturePath);
-	
+
 	if (!video.isOpened()) {
 		return;
 		std::cout << "No video";
@@ -142,11 +184,6 @@ void Shader::loadVideoTexture(const std::string& videoTexturePath, int unit) {
 		GLuint texture;
 		glGenTextures(1, &texture);
 		glBindTexture(GL_TEXTURE_2D, texture);
-
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
 		GLenum format;
 		GLenum type;
@@ -168,6 +205,11 @@ void Shader::loadVideoTexture(const std::string& videoTexturePath, int unit) {
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, frame.cols, frame.rows, 0, format, type, frame.data);
 		glGenerateMipmap(GL_TEXTURE_2D);
 
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
 		videoTextures.push_back(texture);
 	}
 }
@@ -176,9 +218,9 @@ void Shader::createTerrainShader(const char* fragmentShaderPath, const char* tes
 {
 	shader = glCreateProgram();
 	GLuint vertexShader = compileShader(GL_VERTEX_SHADER, "assets/shaders/terrainVertex.vs");
-	GLuint fragmentShader = compileShader(GL_FRAGMENT_SHADER, fragmentShaderPath);
+	GLuint fragmentShader = compileShader(GL_FRAGMENT_SHADER, "assets/shaders/terrainFragment.fs");
 	unsigned int tessControlShader = compileShader(GL_TESS_CONTROL_SHADER, "assets/shaders/terrain.tcs");
-	unsigned int tessEvalShader = compileShader(GL_TESS_EVALUATION_SHADER, tessEvalShaderPath);
+	unsigned int tessEvalShader = compileShader(GL_TESS_EVALUATION_SHADER, "assets/shaders/terrain.tes");
 
 	glAttachShader(shader, vertexShader);
 	glAttachShader(shader, fragmentShader);
@@ -191,24 +233,15 @@ void Shader::createTerrainShader(const char* fragmentShaderPath, const char* tes
 	glDeleteShader(fragmentShader);
 	glDeleteShader(tessControlShader);
 	glDeleteShader(tessEvalShader);
-}
 
-void Shader::createDepthMapShader()
-{
-	shader = glCreateProgram();
+	setUniform1f("ka", 0.3);
+	setUniform1f("kd", 0.3);
+	setUniform1f("ks", 0.3);
+	setUniform1i("alpha", 64);
 
-	GLuint vertexShader = compileShader(GL_VERTEX_SHADER, "assets/shaders/simpleDepth.vsh");
-	GLuint fragmentShader = compileShader(GL_FRAGMENT_SHADER, "assets/shaders/simpleDepth.fs");
-
-	glAttachShader(shader, vertexShader);
-	glAttachShader(shader, fragmentShader);
-	glLinkProgram(shader);
-	glValidateProgram(shader);
-
-	glDeleteShader(vertexShader);
-	glDeleteShader(fragmentShader);
-
-	glUseProgram(shader); //glaub hier nicht wichtig
+	//TODO: lights
+	DirectionalLight directionalLight1({ -0.2f, -1.0f, -0.3f }, { 0.8f, 0.8f, 0.8f });
+	addUniformDirectionalLight("directionalLight", directionalLight1);
 }
 
 void Shader::createSimpleShader(glm::vec3 color, glm::mat4 modelMatrix)
@@ -397,7 +430,7 @@ void Shader::loadHUDTexture(const std::string& texturePath, int unit) {
 	glGenerateMipmap(GL_TEXTURE_2D);
 }
 
-void Shader::loadTexture(const char* texturePath, int unit) 
+void Shader::loadTexture(const char* texturePath, int unit)
 {
 	int width, height, nrChannels;
 	unsigned char* data = stbi_load(texturePath, &width, &height, &nrChannels, 0);
@@ -415,13 +448,22 @@ void Shader::loadTexture(const char* texturePath, int unit)
 		glBindTexture(GL_TEXTURE_2D, normalTexture);
 	}
 
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
-	glGenerateMipmap(GL_TEXTURE_2D);
-
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+
+	if (nrChannels == 4) {
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_SRGB_ALPHA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);  //TODO RGB??
+	}
+	else if (nrChannels == 3) {
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_SRGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
+	}
+	else {
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_SRGB, width, height, 0, GL_RED, GL_UNSIGNED_BYTE, data);
+	}
+
+	glGenerateMipmap(GL_TEXTURE_2D);
 
 	glBindTexture(GL_TEXTURE_2D, 0);
 	stbi_image_free(data);

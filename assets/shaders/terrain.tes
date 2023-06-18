@@ -4,17 +4,11 @@ layout(quads, fractional_odd_spacing, ccw) in;
 uniform sampler2D heightMap;
 uniform mat4 model;
 uniform mat4 view;
-uniform mat4 projection;
-uniform mat4 lightSpaceMatrix;
 
 in vec2 HeightMapCoordinates[];
 
 out float Height;
 out vec4 textPos;
-
-out vec3 fragPos;
-out vec4 fragPosLightSpace;
-//out vec4 fragNormal;
 
 void main()
 {
@@ -39,16 +33,15 @@ void main()
 
     vec4 uVec = p01 - p00;
     vec4 vVec = p10 - p00;
-    vec4 normal = normalize( vec4(cross(vVec.xyz, uVec.xyz), 0) );
+    //vec4 normal = normalize( vec4(cross(vVec.xyz, uVec.xyz), 0) );
 
     vec4 p0 = (p01 - p00) * u + p00;
     vec4 p1 = (p11 - p10) * u + p10;
-    vec4 p = (p1 - p0) * v + p0 + normal * Height;
+    vec4 p = (p1 - p0) * v + p0; // + normal * Height;
+
+    p.y = Height; //added
 
     textPos = p;
-    fragPos = vec3(model * p);
-    //fragNormal = transpose(inverse(mat3(model))) * normal;
-    fragPosLightSpace = lightSpaceMatrix * vec4(fragPos, 1.0);
 
-    gl_Position = projection * view * model * p;
+    gl_Position = view * model * p;
 }

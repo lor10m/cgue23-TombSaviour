@@ -11,6 +11,7 @@
 #include "Hdu.h"
 #include "Utils/GlobalVariables.h"
 #include "DepthMap.h"
+#include "ShadowMap.h"
 
 
 struct EnemyStruct {
@@ -30,7 +31,14 @@ private:
 
 	Hdu hduObject;
 
-	DepthMap terrainDepthMap;
+	ShadowMap testShadowMap;
+
+	//DepthMap terrainDepthMap;
+	unsigned int SHADOW_WIDTH = 2048;  //1024
+	unsigned int SHADOW_HEIGHT = 2048;
+	unsigned int depthMapFBO;
+	unsigned int depthMap;
+	Shader depthShader;
 	Terrain terrain;
 	Model palmTree;
 	Model pyramid;
@@ -43,6 +51,7 @@ private:
 	unsigned int bitangentsVBO;
 
 	Shader testCubeShader;
+	Shader shadowShader;
 
 	Shader terrainDepthMapShader;
 	Shader terrainShader;
@@ -81,7 +90,7 @@ private:
 
 	double physxDeltaTime = 0.0;
 
-	void renderTestCube(bool normalMapping);
+	void renderTestCube(bool normalMapping, Shader& shader);
 	
 public:
 

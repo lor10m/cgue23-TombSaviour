@@ -2,14 +2,19 @@
 
 Terrain::Terrain(){}
 
-Terrain::Terrain(const char* texturePath, const char* heightmapPath) {
+Terrain::Terrain(Shader* tessHeightMapShader, const char* texturePath, const char* heightmapPath) {
 
-	//shader->activate();
-	surfaceTexture.genTexture(texturePath);
+	shader = tessHeightMapShader;
+
+	shader->activate();
+	diffuseTexture.genTexture("assets/textures/brick.jpg");
+	specularTexture.genTexture("assets/textures/brick_specular.jpg");
 	heightmapTexture.genTexture(heightmapPath);
 
 	height = heightmapTexture.height;
 	width = heightmapTexture.width;
+
+	std::cout << "terrainWidth: " << width << " terrainheight: " << height;
 
 	// set up vertex data (and buffer(s)) and configure vertex attributes
 	// ------------------------------------------------------------------
@@ -43,9 +48,32 @@ Terrain::Terrain(const char* texturePath, const char* heightmapPath) {
 			vertices.push_back((i + 1) / (float)rez); // u
 		}
 	}
+	//for (unsigned int i = 0; i < rez - 1; i++)
+	//{
+	//	for (unsigned int j = 0; j < rez - 1; j++)
+	//	{
+	//		unsigned int topLeft = i * rez + j;
+	//		unsigned int topRight = (i + 1) * rez + j;
+	//		unsigned int bottomLeft = i * rez + (j + 1);
+	//		unsigned int bottomRight = (i + 1) * rez + (j + 1);
+
+	//		// Triangle 1
+	//		indices.push_back(topLeft);
+	//		indices.push_back(bottomLeft);
+	//		indices.push_back(topRight);
+
+	//		// Triangle 2
+	//		indices.push_back(topRight);
+	//		indices.push_back(bottomLeft);
+	//		indices.push_back(bottomRight);
+
+	//		indexCount += 6;
+	//	}
+	//}
 	std::cout << "Loaded " << rez * rez << " patches of 4 control points each" << std::endl;
 	std::cout << "Processing " << rez * rez * 4 << " vertices in vertex shader" << std::endl;
-
+	//std::cout << "indexCount: " << indexCount << " size: " << indices.size() << std::endl;
+	
 	// first, configure the cube's VAO (and terrainVBO)
 	glGenVertexArrays(1, &terrainVAO);
 	glBindVertexArray(terrainVAO);
@@ -63,23 +91,30 @@ Terrain::Terrain(const char* texturePath, const char* heightmapPath) {
 
 	glPatchParameteri(GL_PATCH_VERTICES, NUM_PATCH_PTS);
 
+
+
+
+
 }
 
-void Terrain::render(Shader* shader, GLuint depthMap) {
+void Terrain::render() {
 
 	shader->activate();
 
 	heightmapTexture.bind(0);
 	shader->setUniform1i("heightMap", 0);
 
-	surfaceTexture.bind(1);
-	shader->setUniform1i("surfaceTexture", 1);
+	diffuseTexture.bind(1);
+	shader->setUniform1i("diffuseTexture", 1);
 
-	if (depthMap != -1) {
-		glActiveTexture(GL_TEXTURE0 + 2);
-		glBindTexture(GL_TEXTURE_2D, depthMap);
-		shader->setUniform1i("shadowMap", 2);
-	}
+	specularTexture.bind(2);
+	shader->setUniform1i("specularTexture", 2);
+
+	//if (depthMap != -1) {
+	//	glActiveTexture(GL_TEXTURE0 + 2);
+	//	glBindTexture(GL_TEXTURE_2D, depthMap);
+	//	shader->setUniform1i("shadowMap", 2);
+	//}
 
 	glBindVertexArray(terrainVAO);
 	glDrawArrays(GL_PATCHES, 0, NUM_PATCH_PTS * rez * rez);

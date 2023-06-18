@@ -6,51 +6,51 @@ Objects::Objects(GLFWwindow* window, Camera* camera, PhysxScene* physxScene)
 	this->physxScene = physxScene;
 	controllerManager = PxCreateControllerManager(*physxScene->scene);
 
+	//testShadowMap.create();
+
 	createTerrain();
 	createMummy(window);
-	createPyramid();
-	createPalmTree();
-	createVideoWall();
-	createPointLightCube();
-	createTestCube();
+	//createPyramid();
+	//createPalmTree();
+	//createVideoWall();
+	//createPointLightCube();
+	//createTestCube();
 
-	enemyShader.createPhongShader(glm::mat4(0.0f), 0.1f, 1.0f, 0.2f, 32);
-	enemyShader.setUniform1i("isAnimated", 1);
+	//enemyShader.createPhongShader(glm::mat4(0.0f), 0.1f, 1.0f, 0.2f, 32);
+	//enemyShader.setUniform1i("isAnimated", 1);
 
 	// Create Enemies
 	for (unsigned int i = 0; i < numEnemies; i++) {
-		createEnemy(glm::vec3(10 + i * 6, 3.0f, 2.0f));
+		//createEnemy(glm::vec3(10 + i * 6, 3.0f, 2.0f));
 	}
 
-	cactusShader.createPhongShader(glm::mat4(0.0f), 0.1f, 1.0f, 0.1f, 2);
-	cactusShader.setUniform1i("isAnimated", 0);
-	cactusTexture.genTexture("assets/textures/cactus.jpg");
+	//cactusShader.createPhongShader(glm::mat4(0.0f), 0.1f, 1.0f, 0.1f, 2);
+	//cactusShader.setUniform1i("isAnimated", 0);
+	//cactusTexture.genTexture("assets/textures/cactus.jpg");
 
 	for (unsigned int i = 0; i < numCacti; i++) {
-		createCactus(glm::vec3(10.0f + 4 * i, 25.64f, i * 2.0f));
+		//createCactus(glm::vec3(10.0f + 4 * i, 25.64f, i * 2.0f));
 	}
 
-	spikeShader.createPhongShader(glm::mat4(0.0f), 0.1f, 0.7f, 0.1f, 2);
-	spikeShader.setUniform1i("isAnimated", 0);
+	//spikeShader.createPhongShader(glm::mat4(0.0f), 0.1f, 0.7f, 0.1f, 2);
+	//spikeShader.setUniform1i("isAnimated", 0);
 
 	for (unsigned int i = 0; i < numSpikes; i++) {
-		createSpike();
+		//createSpike();
 	}
 
-	createHduObject(window);
+	//createHduObject(window);
 
 }
 
 void Objects::createTerrain()
 {
 
-	terrainShader.createTerrainShader("assets/shaders/terrainFragment.fs", "assets/shaders/terrain.tes");
-	terrainDepthMapShader.createTerrainShader("assets/shaders/simpleDepth.fs", "assets/shaders/simpleDepth.tes");
+	terrainShader.createTerrainShader("","");
 
 	const char* heightmap_path = "assets/heightmaps/hm4_dark.png";
-	terrain = Terrain("assets/textures/sand.png", heightmap_path);
+	terrain = Terrain(&terrainShader, "assets/textures/sand.png", heightmap_path);
 
-	terrainDepthMap.createTerrainDepthMap();
 	physxScene->createTerrain(heightmap_path);
 
 }
@@ -106,7 +106,7 @@ void Objects::createPalmTree()
 	palmTransform.rotate(palmRotate);
 	palmTransform.scale(palmScale);
 
-	palmTreeShader.createPhongShader("assets/textures/wood_texture.dds", "assets/textures/wood_texture_specular.dds", palmTransform.getMatrix(), 0.05f, 0.8f, 0.5f, 1.0f);
+	palmTreeShader.createPhongShader("assets/textures/wood_texture.dds", "assets/textures/wood_texture_specular.dds",true, palmTransform.getMatrix(), 0.05f, 0.8f, 0.5f, 1.0f);
 	palmTreeShader.setUniform1i("isAnimated", 0);
 
 	palmTree.generateModel("assets/objects/palm_tree.obj");
@@ -125,7 +125,7 @@ void Objects::createPyramid()
 	pyramidTransform.scale(pyramidScale);
 	pyramid.generateModel("assets/objects/pyramid_final1.obj"); //pyramid1	untitled5.obj
 
-	pyramidShader.createPhongShader("assets/textures/sandklein.dds", "assets/textures/sandklein.dds", pyramidTransform.getMatrix(), 0.05f, 0.8f, 1.0f, 1.0f);
+	pyramidShader.createPhongShader("assets/textures/sandklein.dds", "assets/textures/sandklein.dds", true, pyramidTransform.getMatrix(), 0.05f, 0.8f, 1.0f, 1.0f);
 	pyramidShader.setUniform1i("isAnimated", 0);
 
 	physxScene->createModel("pyramid", pyramid.indices, pyramid.vertices, pyramid.normals, pyramidScale, pyramidTranslate, pyramidRotate);
@@ -138,7 +138,7 @@ void Objects::createPointLightCube()
 	t.scale(glm::vec3(0.1, 0.1, 0.1));
 	pointLightCube.generateModel("assets/objects/cube.obj");
 
-	lightCubeShader.createPhongShader("assets/textures/weiss.dds", "assets/textures/weiss.dds", t.getMatrix(), 1, 1, 1, 1);
+	lightCubeShader.createPhongShader("assets/textures/weiss.dds", "assets/textures/weiss.dds",true, t.getMatrix(), 1, 1, 1, 1);
 	lightCubeShader.setUniform1i("isAnimated", 0);
 }
 
@@ -195,86 +195,102 @@ void Objects::render(GLFWwindow* window, float currentTime, float dt, bool norma
 	// simulate physx
 	physxScene->simulate(window, camera, (1.0f / 40.0f), spikes, cacti);
 
+//	testShadowMap.render(viewMatrix, glm::vec3(camera->cameraPosition.x, camera->cameraPosition.y, camera->cameraPosition.z));
+
 	//render enemies
-	std::vector<unsigned int> enemiesToRemove = physxScene->enemiesToRemove; //get enemies that have been hit 
-	physxScene->enemiesToRemove.clear();
+	//std::vector<unsigned int> enemiesToRemove = physxScene->enemiesToRemove; //get enemies that have been hit 
+	//physxScene->enemiesToRemove.clear();
 
-	enemyShader.setUniformMatrix4fv("viewMatrix", 1, GL_FALSE, camera->getTransformMatrix());
-	enemyShader.setUniform3f("eyePos", camera->cameraPosition.x, camera->cameraPosition.y, camera->cameraPosition.z);
+	//enemyShader.setUniformMatrix4fv("viewMatrix", 1, GL_FALSE, camera->getTransformMatrix());
+	//enemyShader.setUniform3f("eyePos", camera->cameraPosition.x, camera->cameraPosition.y, camera->cameraPosition.z);
 
-	for (unsigned int i = 0; i < enemies.size(); i++)
-	{
-		if (std::find(enemiesToRemove.begin(), enemiesToRemove.end(), i + 1) != enemiesToRemove.end()) //if enemy was hit by spike
-		{
-			enemies[i].enemy->isDead = true;
-		}
+	//for (unsigned int i = 0; i < enemies.size(); i++)
+	//{
+	//	if (std::find(enemiesToRemove.begin(), enemiesToRemove.end(), i + 1) != enemiesToRemove.end()) //if enemy was hit by spike
+	//	{
+	//		enemies[i].enemy->isDead = true;
+	//	}
 
-		enemies[i].enemy->move(enemyShader, enemies[i].modelMatrix, currentTime, mummy.getPosition(), 50, dt); //move physx enemy controller & render object
+	//	enemies[i].enemy->move(enemyShader, enemies[i].modelMatrix, currentTime, mummy.getPosition(), 50, dt); //move physx enemy controller & render object
 
-		if (enemies[i].enemy->shouldBeDeleted)
-		{
-			enemies.erase(enemies.begin() + i); //remove enemy if dying animation is done 
-		}
-	}
+	//	if (enemies[i].enemy->shouldBeDeleted)
+	//	{
+	//		enemies.erase(enemies.begin() + i); //remove enemy if dying animation is done 
+	//	}
+	//}
 
-	// ALL ENEMIES DEAD!! YOU WON
-	if (enemies.size() == 0) {
-		hduObject.showBigScreen("winEndscreen");
-	}
+	//// ALL ENEMIES DEAD!! YOU WON
+	//if (enemies.size() == 0) {
+	//	hduObject.showBigScreen("winEndscreen");
+	//}
+	//
+	//// render the terrain
+	////terrainDepthMap.render(&terrainDepthMapShader, &terrainShader, &terrain, viewMatrix, projection);
+	//
+	//terrain.render(&terrainShader, -1);
+
+	glm::vec4 lightColor = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f); //nicht verwendet im shader
+	glm::vec3 lightPos = glm::vec3(-1.2f, 2.0f, 2.0f);
+	glm::mat4 orthgonalProjection = glm::ortho(-10.0f, 10.0f, -10.0f, 10.0f, 1.0f, 7.5f);
+	glm::mat4 lightView = glm::lookAt(lightPos, glm::vec3(0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+	glm::mat4 lightSpaceMatrix = orthgonalProjection * lightView;
 
 	// render the terrain
-	//terrainDepthMap.render(&terrainDepthMapShader, &terrainShader, &terrain, viewMatrix, projection);
+	terrainShader.setUniformMatrix4fv("view", 1, GL_FALSE, viewMatrix);
+	terrainShader.setUniformMatrix4fv("model", 1, GL_FALSE, glm::mat4(1.0f));
+	terrainShader.setUniform3f("eyePos", camera->cameraPosition.x, camera->cameraPosition.y, camera->cameraPosition.z);
+	terrainShader.setUniform3f("lightPos", lightPos.x, lightPos.y, lightPos.z);
+	terrainShader.setUniformMatrix4fv("lightSpaceMatrix", 1, GL_FALSE, lightSpaceMatrix);
+	terrain.render();
 
-	// render cactus
-	for (const auto& pair : cacti) {
-		cactusTexture.bind(0);
-		cactusTexture.bind(1);
-		cactusShader.setUniformMatrix4fv("modelMatrix", 1, GL_FALSE, pair.second.modelMatrix);
-		cactusShader.setUniformMatrix4fv("viewMatrix", 1, GL_FALSE, camera->getTransformMatrix());
-		cactusShader.setUniform3f("eyePos", camera->cameraPosition.x, camera->cameraPosition.y, camera->cameraPosition.z);
-		pair.second.model->draw(&cactusShader);
-	}
+
+	//// render cactus
+	//for (const auto& pair : cacti) {
+	//	cactusTexture.bind(0);
+	//	cactusTexture.bind(1);
+	//	cactusShader.setUniformMatrix4fv("modelMatrix", 1, GL_FALSE, pair.second.modelMatrix);
+	//	cactusShader.setUniformMatrix4fv("viewMatrix", 1, GL_FALSE, camera->getTransformMatrix());
+	//	cactusShader.setUniform3f("eyePos", camera->cameraPosition.x, camera->cameraPosition.y, camera->cameraPosition.z);
+	//	pair.second.model->draw(&cactusShader);
+	//}
 
 	// render pyramid
-	pyramidShader.setUniformMatrix4fv("viewMatrix", 1, GL_FALSE, camera->getTransformMatrix());
-	pyramidShader.setUniform3f("eyePos", camera->cameraPosition.x, camera->cameraPosition.y, camera->cameraPosition.z);
-	pyramid.draw(&pyramidShader);
+	//pyramidShader.setUniformMatrix4fv("viewMatrix", 1, GL_FALSE, camera->getTransformMatrix());
+	//pyramidShader.setUniform3f("eyePos", camera->cameraPosition.x, camera->cameraPosition.y, camera->cameraPosition.z);
+	//pyramid.draw(&pyramidShader);
 
-	// render palm tree
-	palmTreeShader.setUniformMatrix4fv("viewMatrix", 1, GL_FALSE, camera->getTransformMatrix());
-	palmTreeShader.setUniform3f("eyePos", camera->cameraPosition.x, camera->cameraPosition.y, camera->cameraPosition.z);
-	palmTree.draw(&palmTreeShader);
+	//// render palm tree
+	//palmTreeShader.setUniformMatrix4fv("viewMatrix", 1, GL_FALSE, camera->getTransformMatrix());
+	//palmTreeShader.setUniform3f("eyePos", camera->cameraPosition.x, camera->cameraPosition.y, camera->cameraPosition.z);
+	//palmTree.draw(&palmTreeShader);
 
-	// render videowall
-	videoWallShader.setUniformMatrix4fv("viewMatrix", 1, GL_FALSE, camera->getTransformMatrix());
-	videoWallShader.setUniform3f("eyePos", camera->cameraPosition.x, camera->cameraPosition.y, camera->cameraPosition.z);
-	videoWall.draw(&videoWallShader);
+	//// render videowall
+	//videoWallShader.setUniformMatrix4fv("viewMatrix", 1, GL_FALSE, camera->getTransformMatrix());
+	//videoWallShader.setUniform3f("eyePos", camera->cameraPosition.x, camera->cameraPosition.y, camera->cameraPosition.z);
+	//videoWall.draw(&videoWallShader);
 
-	//render light cube
-	lightCubeShader.setUniformMatrix4fv("viewMatrix", 1, GL_FALSE, camera->getTransformMatrix());
-	lightCubeShader.setUniform3f("eyePos", camera->cameraPosition.x, camera->cameraPosition.y, camera->cameraPosition.z);
-	pointLightCube.draw(&lightCubeShader);
+	////render light cube
+	//lightCubeShader.setUniformMatrix4fv("viewMatrix", 1, GL_FALSE, camera->getTransformMatrix());
+	//lightCubeShader.setUniform3f("eyePos", camera->cameraPosition.x, camera->cameraPosition.y, camera->cameraPosition.z);
+	//pointLightCube.draw(&lightCubeShader);
 
-	//render spikes
-	for (const auto& pair : spikes) {
-		if (pair.second.render) {
-			Transform t;
-			t.translate(pair.second.translate);
-			t.rotate(pair.second.rotate);
-			t.scale(pair.second.scale);
-			spikeShader.setUniformMatrix4fv("modelMatrix", 1, GL_FALSE, t.getMatrix());
-			spikeShader.setUniformMatrix4fv("viewMatrix", 1, GL_FALSE, camera->getTransformMatrix());
-			spikeShader.setUniform3f("eyePos", camera->cameraPosition.x, camera->cameraPosition.y, camera->cameraPosition.z);
-			pair.second.model->draw(&spikeShader);
-		}
-	}
+	////render spikes
+	//for (const auto& pair : spikes) {
+	//	if (pair.second.render) {
+	//		Transform t;
+	//		t.translate(pair.second.translate);
+	//		t.rotate(pair.second.rotate);
+	//		t.scale(pair.second.scale);
+	//		spikeShader.setUniformMatrix4fv("modelMatrix", 1, GL_FALSE, t.getMatrix());
+	//		spikeShader.setUniformMatrix4fv("viewMatrix", 1, GL_FALSE, camera->getTransformMatrix());
+	//		spikeShader.setUniform3f("eyePos", camera->cameraPosition.x, camera->cameraPosition.y, camera->cameraPosition.z);
+	//		pair.second.model->draw(&spikeShader);
+	//	}
+	//}
 
-
-	renderTestCube(normalMapping);
-	
-
-	// Draw HDU last
-	hduObject.drawHDU(window);
+	//renderTestCube(normalMapping, testCubeShader);
+	//// Draw HDU last
+	//hduObject.drawHDU(window);
 
 }
 
@@ -282,6 +298,33 @@ void Objects::deleteObjects()
 {
 	terrain.deleteTerrain();
 	physxScene->deleteScene();
+}
+
+void Objects::renderTestCube(bool normalMapping, Shader& shader)
+{
+	//render test cube
+	shader.setUniformMatrix4fv("viewMatrix", 1, GL_FALSE, camera->getTransformMatrix());
+	shader.setUniform3f("eyePos", camera->cameraPosition.x, camera->cameraPosition.y, camera->cameraPosition.z);
+
+
+	glm::vec3 diffuseColor = glm::vec3(1.0f, 1.0f, 1.0f) * 1.5f; // lightColor * diffuseStrength
+	glm::vec3 ambientColor = diffuseColor * 0.01f;//diffuseColor * ambientStrength;
+
+	shader.setUniform3f("light.position", 1.2f, 40.0f, 2.0f);
+	shader.setUniform3f("light.ambientIntensity", ambientColor.x, ambientColor.y, ambientColor.z);
+	shader.setUniform3f("light.diffuseIntensity", diffuseColor.x, diffuseColor.y, diffuseColor.z);
+	shader.setUniform3f("light.specularIntensity", 1.0f, 1.0f, 1.0f);
+	shader.setUniform1f("light.constant", 1);
+	shader.setUniform1f("light.linear", 0.10f);
+	shader.setUniform1f("light.quadratic", 0.065f);
+
+	shader.setUniform1i("disableAttenuation", true);
+	shader.setUniform1i("invertNormals", false);
+	shader.setUniform1i("normalMapping", normalMapping);
+
+	glBindVertexArray(vao);
+	glDrawArrays(GL_TRIANGLES, 0, 36);
+	glBindVertexArray(0);
 }
 
 //TODO berechnung in drawables verschieben
@@ -399,6 +442,7 @@ void Objects::createTestCube()
 	glGenBuffers(1, &vbo);
 	glBindBuffer(GL_ARRAY_BUFFER, vbo);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), reinterpret_cast<void*>(0));
 	glEnableVertexAttribArray(0);
 
@@ -420,38 +464,7 @@ void Objects::createTestCube()
 	glVertexAttribPointer(4, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), reinterpret_cast<void*>(0));
 	glEnableVertexAttribArray(4);
 
-
 	glBindVertexArray(0);
 
 }
 
-void Objects::renderTestCube(bool normalMapping)
-{
-	//render test cube
-	Transform t;
-	t.translate(glm::vec3(1.0f, 27.0, 0.0));
-
-	testCubeShader.setUniformMatrix4fv("modelMatrix", 1, GL_FALSE, t.getMatrix());
-	testCubeShader.setUniformMatrix4fv("viewMatrix", 1, GL_FALSE, camera->getTransformMatrix());
-	testCubeShader.setUniform3f("eyePos", camera->cameraPosition.x, camera->cameraPosition.y, camera->cameraPosition.z);
-
-
-	glm::vec3 diffuseColor = glm::vec3(1.0f, 1.0f, 1.0f) * 1.5f; // lightColor * diffuseStrength
-	glm::vec3 ambientColor = diffuseColor * 0.3f;//diffuseColor * ambientStrength;
-
-	testCubeShader.setUniform3f("light.position", 1.2f, 28.0f, 2.0f);
-	testCubeShader.setUniform3f("light.ambientIntensity", ambientColor.x, ambientColor.y, ambientColor.z);
-	testCubeShader.setUniform3f("light.diffuseIntensity", diffuseColor.x, diffuseColor.y, diffuseColor.z);
-	testCubeShader.setUniform3f("light.specularIntensity", 1.0f, 1.0f, 1.0f);
-	testCubeShader.setUniform1f("light.constant", 1);
-	testCubeShader.setUniform1f("light.linear", 0.10f);
-	testCubeShader.setUniform1f("light.quadratic", 0.065f);
-
-	testCubeShader.setUniform1i("disableAttenuation", true);
-	testCubeShader.setUniform1i("invertNormals", false);
-	testCubeShader.setUniform1i("normalMapping", normalMapping);
-
-	glBindVertexArray(vao);
-	glDrawArrays(GL_TRIANGLES, 0, 36);
-	glBindVertexArray(0);
-}
