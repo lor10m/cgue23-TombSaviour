@@ -5,7 +5,7 @@ Hdu::Hdu() {}
 
 void Hdu::createHdu(GLFWwindow* window, Camera* threeDCamera, int lifeStartNumber) {
 
-	Camera camera(window, threeDCamera->fov, (double)800 / (double)800, threeDCamera->near, threeDCamera->far, true);
+	Camera camera(window, threeDCamera->fov, threeDCamera->near, threeDCamera->far, true);
 	hduCamera = camera;
 	currentLifeNr = lifeStartNumber;
 	maxLifeNr = lifeStartNumber;

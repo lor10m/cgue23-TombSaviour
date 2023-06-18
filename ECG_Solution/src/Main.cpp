@@ -59,7 +59,7 @@ int main()
 
 	// glfw window creation
 	// --------------------
-	GLFWwindow* window = glfwCreateWindow(reader.GetInteger("window", "width", 800), ("window", "height", 800), "LearnOpenGL: Terrain GPU", nullptr, nullptr);
+	GLFWwindow* window = glfwCreateWindow(window_width, window_height, "Tomb Saviour", nullptr, nullptr);
 	if (window == NULL)
 	{
 		std::cout << "Failed to create GLFW window" << std::endl;
@@ -69,7 +69,6 @@ int main()
 	glfwMakeContextCurrent(window);
 	glfwSetKeyCallback(window, keyCallback);
 
-	
 	// TODO illumination multiplier
 	int brightnessIdx = reader.GetReal("global", "brightnessIdx", 10);
 	setIllumination(brightnessIdx);
@@ -93,7 +92,7 @@ int main()
 		glDisable(GL_CULL_FACE);
 	}
 
-    Camera camera(window, camera_fov, (double)800 / (double)800, camera_near, camera_far, false);
+    Camera camera(window, camera_fov, camera_near, camera_far, false);
 
     // build and compile our shader program
     // ------------------------------------
@@ -135,7 +134,7 @@ int main()
 
 		camera.pollMousePosition(window, isShooterCam());
 
-		std::cout << "currentFrame: " << currentFrame << std::endl;
+		//std::cout << "currentFrame: " << currentFrame << std::endl;
 		objects.render(window, currentFrame, deltaTime, normalMappingActivated());
 
 		// glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)

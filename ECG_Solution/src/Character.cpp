@@ -50,7 +50,8 @@ void Character::pollInput(GLFWwindow* window, float dt) {
 	if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS) {
 		charSpeed = 20;
 		superSpeed = true;
-		//printPosition();
+		printPosition();
+		//std::cout << "Aspect ratio: " << playerCamera->aspect_ratio << std::endl;
 	}
 	if (glfwGetKey(window, GLFW_KEY_W) != GLFW_PRESS && glfwGetKey(window, GLFW_KEY_S) != GLFW_PRESS && glfwGetKey(window, GLFW_KEY_A) != GLFW_PRESS && glfwGetKey(window, GLFW_KEY_D) != GLFW_PRESS) {
 		return;	// it shouldn't do anything (also not just setting the same position again if no key is pressed
@@ -83,9 +84,18 @@ void Character::getBackToStart() {		// get back to start position with "B"
 }
 
 void Character::printPosition() { // print current Position of controller object + camera
-	std::cout << "\nCharPos: " << charPosition.x << "CameraPos: " << playerCamera->getCameraPosition().x << "\n";
-	std::cout << "CharPos: " << charPosition.y << "CameraPos: " << playerCamera->getCameraPosition().y << "\n";
-	std::cout << "CharPos: " << charPosition.z << "CameraPos: " << playerCamera->getCameraPosition().z << "\n";
+	//std::cout << "\nCharPos: " << charPosition.x << "CameraPos: " << playerCamera->getCameraPosition().x << "\n";
+	//std::cout << "CharPos: " << charPosition.y << "CameraPos: " << playerCamera->getCameraPosition().y << "\n";
+	//std::cout << "CharPos: " << charPosition.z << "CameraPos: " << playerCamera->getCameraPosition().z << "\n";
+	
+	// DEBUG just for positioning: 
+	physx::PxExtendedVec3 pos = pxChar->getFootPosition(); //getFootPosition()
+	float x = pos.x;
+	float y = pos.y;
+	float z = pos.z;
+	std::cout << "\nCharPos Foot: " << x << "\n";
+	std::cout << "CharPos Foot: " << y << "\n";
+	std::cout << "CharPos Foot: " << z << "\n";
 }
 
 glm::vec3 Character::getWSdirection(GLFWwindow* window) {

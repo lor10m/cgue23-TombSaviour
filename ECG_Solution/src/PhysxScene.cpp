@@ -141,6 +141,9 @@ void PhysxScene::createModel(const char* name, std::vector<unsigned int> indices
 
 	PxMaterial* material = physics->createMaterial(0.5f, 0.5f, 0.1f);
 	PxShape* shape = physics->createShape(geometry, *material);
+	if (name == "pyramid") {
+		PxShape* shape = physics->createShape(PxCapsuleGeometry(1, 1), *material);
+	}
 
 	PxTransform transform(PxVec3(translate.x, translate.y, translate.z), PxIdentity);
 	shape->setLocalPose(transform);
@@ -153,7 +156,6 @@ void PhysxScene::createModel(const char* name, std::vector<unsigned int> indices
 	staticActor->setName(name);
 
 	scene->addActor(*staticActor);
-
 };
 
 void PhysxScene::setCharacter(Character* character)

@@ -10,7 +10,7 @@ Objects::Objects(GLFWwindow* window, Camera* camera, PhysxScene* physxScene)
 	createMummy(window);
 	createPyramid();
 	createPalmTree();
-	createVideoWall();
+	createVideoWall(); // TODO uncomment
 	createPointLightCube();
 	createTestCube();
 
@@ -19,7 +19,7 @@ Objects::Objects(GLFWwindow* window, Camera* camera, PhysxScene* physxScene)
 
 	// Create Enemies
 	for (unsigned int i = 0; i < numEnemies; i++) {
-		createEnemy(glm::vec3(10 + i * 6, 3.0f, 2.0f));
+		createEnemy(glm::vec3(47 + i * 6, 5.0f, -26.0f));		// TODO: why is enemy flying? 
 	}
 
 	cactusShader.createPhongShader(glm::mat4(0.0f), 0.1f, 1.0f, 0.1f, 2);
@@ -27,7 +27,7 @@ Objects::Objects(GLFWwindow* window, Camera* camera, PhysxScene* physxScene)
 	cactusTexture.genTexture("assets/textures/cactus.jpg");
 
 	for (unsigned int i = 0; i < numCacti; i++) {
-		createCactus(glm::vec3(10.0f + 4 * i, 25.64f, i * 2.0f));
+		createCactus(glm::vec3(46.0f + 4 * i, 25.0f, -26 + i * 2.0f));
 	}
 
 	spikeShader.createPhongShader(glm::mat4(0.0f), 0.1f, 0.7f, 0.1f, 2);
@@ -38,24 +38,21 @@ Objects::Objects(GLFWwindow* window, Camera* camera, PhysxScene* physxScene)
 	}
 
 	createHduObject(window);
-
 }
 
-void Objects::createTerrain()
-{
+void Objects::createTerrain() {
 
 	terrainShader.createTerrainShader();
 
-	const char* heightmap_path = "assets/heightmaps/hm4_dark.png";
+	const char* heightmap_path = "assets/heightmaps/hm6_pyramid.png";	// hm4_dark.png
 	terrain = Terrain(&terrainShader, "assets/textures/sand.png", heightmap_path);
 
 	physxScene->createTerrain(heightmap_path);
-
 }
 
 void Objects::createMummy(GLFWwindow* window)
 {
-	mummy.createCharacter(window, camera, controllerManager, physxScene->material, glm::vec3(0.0f, 30.0f, 0.0f));
+	mummy.createCharacter(window, camera, controllerManager, physxScene->material, glm::vec3(-16.0f, 97.0f, -114.0f));
 	physxScene->setCharacter(&mummy);
 }
 
@@ -63,7 +60,7 @@ void Objects::createEnemy(glm::vec3 position)
 {
 	glm::vec3 modelScale = glm::vec3(0.03, 0.03, 0.03);
 	Transform modelTransform;
-	modelTransform.translate(glm::vec3(0.0, 2.0, 0.0));
+	modelTransform.translate(glm::vec3(0.0, 52.0, 0.0));
 	modelTransform.scale(modelScale);
 
 	EnemyStruct enemyStruct;
@@ -98,7 +95,7 @@ void Objects::createPalmTree()
 {
 	glm::vec3 palmRotate = glm::vec3(glm::radians(-90.0f), glm::radians(0.0f), glm::radians(0.0f));
 	glm::vec3 palmScale = glm::vec3(0.01, 0.01, 0.01);
-	glm::vec3 palmTranslate = glm::vec3(0.0, 25.64, 30.0);
+	glm::vec3 palmTranslate = glm::vec3(90.0, 35.8, -100.0);
 	Transform palmTransform;
 	palmTransform.translate(palmTranslate);
 	palmTransform.rotate(palmRotate);
@@ -114,9 +111,9 @@ void Objects::createPalmTree()
 
 void Objects::createPyramid()
 {
-	glm::vec3 pyramidRotate = glm::vec3(glm::radians(0.0f), glm::radians(90.0f), glm::radians(0.0f));
-	glm::vec3 pyramidScale = glm::vec3(5, 5, 5);
-	glm::vec3 pyramidTranslate = glm::vec3(5.0, 25.64, 10.0);
+	glm::vec3 pyramidRotate = glm::vec3(glm::radians(0.0f), glm::radians(45.0f), glm::radians(0.0f));
+	glm::vec3 pyramidScale = glm::vec3(40, 35, 40);
+	glm::vec3 pyramidTranslate = glm::vec3(-20.0, 31.6, 65.0);	// 31.6
 	Transform pyramidTransform;
 	pyramidTransform.translate(pyramidTranslate);
 	pyramidTransform.rotate(pyramidRotate);
@@ -162,18 +159,17 @@ void Objects::createHduObject(GLFWwindow* window)
 	physxScene->setHDU(&hduObject);
 }
 
-void Objects::createVideoWall()
-{
+void Objects::createVideoWall() {
 	glm::vec3 videoWallRotate = glm::vec3(glm::radians(0.0f), glm::radians(90.0f), glm::radians(0.0f));
 	glm::vec3 videoWallScale = glm::vec3(10, 10, 10);
-	glm::vec3 videoWallTranslate = glm::vec3(15.0, 25, -5.0);
+	glm::vec3 videoWallTranslate = glm::vec3(40.0, 35, -37.0);
 	Transform videoWallTransform;
 	videoWallTransform.translate(videoWallTranslate);
 	videoWallTransform.rotate(videoWallRotate);
 	videoWallTransform.scale(videoWallScale);
 	videoWall.generateModel("assets/objects/screenPanel.obj");
-
-	videoWallShader.createPhongVideoTexShader("assets/videos/videoWall.mp4", videoWallTransform.getMatrix(), 0.05f, 0.8f, 1.0f, 1.0f);
+	
+	videoWallShader.createPhongVideoTexShader("assets/videos/videoShort.mp4", videoWallTransform.getMatrix(), 0.05f, 0.8f, 1.0f, 1.0f);
 	videoWallShader.setUniform1i("isAnimated", 0);
 
 	physxScene->createModel("videowall", videoWall.indices, videoWall.vertices, videoWall.normals, videoWallScale, videoWallTranslate, videoWallRotate);
