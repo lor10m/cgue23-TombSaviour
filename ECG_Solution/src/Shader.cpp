@@ -183,7 +183,7 @@ void Shader::loadVideoTexture(const std::string& videoTexturePath, int unit) {
 
 		videoTextures.push_back(texture);
 	}
-	//std::cout << videoTextures.size();
+	std::cout << "Video Texture size: " << videoTextures.size();
 	videoFrameCount = videoTextures.size();
 }
 
@@ -361,22 +361,38 @@ int Shader::getcurrentFrameIndex() {
 	//std::cout << frameDuration << endl;
 	//std::cout << videoFrameCount << endl;
 
-	float elapsedFrames = elapsedTime / frameDuration;
-	
 	int totalFrames = videoFrameCount * 2;
 
-	int crrFrameIndex = static_cast<int>(std::round(elapsedFrames)) % totalFrames;
+	//float elapsedFrames = elapsedTime / frameDuration;
+	//int crrFrameIndex = static_cast<int>(elapsedFrames) % totalFrames;
+
+	crrFrameIndex = (elapsedFrames++) % totalFrames;
 
 	if (crrFrameIndex >= videoFrameCount) {
 		crrFrameIndex = totalFrames - crrFrameIndex;
 		if (crrFrameIndex >= videoFrameCount) {
 			crrFrameIndex = videoFrameCount - 1;
 		}
-		else if (crrFrameIndex < 0) {
-			crrFrameIndex = 0;
-		}
+		//else if (crrFrameIndex <= 0) {
+		//	crrFrameIndex = 0;
+		//}
 	}
+
+	//if (oldFrame == crrFrameIndex) {
+	//	crrFrameIndex = crrFrameIndex + 1;
+	//}
 	//std::cout << "currentFrameIndex: " << crrFrameIndex << endl;
+
+	//if (oldFrame != crrFrameIndex) {
+	//	countFrames++;
+	//}
+	//oldFrame = crrFrameIndex;
+
+	//if (crrFrameIndex == 0) {
+	//	float time = elapsedTime;
+	//	std::cout << "Time at frame " << crrFrameIndex << ": " << time << "frame count: " << countFrames << std::endl;
+	//}
+
 	return crrFrameIndex;
 }
 

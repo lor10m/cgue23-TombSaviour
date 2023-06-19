@@ -12,14 +12,15 @@ Objects::Objects(GLFWwindow* window, Camera* camera, PhysxScene* physxScene)
 	createPalmTree();
 	createVideoWall(); // TODO uncomment
 	createPointLightCube();
-	createTestCube();
+	//createTestCube();
+	//createTreasureChest();
 
 	enemyShader.createPhongShader(glm::mat4(0.0f), 0.1f, 1.0f, 0.2f, 32);
 	enemyShader.setUniform1i("isAnimated", 1);
 
 	// Create Enemies
 	for (unsigned int i = 0; i < numEnemies; i++) {
-		createEnemy(glm::vec3(47 + i * 6, 5.0f, -26.0f));		// TODO: why is enemy flying? 
+		createEnemy(glm::vec3(165 + i * 6, 24.0f, -95.0f));		// TODO: why is enemy flying? 
 	}
 
 	cactusShader.createPhongShader(glm::mat4(0.0f), 0.1f, 1.0f, 0.1f, 2);
@@ -27,7 +28,7 @@ Objects::Objects(GLFWwindow* window, Camera* camera, PhysxScene* physxScene)
 	cactusTexture.genTexture("assets/textures/cactus.jpg");
 
 	for (unsigned int i = 0; i < numCacti; i++) {
-		createCactus(glm::vec3(46.0f + 4 * i, 25.0f, -26 + i * 2.0f));
+		createCactus(glm::vec3(46.0f + 4 * i, 40.0f, -26 + i * 2.0f));
 	}
 
 	spikeShader.createPhongShader(glm::mat4(0.0f), 0.1f, 0.7f, 0.1f, 2);
@@ -44,7 +45,7 @@ void Objects::createTerrain() {
 
 	terrainShader.createTerrainShader();
 
-	const char* heightmap_path = "assets/heightmaps/hm6_pyramid.png";	// hm4_dark.png
+	const char* heightmap_path = "assets/heightmaps/hm7_pyramid.png";	// hm4_dark.png
 	terrain = Terrain(&terrainShader, "assets/textures/sand.png", heightmap_path);
 
 	physxScene->createTerrain(heightmap_path);
@@ -52,7 +53,10 @@ void Objects::createTerrain() {
 
 void Objects::createMummy(GLFWwindow* window)
 {
-	mummy.createCharacter(window, camera, controllerManager, physxScene->material, glm::vec3(-16.0f, 97.0f, -114.0f));
+	mummy.createCharacter(window, camera, controllerManager, physxScene->material, glm::vec3(103.0f, 30.0f, -63.0f));
+	// Hill:    -16.0f, 97.0f, -114.0f
+	// Pyramid: 17.0f, 32.0f, 76.0f
+	// Outside: 103.0f, 30.0f, -63.0f
 	physxScene->setCharacter(&mummy);
 }
 
@@ -60,14 +64,14 @@ void Objects::createEnemy(glm::vec3 position)
 {
 	glm::vec3 modelScale = glm::vec3(0.03, 0.03, 0.03);
 	Transform modelTransform;
-	modelTransform.translate(glm::vec3(0.0, 52.0, 0.0));
+	modelTransform.translate(glm::vec3(0.0, 2.0, 0.0));
 	modelTransform.scale(modelScale);
 
 	EnemyStruct enemyStruct;
 	enemyStruct.id = enemyCounter;
 	enemyStruct.modelMatrix = modelTransform.getMatrix();
 	enemyStruct.enemyModel = std::make_shared<Model>("assets/models/eve.dae");
-	enemyStruct.enemy = std::make_shared<Enemy>(enemyCounter, enemyStruct.enemyModel, physxScene, controllerManager, modelScale, glm::vec3(position.x, 28.64f, position.z));
+	enemyStruct.enemy = std::make_shared<Enemy>(enemyCounter, enemyStruct.enemyModel, physxScene, controllerManager, modelScale, glm::vec3(position.x, position.y, position.z));
 
 	enemies.push_back(enemyStruct);
 	enemyCounter++;
@@ -111,7 +115,7 @@ void Objects::createPalmTree()
 
 void Objects::createPyramid()
 {
-	glm::vec3 pyramidRotate = glm::vec3(glm::radians(0.0f), glm::radians(45.0f), glm::radians(0.0f));
+	glm::vec3 pyramidRotate = glm::vec3(glm::radians(0.0f), glm::radians(0.0f), glm::radians(0.0f));
 	glm::vec3 pyramidScale = glm::vec3(40, 35, 40);
 	glm::vec3 pyramidTranslate = glm::vec3(-20.0, 31.6, 65.0);	// 31.6
 	Transform pyramidTransform;
@@ -160,21 +164,20 @@ void Objects::createHduObject(GLFWwindow* window)
 }
 
 void Objects::createVideoWall() {
-	glm::vec3 videoWallRotate = glm::vec3(glm::radians(0.0f), glm::radians(90.0f), glm::radians(0.0f));
-	glm::vec3 videoWallScale = glm::vec3(10, 10, 10);
-	glm::vec3 videoWallTranslate = glm::vec3(40.0, 35, -37.0);
+	glm::vec3 videoWallRotate = glm::vec3(glm::radians(90.0f), glm::radians(0.0f), glm::radians(0.0f));
+	glm::vec3 videoWallScale = glm::vec3(80, 80, 80);
+	glm::vec3 videoWallTranslate = glm::vec3(-20.0, 49.05, 65.0);
 	Transform videoWallTransform;
 	videoWallTransform.translate(videoWallTranslate);
 	videoWallTransform.rotate(videoWallRotate);
 	videoWallTransform.scale(videoWallScale);
 	videoWall.generateModel("assets/objects/screenPanel.obj");
 	
-	videoWallShader.createPhongVideoTexShader("assets/videos/videoShort.mp4", videoWallTransform.getMatrix(), 0.05f, 0.8f, 1.0f, 1.0f);
+	videoWallShader.createPhongVideoTexShader("assets/videos/video10_lowQuality.mp4", videoWallTransform.getMatrix(), 0.05f, 0.8f, 1.0f, 1.0f);
 	videoWallShader.setUniform1i("isAnimated", 0);
 
 	physxScene->createModel("videowall", videoWall.indices, videoWall.vertices, videoWall.normals, videoWallScale, videoWallTranslate, videoWallRotate);
 }
-
 
 void Objects::render(GLFWwindow* window, float currentTime, float dt, bool normalMapping)
 {
@@ -268,10 +271,9 @@ void Objects::render(GLFWwindow* window, float currentTime, float dt, bool norma
 		}
 	}
 
-
-	renderTestCube(normalMapping);
+	//renderTestCube(normalMapping);
+	//renderTreasureChest(normalMapping);
 	
-
 	// Draw HDU last
 	hduObject.drawHDU(window);
 
@@ -287,7 +289,7 @@ void Objects::deleteObjects()
 void Objects::createTestCube()
 {
 	Transform t;
-	t.translate(glm::vec3(0.0f, 27.0, 0.0));
+	t.translate(glm::vec3(40.0f, 30.0, -13.0));
 	testCubeShader.createNormalShader("assets/textures/brickwall.jpg", "assets/textures/brickwall.jpg", "assets/textures/brickwall_normal.jpg", t.getMatrix());
 
 	float vertices[] = {
@@ -422,6 +424,48 @@ void Objects::createTestCube()
 
 	glBindVertexArray(0);
 
+}
+
+void Objects::createTreasureChest() {
+	glm::vec3 chestRotate = glm::vec3(glm::radians(0.0f), glm::radians(0.0f), glm::radians(0.0f));
+	glm::vec3 chestScale = glm::vec3(2, 2, 2);
+	glm::vec3 chestTranslate = glm::vec3(95.0, 29, -48.0);
+
+	treasureChestTransform.translate(chestTranslate);
+	treasureChestTransform.rotate(chestRotate);
+	treasureChestTransform.scale(chestScale);
+	treasureChest.generateModel("assets/objects/treasureChest.obj");
+
+	treasureChestShader.createNormalShader("assets/textures/chest/chest_baseColor.png",
+		"assets/textures/chest/chest_specular_metallic.png", "assets/textures/chest/chest_normal.png", treasureChestTransform.getMatrix());
+
+	physxScene->createModel("treasureChest", treasureChest.indices, treasureChest.vertices, treasureChest.normals, chestScale, chestTranslate, chestRotate);
+}
+
+void Objects::renderTreasureChest(bool normalMapping) {
+
+	treasureChestShader.setUniformMatrix4fv("modelMatrix", 1, GL_FALSE, treasureChestTransform.getMatrix());
+	treasureChestShader.setUniformMatrix4fv("viewMatrix", 1, GL_FALSE, camera->getTransformMatrix());
+	treasureChestShader.setUniform3f("eyePos", camera->cameraPosition.x, camera->cameraPosition.y, camera->cameraPosition.z);
+
+	glm::vec3 diffuseColor = glm::vec3(1.0f, 1.0f, 1.0f) * 1.5f; // lightColor * diffuseStrength
+	glm::vec3 ambientColor = diffuseColor * 0.3f;//diffuseColor * ambientStrength;
+
+	treasureChestShader.setUniform3f("light.position", 1.2f, 28.0f, 2.0f);
+	treasureChestShader.setUniform3f("light.ambientIntensity", ambientColor.x, ambientColor.y, ambientColor.z);
+	treasureChestShader.setUniform3f("light.diffuseIntensity", diffuseColor.x, diffuseColor.y, diffuseColor.z);
+	treasureChestShader.setUniform3f("light.specularIntensity", 1.0f, 1.0f, 1.0f);
+	treasureChestShader.setUniform1f("light.constant", 1);
+	treasureChestShader.setUniform1f("light.linear", 0.10f);
+	treasureChestShader.setUniform1f("light.quadratic", 0.065f);
+
+	treasureChestShader.setUniform1i("disableAttenuation", true);
+	treasureChestShader.setUniform1i("invertNormals", false);
+	treasureChestShader.setUniform1i("normalMapping", normalMapping);
+
+	glBindVertexArray(vao);
+	glDrawArrays(GL_TRIANGLES, 0, 36);
+	glBindVertexArray(0);
 }
 
 void Objects::renderTestCube(bool normalMapping)

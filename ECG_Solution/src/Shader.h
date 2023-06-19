@@ -25,6 +25,11 @@ private:
     float desiredFrameRate = 25.0f; // desired frame rate => at least 24 per second
     float frameDuration = 1.0f / desiredFrameRate;
     int videoFrameCount;
+    int countFrames = 0;
+    int elapsedFrames = 0;
+    int oldFrame = 0;
+    bool oneBlocker = false;
+    int crrFrameIndex = 0;
 
 public:
     Shader();

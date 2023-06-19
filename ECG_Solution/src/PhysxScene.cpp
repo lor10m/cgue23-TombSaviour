@@ -145,7 +145,7 @@ void PhysxScene::createModel(const char* name, std::vector<unsigned int> indices
 		PxShape* shape = physics->createShape(PxCapsuleGeometry(1, 1), *material);
 	}
 
-	PxTransform transform(PxVec3(translate.x, translate.y, translate.z), PxIdentity);
+	PxTransform transform(PxVec3(translate.x, translate.y, translate.z), PxIdentity);		// PxIdentity combinedQuat
 	shape->setLocalPose(transform);
 
 	PxRigidStatic* staticActor = physics->createRigidStatic(PxTransform(PxIdentity));
@@ -395,7 +395,6 @@ void PhysxScene::onContact(const PxContactPairHeader& pairHeader, const PxContac
 			}
 		}
 	}
-
 }
 
 void PhysxScene::onTrigger(PxTriggerPair* pairs, PxU32 count)

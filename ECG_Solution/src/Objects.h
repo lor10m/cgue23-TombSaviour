@@ -34,6 +34,7 @@ private:
 	Model pyramid;
 	Model videoWall;
 	Model pointLightCube;
+	Model treasureChest;
 
 	unsigned int vao;
 	unsigned int vbo;
@@ -49,6 +50,8 @@ private:
 	Shader spikeShader;
 	Shader videoWallShader;
 	Shader lightCubeShader;
+	Shader treasureChestShader;
+	Transform treasureChestTransform;
 
 	Character mummy;
 	Texture cactusTexture;
@@ -80,6 +83,7 @@ private:
 	float elapsedTime = 0.0f;
 
 	void renderTestCube(bool normalMapping);
+	void renderTreasureChest(bool normalMapping);
 	
 public:
 
@@ -94,6 +98,8 @@ public:
 	void createTestCube();
 	void createHduObject(GLFWwindow* window);
 	void createVideoWall();
+	void createTreasureChest();
+	
 	void deleteObjects();
 	void createCactus(glm::vec3 position);
 };
