@@ -10,10 +10,16 @@ in vec2 HeightMapCoordinates[];
 out float Height;
 out vec4 textPos;
 
+out vec2 fragTexCoords; // for shading
+out vec3 normal;
+
+
 void main()
 {
     float u = gl_TessCoord.x;
     float v = gl_TessCoord.y;
+
+    fragTexCoords = vec2(u,v);
 
     vec2 t00 = HeightMapCoordinates[0];
     vec2 t01 = HeightMapCoordinates[1];
@@ -26,6 +32,7 @@ void main()
 
     Height = texture(heightMap, texCoord).x * 254.0f;   // größer 200 => man kommt sich klein vor, kleiner => man schwebt in der Luft
 
+
     vec4 p00 = gl_in[0].gl_Position;
     vec4 p01 = gl_in[1].gl_Position;
     vec4 p10 = gl_in[2].gl_Position;
@@ -34,6 +41,9 @@ void main()
     vec4 uVec = p01 - p00;
     vec4 vVec = p10 - p00;
     //vec4 normal = normalize( vec4(cross(vVec.xyz, uVec.xyz), 0) );
+
+    normal = normalize(cross(uVec.xyz, vVec.xyz));
+
 
     vec4 p0 = (p01 - p00) * u + p00;
     vec4 p1 = (p11 - p10) * u + p10;

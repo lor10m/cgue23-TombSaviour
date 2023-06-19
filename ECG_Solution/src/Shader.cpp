@@ -37,6 +37,33 @@ void Shader::createPhongShader(const std::string& diffuseTexture, const std::str
 		loadTexture(diffuseTexture.c_str(), 0);
 		loadTexture(specularTexture.c_str(), 1);
 	}
+	setUniform1f("ka", 0.0);
+	setUniform1f("kd", 0.3);
+	setUniform1f("ks", 0.3);
+	setUniform1i("alpha", 64);
+	setUniformMatrix4fv("modelMatrix", 1, GL_FALSE, modelMatrix);
+
+	//TODO: lights
+	//PointLight pointLight1({ 0, 50, 0 }, { 100, 100, 100 }, { 1.0f, 0.4f, 0.1f });
+	DirectionalLight directionalLight1({ -0.2f, -1.0f, -0.3f }, { 0.8f, 0.8f, 0.8f });
+	//addUniformPointLight("pointLight", pointLight1);
+	addUniformDirectionalLight("directionalLight", directionalLight1);
+}
+
+void Shader::createPhongShader(glm::mat4 modelMatrix, float ka, float kd, float ks, int alpha) {
+	shader = glCreateProgram();
+
+	GLuint vertexShader = compileShader(GL_VERTEX_SHADER, "assets/shaders/phong.vsh");
+	GLuint fragmentShader = compileShader(GL_FRAGMENT_SHADER, "assets/shaders/phong.fs");
+
+	glAttachShader(shader, vertexShader);
+	glAttachShader(shader, fragmentShader);
+	glLinkProgram(shader);
+	glValidateProgram(shader);
+
+	glDeleteShader(vertexShader);
+	glDeleteShader(fragmentShader);
+
 	setUniform1f("ka", 0.3);
 	setUniform1f("kd", 0.3);
 	setUniform1f("ks", 0.3);
@@ -111,33 +138,6 @@ void Shader::createDebugShadowShader()
 
 }
 
-
-void Shader::createPhongShader(glm::mat4 modelMatrix, float ka, float kd, float ks, int alpha) {
-	shader = glCreateProgram();
-
-	GLuint vertexShader = compileShader(GL_VERTEX_SHADER, "assets/shaders/phong.vsh");
-	GLuint fragmentShader = compileShader(GL_FRAGMENT_SHADER, "assets/shaders/phong.fs");
-
-	glAttachShader(shader, vertexShader);
-	glAttachShader(shader, fragmentShader);
-	glLinkProgram(shader);
-	glValidateProgram(shader);
-
-	glDeleteShader(vertexShader);
-	glDeleteShader(fragmentShader);
-
-	//setUniform1f("ka", 0.1);
-	//setUniform1f("kd", 0.7);
-	//setUniform1f("ks", 0.3);
-	//setUniform1i("alpha", 20);
-	//setUniformMatrix4fv("modelMatrix", 1, GL_FALSE, modelMatrix);
-
-	////TODO lights
-	////PointLight pointLight1({ 0, 50, 0 }, { 2, 2, 2}, {1.0f, 0.4f, 0.1f});
-	//DirectionalLight directionalLight1({ -0.2f, -1.0f, -0.3f }, { 1.0f, 1.0f, 1.0f });
-	////addUniformPointLight("pointLight", pointLight1);
-	//addUniformDirectionalLight("directionalLight", directionalLight1);
-}
 
 void Shader::createPhongVideoTexShader(const std::string& videoPath, glm::mat4 modelMatrix, float ka, float kd, float ks, int alpha) {
 	shader = glCreateProgram();
@@ -234,8 +234,8 @@ void Shader::createTerrainShader(const char* fragmentShaderPath, const char* tes
 	glDeleteShader(tessControlShader);
 	glDeleteShader(tessEvalShader);
 
-	setUniform1f("ka", 0.3);
-	setUniform1f("kd", 0.3);
+	setUniform1f("ka", 0.2);
+	setUniform1f("kd", 2.8);
 	setUniform1f("ks", 0.3);
 	setUniform1i("alpha", 64);
 

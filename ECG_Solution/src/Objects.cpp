@@ -45,19 +45,26 @@ Objects::Objects(GLFWwindow* window, Camera* camera, PhysxScene* physxScene)
 
 void Objects::createTerrain()
 {
-
-	terrainShader.createTerrainShader("","");
-
-	const char* heightmap_path = "assets/heightmaps/hm4_dark.png";
-	terrain = Terrain(&terrainShader, "assets/textures/sand.png", heightmap_path);
+	const char* heightmap_path = "assets/heightmaps/hm3-dark.png";
+	terrain.createTerrain("assets/textures/sand.png", heightmap_path);
 
 	physxScene->createTerrain(heightmap_path);
+}
 
+void Objects::createPointLightCube()
+{
+	Transform t;
+	t.translate(glm::vec3(0.0f, 30.0, -7.0));
+	t.scale(glm::vec3(0.1, 0.1, 0.1));
+	pointLightCube.generateModel("assets/objects/cube.obj");
+
+	lightCubeShader.createPhongShader("assets/textures/weiss.dds", "assets/textures/weiss.dds", true, t.getMatrix(), 1, 1, 1, 1);
+	lightCubeShader.setUniform1i("isAnimated", 0);
 }
 
 void Objects::createMummy(GLFWwindow* window)
 {
-	mummy.createCharacter(window, camera, controllerManager, physxScene->material, glm::vec3(0.0f, 30.0f, 0.0f));
+	mummy.createCharacter(window, camera, controllerManager, physxScene->material, glm::vec3(0.0f, 10.0f, 0.0f));
 	physxScene->setCharacter(&mummy);
 }
 
@@ -129,17 +136,6 @@ void Objects::createPyramid()
 	pyramidShader.setUniform1i("isAnimated", 0);
 
 	physxScene->createModel("pyramid", pyramid.indices, pyramid.vertices, pyramid.normals, pyramidScale, pyramidTranslate, pyramidRotate);
-}
-
-void Objects::createPointLightCube()
-{
-	Transform t;
-	t.translate(glm::vec3(0.0f, 30.0, -7.0));
-	t.scale(glm::vec3(0.1, 0.1, 0.1));
-	pointLightCube.generateModel("assets/objects/cube.obj");
-
-	lightCubeShader.createPhongShader("assets/textures/weiss.dds", "assets/textures/weiss.dds",true, t.getMatrix(), 1, 1, 1, 1);
-	lightCubeShader.setUniform1i("isAnimated", 0);
 }
 
 
@@ -229,19 +225,8 @@ void Objects::render(GLFWwindow* window, float currentTime, float dt, bool norma
 	//
 	//terrain.render(&terrainShader, -1);
 
-	glm::vec4 lightColor = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f); //nicht verwendet im shader
-	glm::vec3 lightPos = glm::vec3(-1.2f, 2.0f, 2.0f);
-	glm::mat4 orthgonalProjection = glm::ortho(-10.0f, 10.0f, -10.0f, 10.0f, 1.0f, 7.5f);
-	glm::mat4 lightView = glm::lookAt(lightPos, glm::vec3(0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
-	glm::mat4 lightSpaceMatrix = orthgonalProjection * lightView;
-
 	// render the terrain
-	terrainShader.setUniformMatrix4fv("view", 1, GL_FALSE, viewMatrix);
-	terrainShader.setUniformMatrix4fv("model", 1, GL_FALSE, glm::mat4(1.0f));
-	terrainShader.setUniform3f("eyePos", camera->cameraPosition.x, camera->cameraPosition.y, camera->cameraPosition.z);
-	terrainShader.setUniform3f("lightPos", lightPos.x, lightPos.y, lightPos.z);
-	terrainShader.setUniformMatrix4fv("lightSpaceMatrix", 1, GL_FALSE, lightSpaceMatrix);
-	terrain.render();
+	terrain.render(viewMatrix, glm::vec3(camera->cameraPosition.x, camera->cameraPosition.y, camera->cameraPosition.z));
 
 
 	//// render cactus

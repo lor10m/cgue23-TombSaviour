@@ -7,7 +7,6 @@ out vec2 texCoord;
 
 //added
 out vec3 fragPos; 
-out vec2 fragTexCoordinate;
 out vec4 fragPosLightSpace; // added for shadows;
 
 uniform mat4 model;
@@ -20,7 +19,7 @@ void main()
 
     fragPos = vec3(vertexPos);
 
-    fragTexCoordinate = textCoords;
+    //fragTexCoordinate = textCoords;
 	fragPosLightSpace = lightSpaceMatrix * vertexPos;
 
     HeightMapCoord = textCoords;
