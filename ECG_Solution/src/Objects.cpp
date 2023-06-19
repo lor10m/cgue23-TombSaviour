@@ -215,10 +215,10 @@ void Objects::render(GLFWwindow* window, float currentTime, float dt, bool norma
 	}
 
 	// ALL ENEMIES DEAD!! YOU WON
-	if (enemies.size() == 0) {
+	if (enemies.size() == 0 && !physxScene->allEnemiesDead) {
 		//hduObject.showBigScreen("winEndscreen");
 		physxScene->allEnemiesDead = true;
-		std::cout << "All enemies dead! Get the treasure chest!" << std::endl;
+		std::cout << "All enemies are dead! Get the treasure chest!" << std::endl;
 	}
 
 	// render the terrain
