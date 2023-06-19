@@ -65,9 +65,11 @@ private:
 
 	std::vector<PxActor*> actorsToRemove;
 
+
 public:
 	PxMaterial* material = NULL;
 	PxScene* scene = NULL;
+	bool allEnemiesDead = false;
 
 	unsigned int pickedUpSpikes = 0;
 	unsigned int thrownSpikes = 0;
@@ -93,6 +95,7 @@ public:
 	PxScene* getScene();
 
 	virtual void onContact(const PxContactPairHeader& pairHeader, const PxContactPair* pairs, PxU32 nbPairs);
+	bool enemiesRemaining();
 	virtual void onTrigger(PxTriggerPair* pairs, PxU32 count);
 	virtual void onConstraintBreak(PxConstraintInfo*, PxU32) {}
 	virtual void onWake(PxActor**, PxU32) {}

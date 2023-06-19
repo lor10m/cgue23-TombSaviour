@@ -13,7 +13,7 @@ Objects::Objects(GLFWwindow* window, Camera* camera, PhysxScene* physxScene)
 	createVideoWall(); // TODO uncomment
 	createPointLightCube();
 	//createTestCube();
-	//createTreasureChest();
+	createTreasureChest();
 
 	enemyShader.createPhongShader(glm::mat4(0.0f), 0.1f, 1.0f, 0.2f, 32);
 	enemyShader.setUniform1i("isAnimated", 1);
@@ -164,7 +164,7 @@ void Objects::createHduObject(GLFWwindow* window)
 }
 
 void Objects::createVideoWall() {
-	glm::vec3 videoWallRotate = glm::vec3(glm::radians(90.0f), glm::radians(0.0f), glm::radians(0.0f));
+	glm::vec3 videoWallRotate = glm::vec3(glm::radians(90.0f), glm::radians(-90.0f), glm::radians(0.0f));
 	glm::vec3 videoWallScale = glm::vec3(80, 80, 80);
 	glm::vec3 videoWallTranslate = glm::vec3(-20.0, 49.05, 65.0);
 	Transform videoWallTransform;
@@ -216,7 +216,9 @@ void Objects::render(GLFWwindow* window, float currentTime, float dt, bool norma
 
 	// ALL ENEMIES DEAD!! YOU WON
 	if (enemies.size() == 0) {
-		hduObject.showBigScreen("winEndscreen");
+		//hduObject.showBigScreen("winEndscreen");
+		physxScene->allEnemiesDead = true;
+		std::cout << "All enemies dead! Get the treasure chest!" << std::endl;
 	}
 
 	// render the terrain
@@ -272,7 +274,7 @@ void Objects::render(GLFWwindow* window, float currentTime, float dt, bool norma
 	}
 
 	//renderTestCube(normalMapping);
-	//renderTreasureChest(normalMapping);
+	renderTreasureChest(normalMapping);
 	
 	// Draw HDU last
 	hduObject.drawHDU(window);
@@ -429,15 +431,15 @@ void Objects::createTestCube()
 void Objects::createTreasureChest() {
 	glm::vec3 chestRotate = glm::vec3(glm::radians(0.0f), glm::radians(0.0f), glm::radians(0.0f));
 	glm::vec3 chestScale = glm::vec3(2, 2, 2);
-	glm::vec3 chestTranslate = glm::vec3(95.0, 29, -48.0);
+	glm::vec3 chestTranslate = glm::vec3(108.0, 29, -43.0);
 
 	treasureChestTransform.translate(chestTranslate);
 	treasureChestTransform.rotate(chestRotate);
 	treasureChestTransform.scale(chestScale);
 	treasureChest.generateModel("assets/objects/treasureChest.obj");
 
-	treasureChestShader.createNormalShader("assets/textures/chest/chest_baseColor.png",
-		"assets/textures/chest/chest_specular_metallic.png", "assets/textures/chest/chest_normal.png", treasureChestTransform.getMatrix());
+	treasureChestShader.createNormalShader("assets/textures/chest/chest_baseColor.jpg",
+		"assets/textures/chest/chest_specular_metallic.jpg", "assets/textures/chest/chest_normal.jpg", treasureChestTransform.getMatrix());
 
 	physxScene->createModel("treasureChest", treasureChest.indices, treasureChest.vertices, treasureChest.normals, chestScale, chestTranslate, chestRotate);
 }
@@ -466,6 +468,8 @@ void Objects::renderTreasureChest(bool normalMapping) {
 	glBindVertexArray(vao);
 	glDrawArrays(GL_TRIANGLES, 0, 36);
 	glBindVertexArray(0);
+	std::cout << "render treasure chest!" << std::endl;
+
 }
 
 void Objects::renderTestCube(bool normalMapping)

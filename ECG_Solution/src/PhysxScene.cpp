@@ -374,7 +374,7 @@ void PhysxScene::onContact(const PxContactPairHeader& pairHeader, const PxContac
 			// If spike hits something except us
 			if (actor1->getName() == "spike" && actor2->getName() != "mummy")
 			{
-				// Make sure to remove spike just once
+				// Make sure to remove spike just once		// TODO DON'T remove spikes instantly
 				if (std::find(actorsToRemove.begin(), actorsToRemove.end(), actor1) == actorsToRemove.end()) {
 					actorsToRemove.push_back(actor1);
 				}
@@ -393,9 +393,35 @@ void PhysxScene::onContact(const PxContactPairHeader& pairHeader, const PxContac
 					enemiesToRemove.push_back((unsigned int)actor1->userData);
 				}
 			}
+			else if (actor2->getName() == "treasureChest" && actor1->getName() == "mummy") {
+				// ALL ENEMIES DEAD + touching treasure chest:
+				if (allEnemiesDead) {
+					hdu->showBigScreen("winEndscreen");
+				}
+			}
 		}
 	}
 }
+
+//bool PhysxScene::enemiesRemaining() {		// TODO: delete this because boolean is set in Object
+//
+//	PxU32 allAcctors = scene->getNbActors(PxActorTypeFlag::eRIGID_DYNAMIC);
+//	if (allAcctors == 0) {
+//		return false;
+//	}
+//
+//	std::vector<PxActor*> actors(allAcctors);
+//	scene->getActors(PxActorTypeFlag::eRIGID_DYNAMIC, reinterpret_cast<PxActor**>(&actors[0]), allAcctors);
+//
+//	for (PxU32 i = 0; i < allAcctors; i++) {
+//		PxRigidActor* actor = static_cast<PxRigidActor*>(actors[i]);
+//		if (actor->getName() == "enemy")
+//		{
+//			return true;
+//		}
+//	}
+//	return false;
+//}
 
 void PhysxScene::onTrigger(PxTriggerPair* pairs, PxU32 count)
 {

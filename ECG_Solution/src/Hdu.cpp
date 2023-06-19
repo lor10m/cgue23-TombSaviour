@@ -206,7 +206,7 @@ void Hdu::showBigScreen(string screenKey) {
 	//hduDataMap["GameOver"].transform.translate(glm::vec3(0.0f, 0.0f, 0.0f)).scale(hduDataMap["GameOver"].getScale(widthScale, heightScale));
 
 	hduDataMap[screenKey].model.generateModel("assets/objects/screenPanel.obj");
-	std::cout << "\nMuhahah you lost! >:( \n";
+	std::cout << "\n THE END \n";
 }
 
 float Hdu::getFullscreenHDUScale() {
