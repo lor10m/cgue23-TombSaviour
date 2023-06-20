@@ -48,9 +48,10 @@ void Character::pollInput(GLFWwindow* window, float dt) {
 		superSpeed = false;
 	}
 	if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS) {
-		charSpeed = 20;
+		charSpeed = 40;
 		superSpeed = true;
-		//printPosition();
+		printPosition();
+		//std::cout << "Aspect ratio: " << playerCamera->aspect_ratio << std::endl;
 	}
 	if (glfwGetKey(window, GLFW_KEY_W) != GLFW_PRESS && glfwGetKey(window, GLFW_KEY_S) != GLFW_PRESS && glfwGetKey(window, GLFW_KEY_A) != GLFW_PRESS && glfwGetKey(window, GLFW_KEY_D) != GLFW_PRESS) {
 		return;	// it shouldn't do anything (also not just setting the same position again if no key is pressed
@@ -64,16 +65,36 @@ void Character::setPosition() {
 	charPosition.y = pos.y;
 	charPosition.z = pos.z;
 
+	if (charPosition.x >= 510.0)
+		charPosition.x = 510.0;
+	else if (charPosition.x <= -510.0)
+		charPosition.x = -510.0;
+
+	if (charPosition.z >= 510.0)
+		charPosition.z = 510.0;
+	else if (charPosition.z <= -510.0)
+		charPosition.z = -510.0;
+
+	pxChar->setPosition(physx::PxExtendedVec3(charPosition.x, charPosition.y, charPosition.z));
 	playerCamera->setCameraPosition(glm::vec3(charPosition.x, charPosition.y, charPosition.z));
 
 	//printPosition();
 }
+
 PxRigidDynamic* Character::getActor() {
 	return pxChar->getActor();
 }
 
 glm::vec3 Character::getPosition() {
 	return charPosition;
+}
+
+glm::vec3 Character::getFootPosition() {
+	physx::PxExtendedVec3 pos = pxChar->getFootPosition(); //getFootPosition()
+	float x = pos.x;
+	float y = pos.y;
+	float z = pos.z;
+	return glm::vec3(x,y,z);
 }
 
 void Character::getBackToStart() {		// get back to start position with "B"
@@ -83,9 +104,18 @@ void Character::getBackToStart() {		// get back to start position with "B"
 }
 
 void Character::printPosition() { // print current Position of controller object + camera
-	std::cout << "\nCharPos: " << charPosition.x << "CameraPos: " << playerCamera->getCameraPosition().x << "\n";
-	std::cout << "CharPos: " << charPosition.y << "CameraPos: " << playerCamera->getCameraPosition().y << "\n";
-	std::cout << "CharPos: " << charPosition.z << "CameraPos: " << playerCamera->getCameraPosition().z << "\n";
+	//std::cout << "\nCharPos: " << charPosition.x << "CameraPos: " << playerCamera->getCameraPosition().x << "\n";
+	//std::cout << "CharPos: " << charPosition.y << "CameraPos: " << playerCamera->getCameraPosition().y << "\n";
+	//std::cout << "CharPos: " << charPosition.z << "CameraPos: " << playerCamera->getCameraPosition().z << "\n";
+	
+	// DEBUG just for positioning: 
+	physx::PxExtendedVec3 pos = pxChar->getFootPosition(); //getFootPosition()
+	float x = pos.x;
+	float y = pos.y;
+	float z = pos.z;
+	std::cout << "\nCharPos Foot: " << x << "\n";
+	std::cout << "CharPos Foot: " << y << "\n";
+	std::cout << "CharPos Foot: " << z << "\n";
 }
 
 glm::vec3 Character::getWSdirection(GLFWwindow* window) {

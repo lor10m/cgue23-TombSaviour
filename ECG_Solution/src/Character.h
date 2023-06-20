@@ -25,6 +25,8 @@ public:
 	PxRigidDynamic* getActor();
 	glm::vec3 getPosition();
 
+	glm::vec3 getFootPosition();
+
 	void move(glm::vec3 dir, float dt);
 	void pollInput(GLFWwindow* window, float dt);
 	void setPosition();

@@ -41,17 +41,16 @@ void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods
     if (key == GLFW_KEY_F5 && action == GLFW_PRESS) {       // Fullscreen
         if (!fullscreen) {
             glfwGetWindowSize(window, &oldWidth, &oldHeight);
-            // Get the primary monitor
+            // primary monitor
             GLFWmonitor* primaryMonitor = glfwGetPrimaryMonitor();
-            // Get the video mode of the primary monitor
+            // video mode of primary monitor
             const GLFWvidmode* mode = glfwGetVideoMode(primaryMonitor);
-            // Get the width and height of the monitor in pixels
+            // width + height in pixels
             int monitorWidth = mode->width;
             int monitorHeight = mode->height;
 
             glfwSetWindowSize(window, monitorWidth, monitorHeight);
-
-            // Set window in the center:
+            
             int xPos = (mode->width - monitorWidth) / 2;
             int yPos = (mode->height - monitorHeight) / 2;
             glfwSetWindowPos(window, xPos, yPos);
@@ -61,11 +60,7 @@ void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods
         }
         else {
             glfwSetWindowSize(window, oldWidth, oldHeight);
-
-            // Set window in the center:
-            int xPos = oldWidth / 2;
-            int yPos = oldWidth / 2;
-            glfwSetWindowPos(window, xPos, yPos);
+            glfwSetWindowPos(window, 0, 0);
 
             std::cout << "End Fullscreen!";
             fullscreen = false;

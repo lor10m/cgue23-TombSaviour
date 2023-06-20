@@ -3,24 +3,28 @@
 
 Camera::Camera() {}
 
-Camera::Camera(GLFWwindow* inputWindow, double fovStart, double aspect_ratioStart, double nearStart, double farStart, bool hdu) {
+Camera::Camera(GLFWwindow* inputWindow, double fovStart, double nearStart, double farStart, bool hdu) {
 	pitch = 0;
 	yaw = -90;
 	fov = fovStart;
-	aspect_ratio = aspect_ratioStart;
+	window = inputWindow;
+	aspect_ratio = calculateAspectRatio();
 	near = nearStart;
 	far = farStart;
-	window = inputWindow;
 	if (!hdu) {
 		perspectiveMatrix = (glm::mat4)glm::perspective(fov, aspect_ratio, near, far); // =transformMatrix
 	}
 	else {
 		calculateOrthogonalProjection();
 	}
-
 	registerMovementCallbacks(window);
 }
 
+double Camera::calculateAspectRatio() {
+	int width, height;
+	glfwGetWindowSize(window, &width, &height);
+	return double(width) / double(height);
+}
 void Camera::calculateOrthogonalProjection() {
 	int width, height;
 	glfwGetWindowSize(window, &width, &height);
@@ -57,14 +61,13 @@ void Camera::registerMovementCallbacks(GLFWwindow* window) {
 		});
 }
 
-void Camera::updateProjectionMatrix(float aspect_ration_new) {
-	aspect_ratio = aspect_ration_new;
+void Camera::updateProjectionMatrix(float aspect_ratio_new) {
+	aspect_ratio = aspect_ratio_new;
 	perspectiveMatrix = (glm::mat4)glm::perspective(fov, aspect_ratio, near, far);
 }
 
 void Camera::pollMousePosition(GLFWwindow* window, bool isShooterCamera) 
 {
-
 	int width, height;
 	glfwGetWindowSize(window, &width, &height);
 

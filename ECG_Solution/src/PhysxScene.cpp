@@ -59,7 +59,7 @@ PhysxScene::PhysxScene(GLFWwindow* window, int lifeNumber)
 		std::cerr << ("Failed to init cooking") << std::endl;
 	}
 
-	//lifeCnt = lifeNumber;
+	mummyLiveCount = lifeNumber;
 	//maxLifeNr = lifeNumber;
 
 }
@@ -90,7 +90,7 @@ void PhysxScene::createTerrain(const char* heightmapPath)
 
 	PxHeightField* heightField = cooking->createHeightField(heightFieldDesc, physics->getPhysicsInsertionCallback());
 	PxHeightFieldGeometry heightFieldGeom(heightField, PxMeshGeometryFlags(), 1.0f, 1.0f, 1.0f);
-	
+
 	PxTransform transform(PxVec3(-width / 2, 0.0f, -width / 2), PxQuat(PxIdentity));
 
 	PxMaterial* material = physics->createMaterial(0.5f, 0.5f, 0.1f);
@@ -141,8 +141,11 @@ void PhysxScene::createModel(const char* name, std::vector<unsigned int> indices
 
 	PxMaterial* material = physics->createMaterial(0.5f, 0.5f, 0.1f);
 	PxShape* shape = physics->createShape(geometry, *material);
+	if (name == "pyramid") {
+		PxShape* shape = physics->createShape(PxCapsuleGeometry(1, 1), *material);
+	}
 
-	PxTransform transform(PxVec3(translate.x, translate.y, translate.z), PxIdentity);
+	PxTransform transform(PxVec3(translate.x, translate.y, translate.z), PxIdentity);		// PxIdentity combinedQuat
 	shape->setLocalPose(transform);
 
 	PxRigidStatic* staticActor = physics->createRigidStatic(PxTransform(PxIdentity));
@@ -153,7 +156,6 @@ void PhysxScene::createModel(const char* name, std::vector<unsigned int> indices
 	staticActor->setName(name);
 
 	scene->addActor(*staticActor);
-
 };
 
 void PhysxScene::setCharacter(Character* character)
@@ -172,14 +174,14 @@ void PhysxScene::createCactus(unsigned int index, glm::vec3 size, glm::vec3 posi
 	PxMaterial* material = physics->createMaterial(0.5f, 0.5f, 0.1f);
 	PxShape* shape = physics->createShape(boxGeometry, *material);
 
-	PxRigidStatic* staticActor = physics->createRigidStatic(PxTransform(PxIdentity));
+	PxRigidDynamic* staticActor = physics->createRigidDynamic(PxTransform(PxIdentity));
 	staticActor->attachShape(*shape);
 	PxTransform transform(PxVec3(position.x, position.y, position.z), PxIdentity);
 	staticActor->setGlobalPose(transform);
 	staticActor->setName("cactus");
 	scene->addActor(*staticActor);
 
-	StaticActor cactus;
+	DynamicActor cactus;
 	cactus.index = index;
 	cactus.actor = staticActor;
 	cacti[index] = cactus;
@@ -210,6 +212,26 @@ void PhysxScene::createSpike(unsigned int index, glm::vec3 size, glm::vec3 posit
 	spike.actor = dynamicActor;
 	spikes[spikes.size()] = spike;
 
+}
+
+void PhysxScene::createTumbleweed(unsigned int index, glm::vec3 size, glm::vec3 position)
+{
+	//TODO calculate rotation
+
+	PxBoxGeometry boxGeometry(PxVec3(size.x, size.y, size.z));
+	PxMaterial* material = physics->createMaterial(0.5f, 0.5f, 0.1f);
+	PxShape* shape = physics->createShape(boxGeometry, *material);
+
+	PxRigidDynamic* dynamicActor = physics->createRigidDynamic(PxTransform(PxIdentity));
+
+	shape->setLocalPose(PxTransform(PxIdentity));
+	shape->setContactOffset(0.00001); // Distance to object at which collision is detected (/2)
+	//shape->setRestOffset(0.07);
+
+	dynamicActor->attachShape(*shape);
+
+	dynamicActor->setGlobalPose(PxTransform(PxIdentity));
+	dynamicActor->setName("tumbleweed");
 }
 
 void PhysxScene::simulate(GLFWwindow* window, Camera* camera, float timeStep, std::map<unsigned int, SpikeStruct>& spikeStruct, std::map<unsigned int, CactusStruct>& cactusStruct)
@@ -244,7 +266,10 @@ void PhysxScene::simulate(GLFWwindow* window, Camera* camera, float timeStep, st
 
 	actorsToRemove.clear();
 
-	for (auto& pair : cacti) {
+	for (auto& pair : cacti) 
+	{
+		glm::mat4 modelMat = cactusStruct[pair.second.index].modelMatrix;
+		cactusStruct[pair.second.index].modelMatrix[3][1] = pair.second.actor->getGlobalPose().p.y;
 		if (pair.second.isThrownOrPickedUp) {
 			cactusStruct.erase(pair.second.index);
 			cacti.erase(pair.second.index);
@@ -293,15 +318,15 @@ void PhysxScene::mouseButtonCallback(GLFWwindow* window, Camera* camera)
 
 void PhysxScene::pickUpNearestObject(Camera* camera)
 {
-	float pickUpDistance = 2.0f;
-	glm::vec3 mummyPos = mummy->getPosition();
+	float pickUpDistance = 4.0f;
+	glm::vec3 mummyPos = mummy->getFootPosition();
 
 	for (auto& pair : cacti)
 	{
-		PxRigidStatic* object = pair.second.actor;
+		PxRigidDynamic* object = pair.second.actor;
 		PxTransform objectPosition = object->getGlobalPose();
-		float distanceToMummy = sqrt(pow(objectPosition.p.x - mummyPos.x, 2) + pow(objectPosition.p.y - mummyPos.y, 2));
-
+		float distanceToMummy = sqrt(pow(objectPosition.p.x - mummyPos.x, 2) + pow(objectPosition.p.z - mummyPos.z, 2));
+		std::cout << distanceToMummy << std::endl;
 		if (distanceToMummy <= pickUpDistance && !pickedUp)
 		{
 			scene->removeActor(*object);
@@ -322,7 +347,7 @@ void PhysxScene::throwSpike(Camera* camera)
 {
 	pickedUpSpikes--;
 	hdu->updateSpikeCount(int(pickedUpSpikes));
-	
+
 	// Get one of the spikes
 	spikes[thrownSpikes].isThrownOrPickedUp = true;
 	PxRigidDynamic* object = spikes[thrownSpikes].actor;
@@ -366,34 +391,73 @@ void PhysxScene::onContact(const PxContactPairHeader& pairHeader, const PxContac
 
 		if (cp.events & PxPairFlag::eNOTIFY_TOUCH_FOUND)
 		{
-			std::cout << actor1->getName() << " " << actor2->getName() << std::endl;
-
 			// If spike hits something except us
-			if (actor1->getName() == "spike" && actor2->getName() != "mummy") 
+			if (actor1->getName() == "spike" && actor2->getName() != "mummy")
 			{
-				// Make sure to remove spike just once
-				if (std::find(actorsToRemove.begin(), actorsToRemove.end(), actor1) == actorsToRemove.end()) {
-					actorsToRemove.push_back(actor1);
-				}
+				// Make sure to remove spike just once		// TODO: DON'T remove spikes instantly
+				//if (std::find(actorsToRemove.begin(), actorsToRemove.end(), actor1) == actorsToRemove.end()) {
+				//	actorsToRemove.push_back(actor1);
+				//}
 				// Delete Enemy if it was hit by spike
 				if (actor2->userData != nullptr) {
 					enemiesToRemove.push_back((unsigned int)actor2->userData); //get the id from the enemy to remove correct one
 					std::cout << "hit enemy" << std::endl;
 				}
 			}
-			else if (actor2->getName() == "spike" && actor1->getName() != "mummy") 
+			else if (actor2->getName() == "spike" && actor1->getName() != "mummy")
 			{
-				actorsToRemove.push_back(actor2); 
+				actorsToRemove.push_back(actor2);
 				// Delete Enemy if it was hit by spike
 				if (actor2->userData != nullptr) {
 					std::cout << "hit enemy" << std::endl;
 					enemiesToRemove.push_back((unsigned int)actor1->userData);
 				}
 			}
+			else if ((actor2->getName() == "treasureChest" && actor1->getName() == "mummy")
+				|| (actor1->getName() == "treasureChest" && actor2->getName() == "mummy")) {
+				// ALL ENEMIES DEAD + touching treasure chest:
+				if (allEnemiesDead) {
+					hdu->showBigScreen("winEndscreen");
+				}
+				std::cout << "touched treasure chest!";
+			}
+			else if ((actor2->getName() == "treasureChest" && actor1->getName() == "mummy")) {
+				// ALL ENEMIES DEAD + touching treasure chest:
+				if (allEnemiesDead) {
+					hdu->showBigScreen("winEndscreen");
+				}
+				std::cout << "touched treasure chest! 2";
+			}
+			else if ((actor1->getName() == "treasureChest" && actor2->getName() == "mummy")) {
+				// ALL ENEMIES DEAD + touching treasure chest:
+				if (allEnemiesDead) {
+					hdu->showBigScreen("winEndscreen");
+				}
+				std::cout << "touched treasure chest! 3";
+			}
 		}
 	}
-
 }
+
+//bool PhysxScene::enemiesRemaining() {		// TODO: delete this because boolean is set in Object
+//
+//	PxU32 allAcctors = scene->getNbActors(PxActorTypeFlag::eRIGID_DYNAMIC);
+//	if (allAcctors == 0) {
+//		return false;
+//	}
+//
+//	std::vector<PxActor*> actors(allAcctors);
+//	scene->getActors(PxActorTypeFlag::eRIGID_DYNAMIC, reinterpret_cast<PxActor**>(&actors[0]), allAcctors);
+//
+//	for (PxU32 i = 0; i < allAcctors; i++) {
+//		PxRigidActor* actor = static_cast<PxRigidActor*>(actors[i]);
+//		if (actor->getName() == "enemy")
+//		{
+//			return true;
+//		}
+//	}
+//	return false;
+//}
 
 void PhysxScene::onTrigger(PxTriggerPair* pairs, PxU32 count)
 {
@@ -414,8 +478,10 @@ unsigned int PhysxScene::getMummyLiveCount() {
 
 void PhysxScene::decreaseMummyLive()
 {
-	if (mummyLiveCount == 0) {
+	if (mummyLiveCount == 1) {
+		mummyLiveCount--;
 		hdu->showBigScreen("loseEndscreen");
+		std::cout << "\nMuhahah you lost! >:( \n " << std::endl;
 	}
 	else {
 		mummyLiveCount--;

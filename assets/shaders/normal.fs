@@ -13,7 +13,7 @@ uniform sampler2D shadowMap;
 
 uniform vec3 eyePos; //cameraPos
 
-uniform bool invertNormals = false;
+uniform bool invertNormals = true;
 uniform bool disableAttenuation = false;
 uniform bool normalMapping = true;
 
@@ -46,13 +46,12 @@ void main()
 		normal = texture(normalTexture, interpTextCoords).rgb;
 		normal = normalize(2.0f * normal - 1.0f);
 		normal = normalize(TBN * normal);
+		normal = invertNormals ? -normal : normal;
 	} 
 	else 
 	{
 		normal = normalize(fragNormal);			
 	}
-	
-	normal = invertNormals ? -normal : normal;
 
 	vec3 ambientLight = light.ambientIntensity;// * vec3(texture(diffuseTexture, interpTextCoords));
 	vec3 toLight = normalize(light.position - fragPos);

@@ -19,7 +19,8 @@ private:
     glm::mat4 projectionMatrixHDU;
 
 public:
-    double fov, aspect_ratio, near, far = 0.0;
+    double aspect_ratio = 1.92;
+    double fov, near, far = 0.0;
     double viewSpeed = 0.5;
     glm::vec3 cameraPosition{ 0.0f, 30.0f, 0.0f };
     glm::vec3 cameraFront{ 0.0f, 0.0f, -1.0f};      //if not negative WASD would start in opposite directions
@@ -28,8 +29,10 @@ public:
     GLFWwindow* window;
 
     Camera::Camera();
-    Camera(GLFWwindow* window, double fov, double aspect_ratio, double near, double far, bool hdu);
+    Camera(GLFWwindow* window, double fov, double near, double far, bool hdu);
     
+    double calculateAspectRatio();
+
     void calculateOrthogonalProjection();
 
     static glm::mat4 getCameraTransform(glm::vec3 g, glm::vec3 e, glm::vec3 t);

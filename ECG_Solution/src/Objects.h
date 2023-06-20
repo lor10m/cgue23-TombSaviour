@@ -47,6 +47,7 @@ private:
 	Model pyramid;
 	Model videoWall;
 	Model pointLightCube;
+	Model treasureChest;
 
 	unsigned int vao;
 	unsigned int vbo;
@@ -64,6 +65,8 @@ private:
 	Shader spikeShader;
 	Shader videoWallShader;
 	Shader lightCubeShader;
+	Shader treasureChestShader;
+	Transform treasureChestTransform;
 
 	Character mummy;
 	Texture cactusTexture;
@@ -75,6 +78,7 @@ private:
 	//Enemy enemy;
 
 	unsigned int spikeCounter = 0;
+	unsigned int tumbleweedCounter = 0;
 	unsigned int cactiCounter = 0;
 	unsigned int enemyCounter = 1; // has to start at 1 because 0 can't be used for enemy's pxChar userData
 
@@ -84,16 +88,20 @@ private:
 
 	//std::map<unsigned int, EnemyStruct> enemies;
 	std::map<unsigned int, SpikeStruct> spikes;
+	std::map<unsigned int, TumbleweedStruct> tumbleweeds;
 	std::map<unsigned int, CactusStruct> cacti;
 	
 	unsigned int numEnemies = 1;
 	unsigned int numCacti = 3;
 	unsigned int numSpikes = 10 * numCacti;
 	void createSpike();
+	void createTumbleweed();
 
 	double physxDeltaTime = 0.0;
+	float elapsedTime = 0.0f;
 
-	void renderTestCube(bool normalMapping, Shader& shader);
+	void renderTestCube(bool normalMapping);
+	void renderTreasureChest(bool normalMapping);
 
 	void renderShadowMap(Model& model, glm::mat4 modelMatrix);
 	void renderModel(Model* model, glm::mat4 modelMatrix, Shader* shader);
@@ -117,6 +125,8 @@ public:
 	void createTestCube();
 	void createHduObject(GLFWwindow* window);
 	void createVideoWall();
+	void createTreasureChest();
+	
 	void deleteObjects();
 	void createCactus(glm::vec3 position);
 
