@@ -11,7 +11,7 @@ uniform sampler2D specularTexture;
 
 uniform vec3 eyePos; //cameraPos
 
-uniform bool invertNormals = false;
+uniform bool invertNormals = true;
 uniform bool disableAttenuation = false;
 uniform bool normalMapping = true;
 
@@ -44,13 +44,12 @@ void main()
 		normal = texture(normalTexture, interpTextCoords).rgb;
 		normal = normalize(2.0f * normal - 1.0f);
 		normal = normalize(TBN * normal);
+		normal = invertNormals ? -normal : normal;
 	} 
 	else 
 	{
 		normal = normalize(fragNormal);			
 	}
-	
-	normal = invertNormals ? -normal : normal;
 
 	vec3 diffuseLight = max(dot(toLight, normal), 0) * light.diffuseIntensity * vec3(texture(diffuseTexture, interpTextCoords));
 

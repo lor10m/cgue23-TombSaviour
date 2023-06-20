@@ -1,4 +1,6 @@
 #include "Objects.h"
+#include <cstdlib>
+#include <ctime>
 
 Objects::Objects(GLFWwindow* window, Camera* camera, PhysxScene* physxScene)
 {
@@ -27,15 +29,22 @@ Objects::Objects(GLFWwindow* window, Camera* camera, PhysxScene* physxScene)
 	cactusShader.setUniform1i("isAnimated", 0);
 	cactusTexture.genTexture("assets/textures/cactus.jpg");
 
+	std::srand(static_cast<unsigned int>(std::time(nullptr)));
+
 	for (unsigned int i = 0; i < numCacti; i++) {
-		createCactus(glm::vec3(46.0f + 4 * i, 40.0f, -26 + i * 2.0f));
+		float randomX = static_cast<float>(std::rand() % 1021 - 510);
+		float randomZ = static_cast<float>(std::rand() % 1021 - 510);
+		createCactus(glm::vec3(randomX, 100.0f, randomZ));
+		std::cout << randomX << " Z: " << randomZ << std::endl;
 	}
+	createCactus(glm::vec3(46.0f, 40.0f, -26));	// one fixed cactus
 
 	spikeShader.createPhongShader(glm::mat4(0.0f), 0.1f, 0.7f, 0.1f, 2);
 	spikeShader.setUniform1i("isAnimated", 0);
 
 	for (unsigned int i = 0; i < numSpikes; i++) {
 		createSpike();
+
 	}
 
 	createHduObject(window);
@@ -116,13 +125,13 @@ void Objects::createPalmTree()
 void Objects::createPyramid()
 {
 	glm::vec3 pyramidRotate = glm::vec3(glm::radians(0.0f), glm::radians(0.0f), glm::radians(0.0f));
-	glm::vec3 pyramidScale = glm::vec3(40, 35, 40);
+	glm::vec3 pyramidScale = glm::vec3(40, 45, 40);
 	glm::vec3 pyramidTranslate = glm::vec3(-20.0, 31.6, 65.0);	// 31.6
 	Transform pyramidTransform;
 	pyramidTransform.translate(pyramidTranslate);
 	pyramidTransform.rotate(pyramidRotate);
 	pyramidTransform.scale(pyramidScale);
-	pyramid.generateModel("assets/objects/pyramid_final1.obj"); //pyramid1	untitled5.obj
+	pyramid.generateModel("assets/objects/pyramid_final1.obj"); //pyramid1	untitled5.obj		// pyramid_final1.obj
 
 	pyramidShader.createPhongShader("assets/textures/sandklein.dds", "assets/textures/sandklein.dds", pyramidTransform.getMatrix(), 0.05f, 0.8f, 1.0f, 1.0f);
 	pyramidShader.setUniform1i("isAnimated", 0);
@@ -166,7 +175,7 @@ void Objects::createHduObject(GLFWwindow* window)
 void Objects::createVideoWall() {
 	glm::vec3 videoWallRotate = glm::vec3(glm::radians(90.0f), glm::radians(-90.0f), glm::radians(0.0f));
 	glm::vec3 videoWallScale = glm::vec3(80, 80, 80);
-	glm::vec3 videoWallTranslate = glm::vec3(-20.0, 49.05, 65.0);
+	glm::vec3 videoWallTranslate = glm::vec3(-20.0, 54.05, 65.0);
 	Transform videoWallTransform;
 	videoWallTransform.translate(videoWallTranslate);
 	videoWallTransform.rotate(videoWallRotate);
@@ -430,7 +439,7 @@ void Objects::createTestCube()
 
 void Objects::createTreasureChest() {
 	glm::vec3 chestRotate = glm::vec3(glm::radians(0.0f), glm::radians(0.0f), glm::radians(0.0f));
-	glm::vec3 chestScale = glm::vec3(2, 2, 2);
+	glm::vec3 chestScale = glm::vec3(3, 3, 3);
 	glm::vec3 chestTranslate = glm::vec3(108.0, 29, -43.0);
 
 	treasureChestTransform.translate(chestTranslate);
@@ -465,11 +474,7 @@ void Objects::renderTreasureChest(bool normalMapping) {
 	treasureChestShader.setUniform1i("invertNormals", false);
 	treasureChestShader.setUniform1i("normalMapping", normalMapping);
 
-	glBindVertexArray(vao);
-	glDrawArrays(GL_TRIANGLES, 0, 36);
-	glBindVertexArray(0);
-	std::cout << "render treasure chest!" << std::endl;
-
+	treasureChest.draw(&treasureChestShader);
 }
 
 void Objects::renderTestCube(bool normalMapping)

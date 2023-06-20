@@ -298,8 +298,8 @@ void PhysxScene::mouseButtonCallback(GLFWwindow* window, Camera* camera)
 
 void PhysxScene::pickUpNearestObject(Camera* camera)
 {
-	float pickUpDistance = 2.0f;
-	glm::vec3 mummyPos = mummy->getPosition();
+	float pickUpDistance = 4.0f;
+	glm::vec3 mummyPos = mummy->getFootPosition();
 
 	for (auto& pair : cacti)
 	{
@@ -374,10 +374,10 @@ void PhysxScene::onContact(const PxContactPairHeader& pairHeader, const PxContac
 			// If spike hits something except us
 			if (actor1->getName() == "spike" && actor2->getName() != "mummy")
 			{
-				// Make sure to remove spike just once		// TODO DON'T remove spikes instantly
-				if (std::find(actorsToRemove.begin(), actorsToRemove.end(), actor1) == actorsToRemove.end()) {
-					actorsToRemove.push_back(actor1);
-				}
+				// Make sure to remove spike just once		// TODO: DON'T remove spikes instantly
+				//if (std::find(actorsToRemove.begin(), actorsToRemove.end(), actor1) == actorsToRemove.end()) {
+				//	actorsToRemove.push_back(actor1);
+				//}
 				// Delete Enemy if it was hit by spike
 				if (actor2->userData != nullptr) {
 					enemiesToRemove.push_back((unsigned int)actor2->userData); //get the id from the enemy to remove correct one
@@ -393,11 +393,27 @@ void PhysxScene::onContact(const PxContactPairHeader& pairHeader, const PxContac
 					enemiesToRemove.push_back((unsigned int)actor1->userData);
 				}
 			}
-			else if (actor2->getName() == "treasureChest" && actor1->getName() == "mummy") {
+			else if ((actor2->getName() == "treasureChest" && actor1->getName() == "mummy")
+				|| (actor1->getName() == "treasureChest" && actor2->getName() == "mummy")) {
 				// ALL ENEMIES DEAD + touching treasure chest:
 				if (allEnemiesDead) {
 					hdu->showBigScreen("winEndscreen");
 				}
+				std::cout << "touched treasure chest!";
+			}
+			else if ((actor2->getName() == "treasureChest" && actor1->getName() == "mummy")) {
+				// ALL ENEMIES DEAD + touching treasure chest:
+				if (allEnemiesDead) {
+					hdu->showBigScreen("winEndscreen");
+				}
+				std::cout << "touched treasure chest! 2";
+			}
+			else if ((actor1->getName() == "treasureChest" && actor2->getName() == "mummy")) {
+				// ALL ENEMIES DEAD + touching treasure chest:
+				if (allEnemiesDead) {
+					hdu->showBigScreen("winEndscreen");
+				}
+				std::cout << "touched treasure chest! 3";
 			}
 		}
 	}

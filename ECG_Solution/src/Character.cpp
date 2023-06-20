@@ -48,7 +48,7 @@ void Character::pollInput(GLFWwindow* window, float dt) {
 		superSpeed = false;
 	}
 	if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS) {
-		charSpeed = 20;
+		charSpeed = 40;
 		superSpeed = true;
 		printPosition();
 		//std::cout << "Aspect ratio: " << playerCamera->aspect_ratio << std::endl;
@@ -65,16 +65,36 @@ void Character::setPosition() {
 	charPosition.y = pos.y;
 	charPosition.z = pos.z;
 
+	if (charPosition.x >= 510.0)
+		charPosition.x = 510.0;
+	else if (charPosition.x <= -510.0)
+		charPosition.x = -510.0;
+
+	if (charPosition.z >= 510.0)
+		charPosition.z = 510.0;
+	else if (charPosition.z <= -510.0)
+		charPosition.z = -510.0;
+
+	pxChar->setPosition(physx::PxExtendedVec3(charPosition.x, charPosition.y, charPosition.z));
 	playerCamera->setCameraPosition(glm::vec3(charPosition.x, charPosition.y, charPosition.z));
 
 	//printPosition();
 }
+
 PxRigidDynamic* Character::getActor() {
 	return pxChar->getActor();
 }
 
 glm::vec3 Character::getPosition() {
 	return charPosition;
+}
+
+glm::vec3 Character::getFootPosition() {
+	physx::PxExtendedVec3 pos = pxChar->getFootPosition(); //getFootPosition()
+	float x = pos.x;
+	float y = pos.y;
+	float z = pos.z;
+	return glm::vec3(x,y,z);
 }
 
 void Character::getBackToStart() {		// get back to start position with "B"
