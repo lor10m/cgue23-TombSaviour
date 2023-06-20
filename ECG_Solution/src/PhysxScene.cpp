@@ -187,14 +187,12 @@ void PhysxScene::createCactus(unsigned int index, glm::vec3 size, glm::vec3 posi
 	cacti[index] = cactus;
 }
 
-void PhysxScene::createSpike(unsigned int index, glm::vec3 size, glm::vec3 position)
-{
+void PhysxScene::createSpike(unsigned int index, glm::vec3 size, glm::vec3 position) {
 	//TODO calculate rotation
 
 	PxBoxGeometry boxGeometry(PxVec3(size.x, size.y, size.z));
 	PxMaterial* material = physics->createMaterial(0.5f, 0.5f, 0.1f);
 	PxShape* shape = physics->createShape(boxGeometry, *material);
-
 
 	PxRigidDynamic* dynamicActor = physics->createRigidDynamic(PxTransform(PxIdentity));
 
@@ -214,10 +212,7 @@ void PhysxScene::createSpike(unsigned int index, glm::vec3 size, glm::vec3 posit
 
 }
 
-void PhysxScene::createTumbleweed(unsigned int index, glm::vec3 size, glm::vec3 position)
-{
-	//TODO calculate rotation
-
+void PhysxScene::createTumbleweed(unsigned int index, glm::vec3 size, glm::vec3 position) {
 	PxBoxGeometry boxGeometry(PxVec3(size.x, size.y, size.z));
 	PxMaterial* material = physics->createMaterial(0.5f, 0.5f, 0.1f);
 	PxShape* shape = physics->createShape(boxGeometry, *material);
@@ -230,8 +225,11 @@ void PhysxScene::createTumbleweed(unsigned int index, glm::vec3 size, glm::vec3 
 
 	dynamicActor->attachShape(*shape);
 
+	PxTransform transform(PxVec3(position.x, position.y, position.z), PxIdentity);
 	dynamicActor->setGlobalPose(PxTransform(PxIdentity));
 	dynamicActor->setName("tumbleweed");
+
+	scene->addActor(*dynamicActor);
 }
 
 void PhysxScene::simulate(GLFWwindow* window, Camera* camera, float timeStep, std::map<unsigned int, SpikeStruct>& spikeStruct, std::map<unsigned int, CactusStruct>& cactusStruct)
@@ -279,38 +277,38 @@ void PhysxScene::simulate(GLFWwindow* window, Camera* camera, float timeStep, st
 
 }
 
-
-//TODO make mouseButtonCallback instead
 void PhysxScene::mouseButtonCallback(GLFWwindow* window, Camera* camera)
 {
 	// PICK UP CACTUS
-	if (glfwGetKey(window, GLFW_KEY_9) == GLFW_PRESS)
-	{
-		if (mouse_left_released) {
-			std::cout << "pick up object" << std::endl;
-			pickUpNearestObject(camera);
-			mouse_left_pressed = true;
-			mouse_left_released = false;
-		}
-
-	}
-	// THROW SPIKE
-	if (glfwGetKey(window, GLFW_KEY_0) == GLFW_PRESS)
+	if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_RIGHT) == GLFW_PRESS)
 	{
 		if (mouse_right_released) {
-			std::cout << "throw object" << std::endl;
+			std::cout << "pick up object" << std::endl;
+			pickUpNearestObject(camera);
 			mouse_right_pressed = true;
 			mouse_right_released = false;
-			if (pickedUpSpikes > 0) {
-				throwSpike(camera);
+		}
+	}
+	// THROW SPIKE
+	if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS)
+	{
+		if (mouse_left_released) {
+			if ((glfwGetTime() - lastThrowTime) >= throwCooldown) {
+				std::cout << "throw object" << std::endl;
+				mouse_left_pressed = true;
+				mouse_left_released = false;
+				if (pickedUpSpikes > 0) {
+					throwSpike(camera);
+				}
+				lastThrowTime = glfwGetTime();
 			}
 		}
 	}
-	if (glfwGetKey(window, GLFW_KEY_0) == GLFW_RELEASE) {
+	if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_RIGHT) == GLFW_RELEASE) {
 		mouse_right_released = true;
 		mouse_right_pressed = false;
 	}
-	if (glfwGetKey(window, GLFW_KEY_9) == GLFW_RELEASE) {
+	if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_RELEASE) {
 		mouse_left_released = true;
 		mouse_left_pressed = false;
 	}

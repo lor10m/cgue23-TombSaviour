@@ -65,6 +65,8 @@ private:
 
 	std::vector<PxActor*> actorsToRemove;
 
+	double lastThrowTime = 0.0;
+	const double throwCooldown = 2.0;
 
 public:
 	PxMaterial* material = NULL;

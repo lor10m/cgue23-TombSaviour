@@ -22,28 +22,33 @@ Objects::Objects(GLFWwindow* window, Camera* camera, PhysxScene* physxScene)
 
 	// Create Enemies
 	for (unsigned int i = 0; i < numEnemies; i++) {
-		createEnemy(glm::vec3(165 + i * 6, 24.0f, -95.0f));		// TODO: why is enemy flying? 
+		createEnemy(glm::vec3(165 + i * 6, 24.0f, -95.0f));
 	}
 
 	cactusShader.createPhongShader(glm::mat4(0.0f), 0.1f, 1.0f, 0.1f, 2);
 	cactusShader.setUniform1i("isAnimated", 0);
 	cactusTexture.genTexture("assets/textures/cactus.jpg");
 
-	std::srand(static_cast<unsigned int>(std::time(nullptr)));
+	std::srand(static_cast<unsigned int>(std::time(nullptr)));	// TODO: needed?
 
 	for (unsigned int i = 0; i < numCacti; i++) {
 		float randomX = static_cast<float>(std::rand() % 1021 - 510);
 		float randomZ = static_cast<float>(std::rand() % 1021 - 510);
 		createCactus(glm::vec3(randomX, 100.0f, randomZ));
-		std::cout << randomX << " Z: " << randomZ << std::endl;
+		//std::cout << randomX << " Z: " << randomZ << std::endl;
 	}
 	createCactus(glm::vec3(46.0f, 40.0f, -26));	// one fixed cactus
 
 	spikeShader.createPhongShader(glm::mat4(0.0f), 0.1f, 0.7f, 0.1f, 2);
 	spikeShader.setUniform1i("isAnimated", 0);
-
 	for (unsigned int i = 0; i < numSpikes; i++) {
 		createSpike();
+	}
+
+	tumbleweedShader.createPhongShader(glm::mat4(0.0f), 0.1f, 0.7f, 0.1f, 1);
+	tumbleweedShader.setUniform1i("isAnimated", 0);
+	for (unsigned int i = 0; i < numTumbleweeds; i++) {
+		createTumbleweed();
 	}
 
 	createHduObject(window);
@@ -164,14 +169,14 @@ void Objects::createSpike()
 
 void Objects::createTumbleweed()
 {
-	//Model* tumbleWeedModel = new Model();
-	//TumbleweedStruct tumbleweedStruct;
-	//tumbleweedStruct.model = tumbleWeedModel;
+	Model* tumbleWeedModel = new Model();
+	TumbleweedStruct tumbleweedStruct;
+	tumbleweedStruct.model = tumbleWeedModel;
 
-	//tumbleWeedModel->generateModel("assets/objects/tumbleweed.glb");
-	//physxScene->createTumbleweed(tumbleweedCounter, tumbleWeedModel->modelSize * glm::vec3(0.1f, 0.1f, 0.1f), glm::vec3(10.0f, 26.64f, 0.0f));
-	//tumbleweeds[tumbleweedCounter] = tumbleWeedModel;		// TODO: why not working??
-	//tumbleweedCounter++;
+	tumbleWeedModel->generateModel("assets/objects/tumbleweed.glb");
+	physxScene->createTumbleweed(tumbleweedCounter, tumbleWeedModel->modelSize * glm::vec3(1.0f, 1.0f, 1.0f), glm::vec3(112.0f, 35.0f, -45));
+	tumbleweeds[tumbleweedCounter] = tumbleweedStruct;
+	tumbleweedCounter++;
 }
 
 void Objects::createHduObject(GLFWwindow* window)
@@ -207,7 +212,7 @@ void Objects::render(GLFWwindow* window, float currentTime, float dt, bool norma
 	glm::mat4 viewMatrix = camera->getTransformMatrix();
 
 	// simulate physx
-	physxScene->simulate(window, camera, (1.0f / 40.0f), spikes, cacti);
+	physxScene->simulate(window, camera, (1.0f / 40.0f), spikes, cacti);		// TODO: why time step 1/40??
 
 	//render enemies
 	std::vector<unsigned int> enemiesToRemove = physxScene->enemiesToRemove; //get enemies that have been hit 
@@ -288,6 +293,18 @@ void Objects::render(GLFWwindow* window, float currentTime, float dt, bool norma
 			spikeShader.setUniform3f("eyePos", camera->cameraPosition.x, camera->cameraPosition.y, camera->cameraPosition.z);
 			pair.second.model->draw(&spikeShader);
 		}
+	}
+
+	for (const auto& pair : tumbleweeds) {
+		Transform t;
+		t.translate(pair.second.translate);
+		t.rotate(pair.second.rotate);
+		t.scale(pair.second.scale);
+		tumbleweedShader.setUniformMatrix4fv("modelMatrix", 1, GL_FALSE, t.getMatrix());
+		tumbleweedShader.setUniformMatrix4fv("viewMatrix", 1, GL_FALSE, camera->getTransformMatrix());
+		tumbleweedShader.setUniform3f("eyePos", camera->cameraPosition.x, camera->cameraPosition.y, camera->cameraPosition.z);
+		pair.second.model->draw(&tumbleweedShader);
+		//std::cout << "render Tumbleweed!" << std::endl;
 	}
 
 	//renderTestCube(normalMapping);

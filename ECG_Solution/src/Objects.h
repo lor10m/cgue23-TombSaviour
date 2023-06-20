@@ -48,6 +48,7 @@ private:
 	Shader pyramidShader;
 	Shader cactusShader;
 	Shader spikeShader;
+	Shader tumbleweedShader;
 	Shader videoWallShader;
 	Shader lightCubeShader;
 	Shader treasureChestShader;
@@ -78,7 +79,8 @@ private:
 	
 	unsigned int numEnemies = 1;
 	unsigned int numCacti = 3;
-	unsigned int numSpikes = 10 * numCacti;
+	unsigned int numSpikes = 10 * numCacti;	// TODO: shouldn't this be 5?
+	unsigned int numTumbleweeds = 1;
 	void createSpike();
 	void createTumbleweed();
 
