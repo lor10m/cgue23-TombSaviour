@@ -16,7 +16,7 @@ Objects::Objects(GLFWwindow* window, Camera* camera, PhysxScene* physxScene)
 	createPointLightCube();
 	
 	
-	createTestCube();
+	//createTestCube();
 
 	createShadowMap();
 
