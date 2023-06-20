@@ -44,7 +44,6 @@ Objects::Objects(GLFWwindow* window, Camera* camera, PhysxScene* physxScene)
 
 	for (unsigned int i = 0; i < numSpikes; i++) {
 		createSpike();
-
 	}
 
 	createHduObject(window);
@@ -150,8 +149,6 @@ void Objects::createPointLightCube()
 	lightCubeShader.setUniform1i("isAnimated", 0);
 }
 
-
-//TODO delete when collision
 void Objects::createSpike()
 {
 	Model* spikeModel = new Model();
@@ -163,7 +160,18 @@ void Objects::createSpike()
 	physxScene->createSpike(spikeCounter, spikeModel->modelSize * glm::vec3(0.1f, 0.1f, 0.1f), glm::vec3(10.0f, 26.64f, 0.0f));
 	spikes[spikeCounter] = spikeStruct;
 	spikeCounter++;
+}
 
+void Objects::createTumbleweed()
+{
+	//Model* tumbleWeedModel = new Model();
+	//TumbleweedStruct tumbleweedStruct;
+	//tumbleweedStruct.model = tumbleWeedModel;
+
+	//tumbleWeedModel->generateModel("assets/objects/tumbleweed.glb");
+	//physxScene->createTumbleweed(tumbleweedCounter, tumbleWeedModel->modelSize * glm::vec3(0.1f, 0.1f, 0.1f), glm::vec3(10.0f, 26.64f, 0.0f));
+	//tumbleweeds[tumbleweedCounter] = tumbleWeedModel;		// TODO: why not working??
+	//tumbleweedCounter++;
 }
 
 void Objects::createHduObject(GLFWwindow* window)

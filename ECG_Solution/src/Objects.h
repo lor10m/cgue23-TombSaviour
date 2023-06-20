@@ -63,6 +63,7 @@ private:
 	//Enemy enemy;
 
 	unsigned int spikeCounter = 0;
+	unsigned int tumbleweedCounter = 0;
 	unsigned int cactiCounter = 0;
 	unsigned int enemyCounter = 1; // has to start at 1 because 0 can't be used for enemy's pxChar userData
 
@@ -72,12 +73,14 @@ private:
 
 	//std::map<unsigned int, EnemyStruct> enemies;
 	std::map<unsigned int, SpikeStruct> spikes;
+	std::map<unsigned int, TumbleweedStruct> tumbleweeds;
 	std::map<unsigned int, CactusStruct> cacti;
 	
 	unsigned int numEnemies = 1;
 	unsigned int numCacti = 3;
 	unsigned int numSpikes = 10 * numCacti;
 	void createSpike();
+	void createTumbleweed();
 
 	double physxDeltaTime = 0.0;
 	float elapsedTime = 0.0f;

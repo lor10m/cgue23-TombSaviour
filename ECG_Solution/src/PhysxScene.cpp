@@ -214,6 +214,26 @@ void PhysxScene::createSpike(unsigned int index, glm::vec3 size, glm::vec3 posit
 
 }
 
+void PhysxScene::createTumbleweed(unsigned int index, glm::vec3 size, glm::vec3 position)
+{
+	//TODO calculate rotation
+
+	PxBoxGeometry boxGeometry(PxVec3(size.x, size.y, size.z));
+	PxMaterial* material = physics->createMaterial(0.5f, 0.5f, 0.1f);
+	PxShape* shape = physics->createShape(boxGeometry, *material);
+
+	PxRigidDynamic* dynamicActor = physics->createRigidDynamic(PxTransform(PxIdentity));
+
+	shape->setLocalPose(PxTransform(PxIdentity));
+	shape->setContactOffset(0.00001); // Distance to object at which collision is detected (/2)
+	//shape->setRestOffset(0.07);
+
+	dynamicActor->attachShape(*shape);
+
+	dynamicActor->setGlobalPose(PxTransform(PxIdentity));
+	dynamicActor->setName("tumbleweed");
+}
+
 void PhysxScene::simulate(GLFWwindow* window, Camera* camera, float timeStep, std::map<unsigned int, SpikeStruct>& spikeStruct, std::map<unsigned int, CactusStruct>& cactusStruct)
 {
 	scene->simulate(timeStep);

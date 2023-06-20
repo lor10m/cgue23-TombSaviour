@@ -88,6 +88,7 @@ public:
 	void setHDU(Hdu* hduObj);
 	void createCactus(unsigned int index, glm::vec3 size, glm::vec3 position);
 	void createSpike(unsigned int index, glm::vec3 size, glm::vec3 position);
+	void createTumbleweed(unsigned int index, glm::vec3 size, glm::vec3 position);
 
 	void throwSpike(Camera* camera);
 	void pickUpObject(Camera* camera, PxRigidDynamic* object);

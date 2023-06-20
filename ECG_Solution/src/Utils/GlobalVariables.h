@@ -10,6 +10,13 @@ struct SpikeStruct {
 	bool render;
 };
 
+struct TumbleweedStruct {
+	Model* model = NULL;
+	glm::vec3 scale;
+	glm::vec3 translate;
+	glm::vec3 rotate;
+};
+
 struct CactusStruct {
 	Model* model = NULL;
 	glm::mat4 modelMatrix;
