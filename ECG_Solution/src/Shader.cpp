@@ -234,8 +234,8 @@ void Shader::createTerrainShader(const char* fragmentShaderPath, const char* tes
 	glDeleteShader(tessControlShader);
 	glDeleteShader(tessEvalShader);
 
-	setUniform1f("ka", 0.2);
-	setUniform1f("kd", 2.8);
+	setUniform1f("ka", 0.0);
+	setUniform1f("kd", 1.0);
 	setUniform1f("ks", 0.3);
 	setUniform1i("alpha", 64);
 

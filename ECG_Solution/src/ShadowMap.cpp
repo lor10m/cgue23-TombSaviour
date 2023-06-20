@@ -36,7 +36,7 @@ void ShadowMap::create()
 	// Matrices needed for the light's perspective
 
 	lightColor = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f); //nicht verwendet im shader
-	lightPos = glm::vec3(-1.2f, 29.0f, 2.0f);
+	lightPos = glm::vec3(0.01f, 30.0f, 0.0f);
 	glm::mat4 orthgonalProjection = glm::ortho(-10.0f, 10.0f, -10.0f, 10.0f, 1.0f, 7.5f);
 	glm::mat4 lightView = glm::lookAt(lightPos, glm::vec3(0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
 	lightSpaceMatrix = orthgonalProjection * lightView;
@@ -52,7 +52,7 @@ void ShadowMap::create()
 void ShadowMap::render(glm::mat4 viewMatrix, glm::vec3 eyePos)
 {
 
-	glEnable(GL_CULL_FACE);
+	//glEnable(GL_CULL_FACE);
 
 	// 1. render depth of scene to texture (from light's perspective)
 	// --------------------------------------------------------------
@@ -99,32 +99,32 @@ void ShadowMap::render(glm::mat4 viewMatrix, glm::vec3 eyePos)
 
 void ShadowMap::renderScene(Shader& shader, bool cull)
 {
-	glDisable(GL_CULL_FACE);
+	//glDisable(GL_CULL_FACE);
 
 	// floor
 	glm::mat4 model = glm::mat4(1.0f);
-	model = glm::translate(model, glm::vec3(0.0f, 25.64, 0.0));
-	shader.setUniformMatrix4fv("modelMatrix", 1, GL_FALSE, model);
-	glBindVertexArray(planeVAO);
-	glDrawArrays(GL_TRIANGLES, 0, 6);
-	glBindVertexArray(0); //TODO Maybe not
+	//model = glm::translate(model, glm::vec3(0.0f, 25.64, 0.0));
+	//shader.setUniformMatrix4fv("modelMatrix", 1, GL_FALSE, model);
+	//glBindVertexArray(planeVAO);
+	//glDrawArrays(GL_TRIANGLES, 0, 6);
+	//glBindVertexArray(0); //TODO Maybe not
 
 
-	if (cull) {
-		glEnable(GL_CULL_FACE);
-		glCullFace(GL_FRONT);
-	}
+	//if (cull) {
+	//	glEnable(GL_CULL_FACE);
+	//	glCullFace(GL_FRONT);
+	//}
 
 	// cubes
 	model = glm::mat4(1.0f);
-	model = glm::translate(model, glm::vec3(0.0f, 1.5f + 25.64, 0.0));
+	model = glm::translate(model, glm::vec3(0.0f, 25.64, 0.0));
 	model = glm::scale(model, glm::vec3(0.5f));
 	shader.setUniformMatrix4fv("modelMatrix", 1, GL_FALSE, model);
 	renderCube();
 
 
 	model = glm::mat4(1.0f);
-	model = glm::translate(model, glm::vec3(2.0f, 0.0f + 25.64, 1.0));
+	model = glm::translate(model, glm::vec3(0.5f, 3.0f + 25.64, 0.0));
 	model = glm::scale(model, glm::vec3(0.5f));
 	shader.setUniformMatrix4fv("modelMatrix", 1, GL_FALSE, model);
 	renderCube();

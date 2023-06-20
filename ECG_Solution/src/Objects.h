@@ -38,6 +38,9 @@ private:
 	unsigned int SHADOW_HEIGHT = 2048;
 	unsigned int depthMapFBO;
 	unsigned int depthMap;
+	glm::vec3 lightPos;
+	glm::mat4 lightSpaceMatrix;
+
 	Shader depthShader;
 	Terrain terrain;
 	Model palmTree;
@@ -91,6 +94,15 @@ private:
 	double physxDeltaTime = 0.0;
 
 	void renderTestCube(bool normalMapping, Shader& shader);
+
+	void renderShadowMap(Model& model, glm::mat4 modelMatrix);
+	void renderModel(Model* model, glm::mat4 modelMatrix, Shader* shader);
+
+	glm::mat4 viewMatrix;
+	glm::vec3 eyePos;
+
+	glm::mat4 pyramidMatrix;
+	glm::mat4 palmMatrix;
 	
 public:
 
@@ -107,4 +119,6 @@ public:
 	void createVideoWall();
 	void deleteObjects();
 	void createCactus(glm::vec3 position);
+
+	void createShadowMap();
 };

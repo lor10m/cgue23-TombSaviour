@@ -112,7 +112,7 @@ float calculateShadowFromDirectionalLight(DirectionalLight directionalLight)
 
         float currentDepth = lightCoords.z;
 
-        vec3 lightDir =  normalize(lightPos - fragPos);
+        vec3 lightDir =  normalize(lightPos - vec3(textPos));
         float bias = max(0.05 * (1.0 - dot(normal, lightDir)), 0.005);
 
         int sampleRadius = 1;

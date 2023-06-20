@@ -8,13 +8,17 @@ Objects::Objects(GLFWwindow* window, Camera* camera, PhysxScene* physxScene)
 
 	//testShadowMap.create();
 
-	createTerrain();
+	//createTerrain();
 	createMummy(window);
-	//createPyramid();
-	//createPalmTree();
+	createPyramid();
+	createPalmTree();
 	//createVideoWall();
-	//createPointLightCube();
-	//createTestCube();
+	createPointLightCube();
+	
+	
+	createTestCube();
+
+	createShadowMap();
 
 	//enemyShader.createPhongShader(glm::mat4(0.0f), 0.1f, 1.0f, 0.2f, 32);
 	//enemyShader.setUniform1i("isAnimated", 1);
@@ -45,7 +49,7 @@ Objects::Objects(GLFWwindow* window, Camera* camera, PhysxScene* physxScene)
 
 void Objects::createTerrain()
 {
-	const char* heightmap_path = "assets/heightmaps/hm3-dark.png";
+	const char* heightmap_path = "assets/heightmaps/hm4_dark.png";
 	terrain.createTerrain("assets/textures/sand.png", heightmap_path);
 
 	physxScene->createTerrain(heightmap_path);
@@ -54,17 +58,17 @@ void Objects::createTerrain()
 void Objects::createPointLightCube()
 {
 	Transform t;
-	t.translate(glm::vec3(0.0f, 30.0, -7.0));
-	t.scale(glm::vec3(0.1, 0.1, 0.1));
-	pointLightCube.generateModel("assets/objects/cube.obj");
+	t.translate(glm::vec3(0.0f, 3.0f + 25.64, 0.0));
+	t.scale(glm::vec3(0.5));
+	pointLightCube.generateModel("assets/objects/cube2.obj");
 
-	lightCubeShader.createPhongShader("assets/textures/weiss.dds", "assets/textures/weiss.dds", true, t.getMatrix(), 1, 1, 1, 1);
+	lightCubeShader.createPhongShader("assets/textures/tiles_diffuse.dds", "assets/textures/tiles_specular.dds", true, t.getMatrix(), 1, 1, 1, 1);
 	lightCubeShader.setUniform1i("isAnimated", 0);
 }
 
 void Objects::createMummy(GLFWwindow* window)
 {
-	mummy.createCharacter(window, camera, controllerManager, physxScene->material, glm::vec3(0.0f, 10.0f, 0.0f));
+	mummy.createCharacter(window, camera, controllerManager, physxScene->material, glm::vec3(0.0f, 30.0f, 0.0f));
 	physxScene->setCharacter(&mummy);
 }
 
@@ -106,36 +110,38 @@ void Objects::createCactus(glm::vec3 position)
 void Objects::createPalmTree()
 {
 	glm::vec3 palmRotate = glm::vec3(glm::radians(-90.0f), glm::radians(0.0f), glm::radians(0.0f));
-	glm::vec3 palmScale = glm::vec3(0.01, 0.01, 0.01);
-	glm::vec3 palmTranslate = glm::vec3(0.0, 25.64, 30.0);
+	glm::vec3 palmScale = glm::vec3(0.002, 0.002, 0.002);
+	glm::vec3 palmTranslate = glm::vec3(6.0, 2.3 + 25.64, 2.0);
 	Transform palmTransform;
 	palmTransform.translate(palmTranslate);
 	palmTransform.rotate(palmRotate);
 	palmTransform.scale(palmScale);
+	palmMatrix = palmTransform.getMatrix();
 
 	palmTreeShader.createPhongShader("assets/textures/wood_texture.dds", "assets/textures/wood_texture_specular.dds",true, palmTransform.getMatrix(), 0.05f, 0.8f, 0.5f, 1.0f);
 	palmTreeShader.setUniform1i("isAnimated", 0);
 
 	palmTree.generateModel("assets/objects/palm_tree.obj");
 
-	physxScene->createModel("palmTree", palmTree.indices, palmTree.vertices, palmTree.normals, palmScale, palmTranslate, palmRotate);
+	//physxScene->createModel("palmTree", palmTree.indices, palmTree.vertices, palmTree.normals, palmScale, palmTranslate, palmRotate);
 }
 
 void Objects::createPyramid()
 {
 	glm::vec3 pyramidRotate = glm::vec3(glm::radians(0.0f), glm::radians(90.0f), glm::radians(0.0f));
-	glm::vec3 pyramidScale = glm::vec3(5, 5, 5);
-	glm::vec3 pyramidTranslate = glm::vec3(5.0, 25.64, 10.0);
+	glm::vec3 pyramidScale = glm::vec3(2, 2, 2);
+	glm::vec3 pyramidTranslate = glm::vec3(6.0, 3 + 25.64, 2.0);
 	Transform pyramidTransform;
 	pyramidTransform.translate(pyramidTranslate);
 	pyramidTransform.rotate(pyramidRotate);
 	pyramidTransform.scale(pyramidScale);
+	pyramidMatrix = pyramidTransform.getMatrix();
 	pyramid.generateModel("assets/objects/pyramid_final1.obj"); //pyramid1	untitled5.obj
 
 	pyramidShader.createPhongShader("assets/textures/sandklein.dds", "assets/textures/sandklein.dds", true, pyramidTransform.getMatrix(), 0.05f, 0.8f, 1.0f, 1.0f);
 	pyramidShader.setUniform1i("isAnimated", 0);
 
-	physxScene->createModel("pyramid", pyramid.indices, pyramid.vertices, pyramid.normals, pyramidScale, pyramidTranslate, pyramidRotate);
+	//physxScene->createModel("pyramid", pyramid.indices, pyramid.vertices, pyramid.normals, pyramidScale, pyramidTranslate, pyramidRotate);
 }
 
 
@@ -177,19 +183,98 @@ void Objects::createVideoWall()
 	physxScene->createModel("videowall", videoWall.indices, videoWall.vertices, videoWall.normals, videoWallScale, videoWallTranslate, videoWallRotate);
 }
 
+void Objects::createShadowMap()
+{
+	depthShader.createDepthMapShader();
+
+	// configure depth map FBO
+	// -----------------------
+	glGenFramebuffers(1, &depthMapFBO);
+
+	// create depth texture
+	glGenTextures(1, &depthMap);
+	glBindTexture(GL_TEXTURE_2D, depthMap);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, SHADOW_WIDTH, SHADOW_HEIGHT, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
+	float borderColor[] = { 1.0f, 1.0f, 1.0f, 1.0f };
+	glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, borderColor);
+
+	// attach depth texture as FBO's depth buffer
+	glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, depthMap, 0);
+	glDrawBuffer(GL_NONE);
+	glReadBuffer(GL_NONE);
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+	//lightPos = glm::vec3(0.01f, 30.0f, 0.0f);
+	lightPos = glm::vec3(6.0, 28.64, 0.0);
+	glm::mat4 orthgonalProjection = glm::ortho(-5.0f, 5.0f, -5.0f, 5.0f, 1.0f, 7.5f);
+	glm::mat4 lightView = glm::lookAt(lightPos, glm::vec3(0.0f), glm::vec3(0.0f, 0.0f, 0.0f));
+	lightSpaceMatrix = orthgonalProjection * lightView;
+}
+
 
 void Objects::render(GLFWwindow* window, float currentTime, float dt, bool normalMapping)
 {
 	//TODO load textures in Model.cpp instead of shader and use 1 shader for (almost) all objects
-
+	//lightPos.y += 0.004;
+	//std::cout << lightPos.y << std::endl;
 	// Character: 
 	mummy.pollInput(window, dt);
 
 	glm::mat4 projection = glm::mat4(1.0f);
-	glm::mat4 viewMatrix = camera->getTransformMatrix();
+	viewMatrix = camera->getTransformMatrix();
+	eyePos = glm::vec3(camera->cameraPosition.x, camera->cameraPosition.y, camera->cameraPosition.z);
 
 	// simulate physx
 	physxScene->simulate(window, camera, (1.0f / 40.0f), spikes, cacti);
+
+
+
+	Transform t;
+	t.translate(glm::vec3(5.5f, 0.0f + 27.64, 3.5));
+	t.scale(glm::vec3(5.5, 0.2f, 5.5f));
+
+	Transform t1;
+	t1.translate(glm::vec3(6.0, 3 + 25.64, 2.0));
+	t1.scale(glm::vec3(0.5));
+	
+	Transform t2;
+	t2.translate(glm::vec3(lightPos.x, lightPos.y, lightPos.z));
+	t2.scale(glm::vec3(0.2));
+
+	// 1. render depth of scene to texture (from light's perspective)
+	// --------------------------------------------------------------
+	glViewport(0, 0, SHADOW_WIDTH, SHADOW_HEIGHT);
+	glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
+
+	// Draw model/mesh with shadowMap shader
+	renderShadowMap(pointLightCube, t.getMatrix());
+	//renderShadowMap(pointLightCube, t1.getMatrix());
+	//renderShadowMap(pyramid, pyramidMatrix);
+	renderShadowMap(palmTree, palmMatrix);
+
+	// Switch back to the default framebuffer
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+	// reset viewport
+	glViewport(0, 0, 800, 800);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	
+
+	// 2. render scene as normal using the generated depth/shadow map  
+	// --------------------------------------------------------
+
+	renderModel(&pointLightCube, t.getMatrix(), &lightCubeShader);
+	//renderModel(&pointLightCube, t1.getMatrix(), &lightCubeShader);
+	renderModel(&pointLightCube, t2.getMatrix(), &lightCubeShader);
+	//renderModel(&pyramid, pyramidMatrix, &pyramidShader);
+	renderModel(&palmTree, palmMatrix, &palmTreeShader);
+
+	renderTestCube(normalMapping, testCubeShader);
 
 //	testShadowMap.render(viewMatrix, glm::vec3(camera->cameraPosition.x, camera->cameraPosition.y, camera->cameraPosition.z));
 
@@ -226,7 +311,7 @@ void Objects::render(GLFWwindow* window, float currentTime, float dt, bool norma
 	//terrain.render(&terrainShader, -1);
 
 	// render the terrain
-	terrain.render(viewMatrix, glm::vec3(camera->cameraPosition.x, camera->cameraPosition.y, camera->cameraPosition.z));
+	//terrain.render(viewMatrix, glm::vec3(camera->cameraPosition.x, camera->cameraPosition.y, camera->cameraPosition.z));
 
 
 	//// render cactus
@@ -238,16 +323,6 @@ void Objects::render(GLFWwindow* window, float currentTime, float dt, bool norma
 	//	cactusShader.setUniform3f("eyePos", camera->cameraPosition.x, camera->cameraPosition.y, camera->cameraPosition.z);
 	//	pair.second.model->draw(&cactusShader);
 	//}
-
-	// render pyramid
-	//pyramidShader.setUniformMatrix4fv("viewMatrix", 1, GL_FALSE, camera->getTransformMatrix());
-	//pyramidShader.setUniform3f("eyePos", camera->cameraPosition.x, camera->cameraPosition.y, camera->cameraPosition.z);
-	//pyramid.draw(&pyramidShader);
-
-	//// render palm tree
-	//palmTreeShader.setUniformMatrix4fv("viewMatrix", 1, GL_FALSE, camera->getTransformMatrix());
-	//palmTreeShader.setUniform3f("eyePos", camera->cameraPosition.x, camera->cameraPosition.y, camera->cameraPosition.z);
-	//palmTree.draw(&palmTreeShader);
 
 	//// render videowall
 	//videoWallShader.setUniformMatrix4fv("viewMatrix", 1, GL_FALSE, camera->getTransformMatrix());
@@ -278,6 +353,27 @@ void Objects::render(GLFWwindow* window, float currentTime, float dt, bool norma
 	//hduObject.drawHDU(window);
 
 }
+
+void Objects::renderShadowMap(Model& model, glm::mat4 modelMatrix)
+{
+	depthShader.setUniformMatrix4fv("lightSpaceMatrix", 1, GL_FALSE, lightSpaceMatrix);
+	depthShader.setUniformMatrix4fv("modelMatrix", 1, GL_FALSE, modelMatrix);
+	model.draw(nullptr);
+}
+
+void Objects::renderModel(Model* model, glm::mat4 modelMatrix, Shader* shader)
+{
+	shader->setUniformMatrix4fv("viewMatrix", 1, GL_FALSE, viewMatrix);
+	shader->setUniformMatrix4fv("modelMatrix", 1, GL_FALSE, modelMatrix);
+	shader->setUniform3f("eyePos", eyePos.x, eyePos.y, eyePos.z);
+	shader->setUniform3f("lightPos", lightPos.x, lightPos.y, lightPos.z);
+	shader->setUniformMatrix4fv("lightSpaceMatrix", 1, GL_FALSE, lightSpaceMatrix);
+	glActiveTexture(GL_TEXTURE0 + 2);
+	glBindTexture(GL_TEXTURE_2D, depthMap);
+	shader->setUniform1i("shadowMap", 2);
+	model->draw(nullptr);
+}
+
 
 void Objects::deleteObjects()
 {

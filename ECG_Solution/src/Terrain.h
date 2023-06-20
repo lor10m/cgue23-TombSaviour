@@ -35,6 +35,7 @@ private:
 	Shader depthShader;
 	Shader cubeShader;
 	Model cube;
+	Model pyramid;
 
 public:
 	void createTerrain(const char* texturePath, const char* heightmapPath);

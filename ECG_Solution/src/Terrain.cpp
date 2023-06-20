@@ -7,6 +7,8 @@ void Terrain::createTerrain(const char* texturePath, const char* heightmapPath)
 	cubeShader.createPhongShader("assets/textures/tiles_diffuse.dds", "assets/textures/tiles_specular.dds", true, glm::mat4(1.0f), 0.0f, 0.0f, 0.0f, 0);
 	cube.generateModel("assets/objects/cube2.obj");
 
+	pyramid.generateModel("assets/objects/cube2.obj");
+
 	shader.createTerrainShader("", "");
 	shader.activate();
 	diffuseTexture.genTexture("assets/textures/brick.jpg");
@@ -17,10 +19,10 @@ void Terrain::createTerrain(const char* texturePath, const char* heightmapPath)
 
 	height = heightmapTexture.height;
 	width = heightmapTexture.width;
-	std::cout << "terrainWidth: " << width << " terrainheight: " << height;
+	//std::cout << "terrainWidth: " << width << " terrainheight: " << height;
 
-	// set up vertex data (and buffer(s)) and configure vertex attributes
-	// ------------------------------------------------------------------
+	//// set up vertex data (and buffer(s)) and configure vertex attributes
+	//// ------------------------------------------------------------------
 
 	for (unsigned i = 0; i <= rez - 1; i++)
 	{
@@ -52,9 +54,9 @@ void Terrain::createTerrain(const char* texturePath, const char* heightmapPath)
 		}
 	}
 
-	std::cout << "Loaded " << rez * rez << " patches of 4 control points each" << std::endl;
-	std::cout << "Processing " << rez * rez * 4 << " vertices in vertex shader" << std::endl;
-	
+	//std::cout << "Loaded " << rez * rez << " patches of 4 control points each" << std::endl;
+	//std::cout << "Processing " << rez * rez * 4 << " vertices in vertex shader" << std::endl;
+	//
 	// first, configure the cube's VAO (and terrainVBO)
 	glGenVertexArrays(1, &terrainVAO);
 	glBindVertexArray(terrainVAO);
@@ -70,7 +72,7 @@ void Terrain::createTerrain(const char* texturePath, const char* heightmapPath)
 	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(sizeof(float) * 3));
 	glEnableVertexAttribArray(1);
 
-	glPatchParameteri(GL_PATCH_VERTICES, NUM_PATCH_PTS); //TODO
+	glPatchParameteri(GL_PATCH_VERTICES, NUM_PATCH_PTS);
 
 
 	// configure depth map FBO
@@ -102,16 +104,19 @@ void Terrain::createTerrain(const char* texturePath, const char* heightmapPath)
 
 void Terrain::render(glm::mat4 viewMatrix, glm::vec3 eyePos)
 {
-	glm::mat4 cubeModelMatrix = glm::translate(glm::mat4(1.0f), glm::vec3(-1.0f, 15.0f, 2.0f));
 
 	//test += 0.2;
 	//std::cout << test << std::endl;
 
-	glm::vec4 lightColor = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f); //nicht verwendet im shader
-	glm::vec3 lightPos = glm::vec3(-1.2f, 16.0f, 2.0f);
-	glm::mat4 orthgonalProjection = glm::ortho(-100.0f, 100.0f, -100.0f, 100.0f, 1.0f, 1077.5f);
+	glm::vec3 lightPos = glm::vec3(0.01f, 30.0f, 0.0f);
+	glm::mat4 orthgonalProjection = glm::ortho(-10.0f, 10.0f, -10.0f, 10.0f, 1.0f, 7.5f);
 	glm::mat4 lightView = glm::lookAt(lightPos, glm::vec3(0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
 	glm::mat4 lightSpaceMatrix = orthgonalProjection * lightView;
+
+	glm::vec3 terlightPos = glm::vec3(0.01f, 30.0f - 25.64, 0.0f);
+	glm::mat4 terorthgonalProjection = glm::ortho(-10.0f, 10.0f, -10.0f, 10.0f, 1.0f, 7.5f);
+	glm::mat4 terlightView = glm::lookAt(terlightPos, glm::vec3(0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+	glm::mat4 terlightSpaceMatrix = terorthgonalProjection * terlightView;
 
 	// 1. render depth of scene to texture (from light's perspective)
 	// --------------------------------------------------------------
@@ -120,10 +125,25 @@ void Terrain::render(glm::mat4 viewMatrix, glm::vec3 eyePos)
 
 	// Draw model/mesh with shadowMap shader
 	depthShader.setUniformMatrix4fv("lightSpaceMatrix", 1, GL_FALSE, lightSpaceMatrix);
-	depthShader.setUniformMatrix4fv("model", 1, GL_FALSE, glm::translate(glm::mat4(1.0f), glm::vec3(-1.0f, 10.0, 2.0f)));
-	cube.draw(&cubeShader);
 
-	depthShader.setUniformMatrix4fv("model", 1, GL_FALSE, glm::translate(glm::mat4(1.0f), glm::vec3(0.0, 0.0, 0.0)));
+	//glm::mat4 model1 = glm::mat4(1.0f);
+	//model1 = glm::translate(model1, glm::vec3(0.0f, 25.64, 0.0));
+	//model1 = glm::scale(model1, glm::vec3(0.5f));
+	//depthShader.setUniformMatrix4fv("modelMatrix", 1, GL_FALSE, model1);
+	//cube.draw(&cubeShader);
+
+
+	glm::mat4 model2 = glm::mat4(1.0f);
+	model2 = glm::translate(model2, glm::vec3(0.5f, 3.0f + 25.64, 0.0));
+	model2 = glm::scale(model2, glm::vec3(0.5f));
+	depthShader.setUniformMatrix4fv("modelMatrix", 1, GL_FALSE, model2);
+	pyramid.draw(&cubeShader);
+
+
+	depthShader.setUniformMatrix4fv("lightSpaceMatrix", 1, GL_FALSE, lightSpaceMatrix);
+	glm::mat4 model3 = glm::mat4(1.0f);
+	model3 = glm::translate(model3, glm::vec3(0.0f, 0.0, 0.0));
+	depthShader.setUniformMatrix4fv("modelMatrix", 1, GL_FALSE, model3);
 	//draw terrain depth
 	glBindVertexArray(terrainVAO);
 	glDrawArrays(GL_PATCHES, 0, NUM_PATCH_PTS * rez * rez);
@@ -137,12 +157,10 @@ void Terrain::render(glm::mat4 viewMatrix, glm::vec3 eyePos)
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 
-	// 2. render scene as normal using the generated depth/shadow map  
-	// --------------------------------------------------------
-	
+
 	//CUBE
 	cubeShader.setUniformMatrix4fv("viewMatrix", 1, GL_FALSE, viewMatrix);
-	cubeShader.setUniformMatrix4fv("modelMatrix", 1, GL_FALSE, cubeModelMatrix);
+	cubeShader.setUniformMatrix4fv("modelMatrix", 1, GL_FALSE, model2);
 	cubeShader.setUniform3f("eyePos", eyePos.x, eyePos.y, eyePos.z);
 	cubeShader.setUniform3f("lightPos", lightPos.x, lightPos.y, lightPos.z);
 	cubeShader.setUniformMatrix4fv("lightSpaceMatrix", 1, GL_FALSE, lightSpaceMatrix);
@@ -153,14 +171,20 @@ void Terrain::render(glm::mat4 viewMatrix, glm::vec3 eyePos)
 
 	cube.draw(&cubeShader);
 
+	//cubeShader.setUniformMatrix4fv("modelMatrix", 1, GL_FALSE, model2);
+	//pyramid.draw(&cubeShader);
 
 
+	// 2. render scene as normal using the generated depth/shadow map  
+	// --------------------------------------------------------
+	
 	//TERRAIN
 	shader.setUniformMatrix4fv("view", 1, GL_FALSE, viewMatrix);
 	shader.setUniformMatrix4fv("model", 1, GL_FALSE, glm::mat4(1.0f));
-	shader.setUniform3f("eyePos", eyePos.x, eyePos.y, eyePos.z); //y + 10
-	shader.setUniform3f("lightPos", lightPos.x, lightPos.y, lightPos.z);
-	shader.setUniformMatrix4fv("lightSpaceMatrix", 1, GL_FALSE, lightSpaceMatrix);
+	shader.setUniformMatrix4fv("lightModelMatrix", 1, GL_FALSE, glm::translate(model3, glm::vec3(0.0f, 26.0, 0.0)));
+	shader.setUniform3f("eyePos", eyePos.x, eyePos.y - 25.64, eyePos.z); //y + 10
+	shader.setUniform3f("lightPos", terlightPos.x, terlightPos.y, terlightPos.z);
+	shader.setUniformMatrix4fv("lightSpaceMatrix", 1, GL_FALSE, terlightSpaceMatrix);
 
 	heightmapTexture.bind(0);
 	shader.setUniform1i("heightMap", 0);
@@ -177,6 +201,7 @@ void Terrain::render(glm::mat4 viewMatrix, glm::vec3 eyePos)
 
 	glBindVertexArray(terrainVAO);
 	glDrawArrays(GL_PATCHES, 0, NUM_PATCH_PTS * rez * rez);
+
 }
 
 
