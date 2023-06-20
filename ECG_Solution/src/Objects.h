@@ -87,6 +87,9 @@ private:
 
 	void renderTestCube(bool normalMapping);
 	void renderTreasureChest(bool normalMapping);
+
+	double StartTimeInstScr = glfwGetTime();
+	bool instructionScreenActive = true;
 	
 public:
 

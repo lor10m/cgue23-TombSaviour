@@ -14,18 +14,21 @@ void Hdu::createHdu(GLFWwindow* window, Camera* threeDCamera, int lifeStartNumbe
 	calculateScale();
 	calculatePosition();
 	generateStartHDU();
-	initGameHDU(lifeStartNumber);
-
-	//initLevelGui();
+	//initGameHDU();
 }
 
 // TODO (?)
 void Hdu::generateStartHDU() {
 	// optional, this should be more like the start window like "Welcome to our game! It's a me - Ramesses II.!"
+	std::cout << "Welcome to our game! It's a me - Ramesses II.!" << std::endl;
+	showBigScreen("instructionScreen");
 }
 
-
-void Hdu::initGameHDU(int lifeStartNumber) {
+void Hdu::initGameHDU() {
+	hduDataMap.clear();
+	calculateScale();
+	calculatePosition();
+	std::cout << "erase instruction screen" << std::endl;
 
 	// cacti HDU
 	hduDataMap["Cacti"].simpleShader.createHDUShader("assets/textures/hdu/spikes.dds");
@@ -193,7 +196,7 @@ void Hdu::updateLifeCount(int newLifeNumber) {
 }
 
 void Hdu::showBigScreen(string screenKey) {
-	// screenKey: loseEndscreen ODER winEndscreen
+	// screenKey: loseEndscreen ODER winEndscreen ODER 
 
 	hduDataMap.clear();
 	hduDataMap[screenKey].simpleShader.createHDUShader("assets/textures/hdu/" + screenKey + ".dds");
@@ -202,11 +205,11 @@ void Hdu::showBigScreen(string screenKey) {
 	hduDataMap[screenKey].transform.translate(glm::vec3(0.0f, 0.0f, 0.0f)).scale(glm::vec3(getFullscreenHDUScale() * 2.0f));
 
 	// Alternative: schön rechteckig, aber bei Fullscreen immer noch Spiel auf der Seite sichtbar:
-	//hduDataMap["GameOver"].scaleMulti = 4.0f;
-	//hduDataMap["GameOver"].transform.translate(glm::vec3(0.0f, 0.0f, 0.0f)).scale(hduDataMap["GameOver"].getScale(widthScale, heightScale));
+	//hduDataMap[screenKey].scaleMulti = 4.0f;
+	//hduDataMap[screenKey].transform.translate(glm::vec3(0.0f, 0.0f, 0.0f)).scale(hduDataMap[screenKey].getScale(widthScale, heightScale));
 
 	hduDataMap[screenKey].model.generateModel("assets/objects/screenPanel.obj");
-	std::cout << "\n THE END \n";
+	std::cout << "\n THE END? \n";
 }
 
 float Hdu::getFullscreenHDUScale() {
@@ -224,4 +227,13 @@ float Hdu::getFullscreenHDUScale() {
 	float scaleHeight = static_cast<float>(screenHeight) / displayHeight;
 	float scale = std::max(scaleWidth, scaleHeight);
 	return scale;
+}
+
+bool Hdu::pollInput(GLFWwindow* window, float dt) {
+
+	if (glfwGetKey(window, GLFW_KEY_ENTER) == GLFW_PRESS) {
+		initGameHDU();
+		return true;
+	}
+	return false;
 }

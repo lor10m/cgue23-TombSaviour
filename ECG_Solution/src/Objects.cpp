@@ -61,7 +61,7 @@ void Objects::createTerrain() {
 
 void Objects::createMummy(GLFWwindow* window)
 {
-	mummy.createCharacter(window, camera, controllerManager, physxScene->material, glm::vec3(103.0f, 30.0f, -63.0f));
+	mummy.createCharacter(window, camera, controllerManager, physxScene->material, glm::vec3(103.0f, 33.0f, -63.0f));
 	// Hill:    -16.0f, 97.0f, -114.0f
 	// Pyramid: 17.0f, 32.0f, 76.0f
 	// Outside: 103.0f, 30.0f, -63.0f
@@ -292,10 +292,16 @@ void Objects::render(GLFWwindow* window, float currentTime, float dt, bool norma
 
 	//renderTestCube(normalMapping);
 	renderTreasureChest(normalMapping);
-	
+
+	if (instructionScreenActive) {
+		if (hduObject.pollInput(window, dt)) {
+			instructionScreenActive = false;
+			//std::cout << "game initialized!" << std::endl;
+		}
+	}
+
 	// Draw HDU last
 	hduObject.drawHDU(window);
-
 }
 
 void Objects::deleteObjects()
