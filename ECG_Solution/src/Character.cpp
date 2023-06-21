@@ -25,7 +25,7 @@ void Character::move(glm::vec3 dir, float dt)
 {
 	moveX = dir.x * charSpeed;
 	moveZ = dir.z * charSpeed;
-	disp = physx::PxVec3(moveX, 0.0f, moveZ) * dt;
+	disp = physx::PxVec3(moveX, -100.0f, moveZ) * dt;
 
 	pxChar->move(disp, 0.001f, dt, physx::PxControllerFilters());
 	setPosition();

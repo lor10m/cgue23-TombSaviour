@@ -7,12 +7,11 @@ out vec2 texCoord;
 
 //added
 out vec3 fragPos; 
-out vec4 fragPosLightSpace; // added for shadows;
+//out vec4 fragPosLightSpace; // added for shadows;
 
 uniform mat4 model;
-uniform mat4 lightModelMatrix;
 uniform mat4 view;
-uniform mat4 lightSpaceMatrix; // added for shadows;
+//uniform mat4 lightSpaceMatrix; // added for shadows;
 
 void main()
 {
@@ -20,12 +19,9 @@ void main()
 
     fragPos = vec3(vertexPos);
 
-	fragPosLightSpace = lightSpaceMatrix * (lightModelMatrix * vec4(position,1.0));
-
     HeightMapCoord = textCoords;
     gl_Position = vec4(position, 1.0);
-
 }
 
-
+//fragPosLightSpace = lightSpaceMatrix *  vec4(position,1.0);
 //fragTexCoordinate = textCoords;

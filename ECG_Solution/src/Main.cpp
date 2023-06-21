@@ -13,7 +13,6 @@
 #include "Drawables/Model.h"
 #include "Lights/PointLight.h"
 #include "Lights/DirectionalLight.h"
-#include "ShaderManager.h"
 #include "Utils/Transform.h"
 #include "Utils/Callbacks.h"
 #include "Objects.h"

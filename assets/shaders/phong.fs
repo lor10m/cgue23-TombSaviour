@@ -25,6 +25,7 @@ in vec3 fragPos;
 in vec3 fragNormal;
 in vec2 fragTexCoordinate;
 in vec4 fragPosLightSpace; // added for shadows
+in mat3 TBN; // for normal mapping
 
 flat in ivec4 boneIDs0;
 in vec4 weights0;
@@ -33,7 +34,12 @@ out vec4 FragColor;
 
 uniform sampler2D diffuseTexture;
 uniform sampler2D specularTexture;
+uniform sampler2D normalTexture;
 uniform sampler2D shadowMap; // added for shadows
+
+
+uniform bool normalMapping = false;
+uniform bool withShadow = true;
 
 // ambient lighting factor
 uniform float ka; //0.3
@@ -49,6 +55,7 @@ uniform int alpha; // 16
 
 uniform vec3 lightPos; // added for shading
 uniform vec3 eyePos;
+uniform vec3 lightDir;
 
 uniform PointLight pointLight[MAX_LIGHTS];
 uniform int amountOfPointLights;
@@ -72,7 +79,17 @@ vec3 normal;
 
 void main() 
 {
-    normal = normalize(fragNormal);
+    if(normalMapping)
+    {
+		normal = texture(normalTexture, fragTexCoordinate).rgb;
+		normal = normalize(2.0f * normal - 1.0f);
+		normal = normalize(TBN * normal);
+		//normal = invertNormals ? -normal : normal;
+	}
+    else 
+	{
+		normal = normalize(fragNormal);			
+	}
 
     float diffuse = 0.0;
     float specular = 0.0;
@@ -82,7 +99,9 @@ void main()
     for (int i = 0; i < amountOfDirectionalLights; i++) {
         diffuse += calculateDiffuseFromDirectionalLight(directionalLight[i]);
         specular += calculateSpecularFromDirectionalLight(directionalLight[i]);
-        shadow += calculateShadowFromDirectionalLight(directionalLight[i]);
+        if(withShadow){
+            shadow += calculateShadowFromDirectionalLight(directionalLight[i]);
+        }
     }
 
     float ambient = ka;
@@ -92,6 +111,7 @@ void main()
     // das da noch mal lightColor wenn man will; vlt intensity?
     //FragColor = texture(diffuseTexture, fragTexCoordinate) * vec4(diffuse,1.0f) + texture(specularTexture, fragTexCoordinate) * vec4(specular,1.0f);
     //FragColor = texture(diffuseTexture, fragTexCoordinate) * (diffuse + ka) + texture(specularTexture, fragTexCoordinate) * specular;
+
     vec3 lightContribution = ambientLight + (1.0 - shadow) * (diffuseLight + specularLight);
     FragColor = vec4(lightContribution, 1.0);
     
@@ -120,7 +140,7 @@ float calculateShadowFromDirectionalLight(DirectionalLight directionalLight)
 
         float currentDepth = lightCoords.z;
 
-        vec3 lightDir =  normalize(lightPos - fragPos);
+        //vec3 lightDir =  normalize(lightPos - fragPos);
         float bias = max(0.05 * (1.0 - dot(normal, lightDir)), 0.005);
 
         int sampleRadius = 1;
@@ -146,13 +166,13 @@ float calculateShadowFromDirectionalLight(DirectionalLight directionalLight)
 float calculateDiffuseFromDirectionalLight(DirectionalLight directionalLight) {
     // Directional vector to light source
     //vec3 L = normalize(-directionalLight.direction);
-    vec3 L = normalize(lightPos - fragPos);
+    vec3 L = lightDir;
     return max(dot(L, normal), 0) * kd;// * directionalLight.intensity * kd;
 }
 
 float calculateSpecularFromDirectionalLight(DirectionalLight directionalLight) {
     
-    vec3 L = normalize(lightPos - fragPos);
+    vec3 L = lightDir;
     vec3 R = normalize(reflect(-L, normal));
     vec3 V = normalize(eyePos - fragPos);
     //vec3 L = normalize(-directionalLight.direction);

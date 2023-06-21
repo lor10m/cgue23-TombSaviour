@@ -105,6 +105,33 @@ void PhysxScene::createTerrain(const char* heightmapPath)
 	actor->setName("terrain");
 
 	scene->addActor(*actor);
+
+	// Create the height field descriptor
+	//PxHeightFieldDesc heightFieldDesc;
+	//heightFieldDesc.format = PxHeightFieldFormat::eS16_TM;
+	//heightFieldDesc.nbColumns = width;
+	//heightFieldDesc.nbRows = height;
+	//heightFieldDesc.samples.data = samples;
+	//heightFieldDesc.samples.stride = sizeof(PxHeightFieldSample);
+
+	////PxHeightField* heightField = cooking->createHeightField(heightFieldDesc, physics->getPhysicsInsertionCallback());
+
+	//PxHeightFieldGeometry heightFieldGeom; // (heightField, PxMeshGeometryFlags(), 1.0f, 1.0f, 1.0f);
+	//heightFieldGeom.rowScale = width / (width - 1);
+	//heightFieldGeom.columnScale = width / (width - 1);
+	//heightFieldGeom.heightScale = 1.0f;
+
+	//heightFieldGeom.heightField = cooking->createHeightField(heightFieldDesc, physics->getPhysicsInsertionCallback());
+
+
+	//PxRigidStatic* actor = physics->createRigidStatic(PxTransform(PxIdentity));
+
+	//PxTransform localPose;
+	//localPose.p = PxVec3(-(width * 0.5f), 0, -(width * 0.5f)); //make it so that the center of theheightfield is at world (0,minHeight,0)
+	//localPose.q = PxQuat(PxIdentity);
+	//PxShape* shape = PxRigidActorExt::createExclusiveShape(*actor, heightFieldGeom, *material);
+	//shape->setLocalPose(localPose);
+
 }
 
 void PhysxScene::createModel(const char* name, std::vector<unsigned int> indices, std::vector<glm::vec3> vertices, std::vector<glm::vec3> normals, glm::vec3 scale, glm::vec3 translate, glm::vec3 rotate)

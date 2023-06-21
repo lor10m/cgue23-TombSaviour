@@ -6,12 +6,10 @@
 #include "Character.h"
 #include "Utils/Transform.h"
 #include "Enemy.h"
-#include "ShaderManager.h"
 #include "Drawables/Cube.h"
 #include "Hdu.h"
 #include "Utils/GlobalVariables.h"
 #include "DepthMap.h"
-#include "ShadowMap.h"
 
 
 struct EnemyStruct {
@@ -30,8 +28,6 @@ private:
 	Camera* camera;
 
 	Hdu hduObject;
-
-	ShadowMap testShadowMap;
 
 	//DepthMap terrainDepthMap;
 	unsigned int SHADOW_WIDTH = 2048;  //1024
@@ -54,6 +50,7 @@ private:
 	unsigned int tangentsVBO;
 	unsigned int bitangentsVBO;
 
+	Shader debugShader;
 	Shader testCubeShader;
 	Shader shadowShader;
 
@@ -91,8 +88,8 @@ private:
 	std::map<unsigned int, TumbleweedStruct> tumbleweeds;
 	std::map<unsigned int, CactusStruct> cacti;
 	
-	unsigned int numEnemies = 1;
-	unsigned int numCacti = 3;
+	unsigned int numEnemies = 0;
+	unsigned int numCacti = 0;
 	unsigned int numSpikes = 10 * numCacti;
 	void createSpike();
 	void createTumbleweed();
@@ -104,14 +101,18 @@ private:
 	void renderTreasureChest(bool normalMapping);
 
 	void renderShadowMap(Model& model, glm::mat4 modelMatrix);
-	void renderModel(Model* model, glm::mat4 modelMatrix, Shader* shader);
+	void renderModel(Model* model, glm::mat4 modelMatrix, Shader* shader, bool normalMapping);
 
 	glm::mat4 viewMatrix;
 	glm::vec3 eyePos;
 
 	glm::mat4 pyramidMatrix;
 	glm::mat4 palmMatrix;
+	glm::mat4 palmMatrix2;
 	
+
+	glm::mat4 cubeMat;
+	glm::mat4 cubeMat2;
 public:
 
 	Objects(GLFWwindow* window, Camera* camera, PhysxScene* physxScene);
@@ -131,4 +132,8 @@ public:
 	void createCactus(glm::vec3 position);
 
 	void createShadowMap();
+
+	unsigned int quadVAO = 0;;
+	unsigned int quadVBO;
+	void renderDebug();
 };

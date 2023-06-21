@@ -4,6 +4,9 @@ layout(location = 0) in vec3 position;
 layout(location = 1) in vec3 normal;
 layout(location = 2) in vec2 texCoordinate;
 
+layout(location = 3) in vec3 tangent; //TODO location
+layout(location = 4) in vec3 bitangent;
+
 layout(location = 3) in ivec4 boneIDs;
 layout(location = 4) in vec4 weights;
 
@@ -11,6 +14,7 @@ out vec3 fragPos;
 out vec3 fragNormal;
 out vec2 fragTexCoordinate;
 out vec4 fragPosLightSpace; // added for shadows;
+out mat3 TBN; //for normal mapping
 
 out vec4 weights0;
 flat out ivec4 boneIDs0;
@@ -37,6 +41,10 @@ void main()
 	//fragNormal = transpose(inverse(mat3(modelMatrix))) * normal;
 	mat3 normalModelMatrix = mat3(transpose(inverse(modelMatrix)));
 	fragNormal = normalize(normalModelMatrix * normal);
+
+	vec3 T = normalize(normalModelMatrix * tangent);
+	vec3 B = normalize(normalModelMatrix * bitangent);
+	TBN = mat3(T, B, fragNormal);
 
 	fragTexCoordinate = texCoordinate;
 	fragPosLightSpace = lightSpaceMatrix * vertexPos;

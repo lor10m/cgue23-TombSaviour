@@ -12,7 +12,6 @@ set(Header_Files
     "src/Lights/Light.h"
     "src/Lights/PointLight.h"
     "src/Lights/DirectionalLight.h"
-    "src/ShaderManager.h"
     "src/Lights/SpotLight.h"
 )
 source_group("Header Files" FILES ${Header_Files})
@@ -25,7 +24,6 @@ set(Source_Files
     "src/Drawables/Cube.cpp"
     "src/Lights/PointLight.cpp"
     "src/Lights/DirectionalLight.cpp"
-    "src/ShaderManager.cpp"
     "src/Lights/SpotLight.cpp"
 )
 source_group("Source Files" FILES ${Source_Files})

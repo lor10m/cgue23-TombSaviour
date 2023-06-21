@@ -11,7 +11,7 @@
 class Terrain {
 
 private:
-	float test = -50.0f;
+	float test = 0.0f;
 	Texture heightmapTexture;
 	Texture specularTexture;
 	Texture diffuseTexture;
@@ -19,10 +19,12 @@ private:
 	Texture diffCubeTex;
 	Texture specCubeTex;
 
-	unsigned int SHADOW_WIDTH = 2048;  //1024
-	unsigned int SHADOW_HEIGHT = 2048;
-	unsigned int depthMapFBO;
-	unsigned int depthMap;
+	Shader debugShader;
+
+	unsigned int SHADOW_WIDTH = 1024;  //1024
+	unsigned int SHADOW_HEIGHT = 1024;
+	//unsigned int depthMapFBO;
+	//unsigned int depthMap;
 
 	std::vector<float> vertices;
 	std::vector<float> indices;
@@ -37,10 +39,13 @@ private:
 	Model cube;
 	Model pyramid;
 
+	void renderDebug();
+	unsigned int quadVAO = 0;
+	unsigned int quadVBO;
 public:
 	void createTerrain(const char* texturePath, const char* heightmapPath);
 	Terrain();
-	void render(glm::mat4 viewMatrix, glm::vec3 eyePos);
+	void render(glm::mat4 viewMatrix, glm::vec3 eyePos, glm::vec3 lightPos, glm::mat4 lightSpaceMatrix, unsigned int depthMap);
 	void deleteTerrain();
 	int verticesCount;
 	physx::PxVec3 physicsVertices[20*20*4];
