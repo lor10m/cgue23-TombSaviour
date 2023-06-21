@@ -1,5 +1,6 @@
 #include "Hdu.h"
 #include <glm/gtx/string_cast.hpp>
+#include "Utils/Music.h"
 
 Hdu::Hdu() {}
 
@@ -197,7 +198,7 @@ void Hdu::updateLifeCount(int newLifeNumber) {
 
 void Hdu::showBigScreen(string screenKey) {
 	// screenKey: loseEndscreen ODER winEndscreen ODER 
-
+	playBackgroundMusic(screenKey);
 	hduDataMap.clear();
 	hduDataMap[screenKey].simpleShader.createHDUShader("assets/textures/hdu/" + screenKey + ".dds");
 

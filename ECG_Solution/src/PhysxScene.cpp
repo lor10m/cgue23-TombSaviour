@@ -4,6 +4,7 @@
 #include <assimp/scene.h>
 #include "Utils/Transform.h"
 #include "Utils/PhysxCallbacks.h"
+#include "Utils/Music.h"
 
 PxFilterFlags CollisionFilterShader(
 	PxFilterObjectAttributes attributes0, PxFilterData filterData0,
@@ -274,7 +275,6 @@ void PhysxScene::simulate(GLFWwindow* window, Camera* camera, float timeStep, st
 			break;
 		}
 	}
-
 }
 
 void PhysxScene::mouseButtonCallback(GLFWwindow* window, Camera* camera)
@@ -335,6 +335,7 @@ void PhysxScene::pickUpNearestObject(Camera* camera)
 			// TODO move into callback/crash class:
 			// lifeCnt = lifeCnt = maxLifeNr ? lifeCnt : lifeCnt++;	// WICHTIG: checken ob eh nicht über max ist!
 			// hdu->updateLifeCount(lifeCnt);
+			playCollectSound();
 
 			break;
 		}
@@ -345,6 +346,7 @@ void PhysxScene::throwSpike(Camera* camera)
 {
 	pickedUpSpikes--;
 	hdu->updateSpikeCount(int(pickedUpSpikes));
+	playShootSound();
 
 	// Get one of the spikes
 	spikes[thrownSpikes].isThrownOrPickedUp = true;

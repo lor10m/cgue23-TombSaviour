@@ -19,6 +19,9 @@
 #include "Objects.h"
 #include "Hdu.h"
 #include <thread>
+#include <SFML/Audio.hpp>
+#include <iostream>
+#include "Utils/Music.h"
 
 using namespace physx;
 
@@ -27,7 +30,9 @@ double camera_near = 0.1;
 double camera_far = 1000;
 
 bool polygonMode = false;
-
+sf::Music backgroundmusic;
+sf::Music soundEffectCollect;
+sf::Music soundEffectShoot;
 
 int main()
 {
@@ -169,3 +174,4 @@ glm::mat4 aiMatrix4x4ToGlm(aiMatrix4x4 from)
 
 	return to;
 }
+
