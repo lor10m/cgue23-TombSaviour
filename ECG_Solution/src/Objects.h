@@ -92,6 +92,7 @@ private:
 
 	double StartTimeInstScr = glfwGetTime();
 	bool instructionScreenActive = true;
+	bool showEndScreenOnce = true;
 	
 public:
 

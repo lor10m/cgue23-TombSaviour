@@ -66,7 +66,7 @@ void Objects::createTerrain() {
 
 void Objects::createMummy(GLFWwindow* window)
 {
-	mummy.createCharacter(window, camera, controllerManager, physxScene->material, glm::vec3(103.0f, 33.0f, -63.0f));
+	mummy.createCharacter(window, camera, controllerManager, physxScene->material, glm::vec3(103.0f, 100.0f, -63.0f));
 	// Hill:    -16.0f, 97.0f, -114.0f
 	// Pyramid: 17.0f, 32.0f, 76.0f
 	// Outside: 103.0f, 30.0f, -63.0f
@@ -236,11 +236,16 @@ void Objects::render(GLFWwindow* window, float currentTime, float dt, bool norma
 		}
 	}
 
-	// ALL ENEMIES DEAD!! YOU WON
-	if (enemies.size() == 0 && !physxScene->allEnemiesDead) {
-		//hduObject.showBigScreen("winEndscreen");
-		physxScene->allEnemiesDead = true;
-		std::cout << "All enemies are dead! Get the treasure chest!" << std::endl;
+	// ALL ENEMIES DEAD => touch treasure chest and you win!
+	if (enemies.size() == 0) {
+		if (!mummy.allEnemiesDead) {
+			mummy.allEnemiesDead = true;
+			std::cout << "All enemies are dead! Get the treasure chest!" << std::endl;
+		}
+		if (mummy.treasureChestTouch && showEndScreenOnce) {
+			showEndScreenOnce = false; // set this so that we don't call this method multiple times at the end
+			hduObject.showBigScreen("winEndscreen");
+		}
 	}
 
 	// render the terrain
@@ -481,7 +486,12 @@ void Objects::createTreasureChest() {
 	treasureChestShader.createNormalShader("assets/textures/chest/chest_baseColor.jpg",
 		"assets/textures/chest/chest_specular_metallic.jpg", "assets/textures/chest/chest_normal.jpg", treasureChestTransform.getMatrix());
 
-	physxScene->createModel("treasureChest", treasureChest.indices, treasureChest.vertices, treasureChest.normals, chestScale, chestTranslate, chestRotate);
+	physxScene->createTreasureChest("treasureChest", treasureChest.indices, treasureChest.vertices, treasureChest.normals, chestScale, chestTranslate, chestRotate);
+	//PxRigidDynamic* treasureChestActor = physxScene->getDynamicActor("treasureChest");
+	//if (treasureChestActor) {
+	//	treasureChestActor->setRigidBodyFlag(PxRigidBodyFlag::eKINEMATIC, true);
+	//	treasureChestActor->setAngularVelocity(PxVec3(0.0f, 1.0f, 0.0f));
+	//}
 }
 
 void Objects::renderTreasureChest(bool normalMapping) {

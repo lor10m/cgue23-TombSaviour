@@ -197,7 +197,7 @@ void Hdu::updateLifeCount(int newLifeNumber) {
 }
 
 void Hdu::showBigScreen(string screenKey) {
-	// screenKey: loseEndscreen ODER winEndscreen ODER 
+	// screenKey: loseEndscreen ODER winEndscreen ODER intructionScreen
 	playBackgroundMusic(screenKey);
 	hduDataMap.clear();
 	hduDataMap[screenKey].simpleShader.createHDUShader("assets/textures/hdu/" + screenKey + ".dds");

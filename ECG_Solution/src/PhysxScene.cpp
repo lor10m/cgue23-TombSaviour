@@ -233,13 +233,63 @@ void PhysxScene::createTumbleweed(unsigned int index, glm::vec3 size, glm::vec3 
 	scene->addActor(*dynamicActor);
 }
 
+void PhysxScene::createTreasureChest(const char* name, std::vector<unsigned int> indices, std::vector<glm::vec3> vertices, std::vector<glm::vec3> normals, glm::vec3 scale, glm::vec3 translate, glm::vec3 rotate)
+{
+	// Erzeuge das TriangleMesh für die Kollisionsgeometrie
+	PxTriangleMeshDesc meshDesc;
+
+	meshDesc.points.count = vertices.size();
+	meshDesc.points.stride = sizeof(glm::vec3);
+	meshDesc.points.data = vertices.data();
+	meshDesc.triangles.count = indices.size() / 3;
+	meshDesc.triangles.stride = sizeof(unsigned int) * 3;
+	meshDesc.triangles.data = indices.data();
+
+	PxDefaultMemoryOutputStream writeBuffer;
+	PxTriangleMeshCookingResult::Enum result;
+	bool status = cooking->cookTriangleMesh(meshDesc, writeBuffer, &result);
+	if (!status)
+	{
+		std::cout << "Cooking error" << std::endl;
+		return;
+	}
+
+	PxDefaultMemoryInputData readBuffer(writeBuffer.getData(), writeBuffer.getSize());
+	PxTriangleMesh* triangleMesh = physics->createTriangleMesh(readBuffer);
+
+	// Skalierung und Rotation des TriangleMeshs
+	PxMeshScale pxMeshScale;
+	pxMeshScale.scale = PxVec3(scale.x, scale.y, scale.z);
+	pxMeshScale.rotation = PxQuat(PxIdentity);
+
+	// Erzeuge die Geometrie für die Kollisionsform
+	PxTriangleMeshGeometry geometry(triangleMesh, pxMeshScale);
+
+	// Material für die Kollisionsform
+	PxMaterial* material = physics->createMaterial(0.5f, 0.5f, 0.1f);
+
+	// Erzeuge die Shape-Instanz
+	PxShape* shape = physics->createShape(geometry, *material);
+
+	// Erzeuge den Rigid Dynamic Actor
+	PxRigidDynamic* dynamicActor = physics->createRigidDynamic(PxTransform(PxVec3(translate.x, translate.y, translate.z), PxIdentity));
+	dynamicActor->attachShape(*shape);
+	dynamicActor->setGlobalPose(PxTransform(PxIdentity));
+
+	// Setze den Namen des Actors
+	dynamicActor->setName(name);
+
+	// Füge den Actor der Szene hinzu
+	scene->addActor(*dynamicActor);
+}
+
+
 void PhysxScene::simulate(GLFWwindow* window, Camera* camera, float timeStep, std::map<unsigned int, SpikeStruct>& spikeStruct, std::map<unsigned int, CactusStruct>& cactusStruct)
 {
 	scene->simulate(timeStep);
 	scene->fetchResults(true);
 
 	mouseButtonCallback(window, camera);
-
 
 	for (int i = 0; i < spikes.size(); i++) {
 		PxRigidDynamic* spike = spikes[i].actor;
@@ -273,6 +323,22 @@ void PhysxScene::simulate(GLFWwindow* window, Camera* camera, float timeStep, st
 			cactusStruct.erase(pair.second.index);
 			cacti.erase(pair.second.index);
 			break;
+		}
+	}
+}
+
+PxRigidDynamic* PhysxScene::getDynamicActor(const std::string& name)
+{
+	PxU32 nbActiveActors;
+	PxActor** activeActors = scene->getActiveActors(nbActiveActors);
+
+	for (PxU32 i = 0; i < nbActiveActors; ++i)
+	{
+		PxActor* actor = activeActors[i];
+
+		if (actor->getName() == "name")
+		{
+			return static_cast<PxRigidDynamic*>(actor);
 		}
 	}
 }
@@ -412,28 +478,6 @@ void PhysxScene::onContact(const PxContactPairHeader& pairHeader, const PxContac
 					std::cout << "hit enemy" << std::endl;
 					enemiesToRemove.push_back((unsigned int)actor1->userData);
 				}
-			}
-			else if ((actor2->getName() == "treasureChest" && actor1->getName() == "mummy")
-				|| (actor1->getName() == "treasureChest" && actor2->getName() == "mummy")) {
-				// ALL ENEMIES DEAD + touching treasure chest:
-				if (allEnemiesDead) {
-					hdu->showBigScreen("winEndscreen");
-				}
-				std::cout << "touched treasure chest!";
-			}
-			else if ((actor2->getName() == "treasureChest" && actor1->getName() == "mummy")) {
-				// ALL ENEMIES DEAD + touching treasure chest:
-				if (allEnemiesDead) {
-					hdu->showBigScreen("winEndscreen");
-				}
-				std::cout << "touched treasure chest! 2";
-			}
-			else if ((actor1->getName() == "treasureChest" && actor2->getName() == "mummy")) {
-				// ALL ENEMIES DEAD + touching treasure chest:
-				if (allEnemiesDead) {
-					hdu->showBigScreen("winEndscreen");
-				}
-				std::cout << "touched treasure chest! 3";
 			}
 		}
 	}
