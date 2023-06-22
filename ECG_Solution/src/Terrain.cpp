@@ -2,18 +2,13 @@
 
 Terrain::Terrain(){}
 
-void Terrain::createTerrain(const char* texturePath, const char* heightmapPath)
+void Terrain::createTerrain(const char* texturePath, const char* heightmapPath, float ka, float kd, float ks, int alpha)
 {
-	//cubeShader.createPhongShader("assets/textures/tiles_diffuse.dds", "assets/textures/tiles_specular.dds", "", true, glm::mat4(1.0f), 0.0f, 0.0f, 0.0f, 0);
-	//cube.generateModel("assets/objects/cube2.obj");
-
-	//pyramid.generateModel("assets/objects/cube2.obj");
-
-	shader.createTerrainShader("", "");
+	shader.createTerrainShader("", "", ka, kd, ks, alpha);
 	shader.activate();
-	diffuseTexture.genTexture("assets/textures/brick.jpg");
-	specularTexture.genTexture("assets/textures/brick_specular.jpg");
-	heightmapTexture.genTexture(heightmapPath);
+	diffuseTexture.genTexture("assets/textures/ground.png");
+	specularTexture.genTexture("assets/textures/ground.png");
+	heightmapTexture.genDDSTexture(heightmapPath);
 
 	//depthShader.createDepthMapShader();
 	//debugShader.createDebugShadowShader();
@@ -75,95 +70,11 @@ void Terrain::createTerrain(const char* texturePath, const char* heightmapPath)
 
 	glPatchParameteri(GL_PATCH_VERTICES, NUM_PATCH_PTS);
 
-
-	//// configure depth map FBO
-	//// -----------------------
-	//glGenFramebuffers(1, &depthMapFBO);
-
-	//// create depth texture
-	//glGenTextures(1, &depthMap);
-	//glBindTexture(GL_TEXTURE_2D, depthMap);
-	//glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, SHADOW_WIDTH, SHADOW_HEIGHT, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
-	//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-	//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-	//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE); //GL_CLAMP_TO_BORDER //GL_REPEAT
-	//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-	//float borderColor[] = { 1.0f, 1.0f, 1.0f, 1.0f };
-	//glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, borderColor);
-
-	//// attach depth texture as FBO's depth buffer
-	//glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
-	//glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, depthMap, 0);
-	//glDrawBuffer(GL_NONE);
-	//glReadBuffer(GL_NONE);
-	//glBindFramebuffer(GL_FRAMEBUFFER, 0);
-
 }
 
 void Terrain::render(glm::mat4 viewMatrix, glm::vec3 eyePos, glm::vec3 lightPos, glm::mat4 lightSpaceMatrix, unsigned int depthMap)
 {
-	//sieht man von anfang an ab + 25 wirds dunkel 
-	//test += 0.01;
-
-	//glm::vec3 lightPos = glm::vec3(0.5f, 2.0f, 2.0f);
-	//glm::vec3 lightDir = glm::vec3(0.0f, 1.0f, 0.0f);
-	//glm::mat4 orthgonalProjection = glm::ortho(-10.0f, 10.0f, -10.0f, 10.0f, 1.0f, 7.5f);
-	//glm::mat4 lightView = glm::lookAt(lightPos, glm::vec3(0.0f), lightDir);
-	//glm::mat4 lightSpaceMatrix = orthgonalProjection * lightView;	
 	
-	//glm::vec3 lightPos = glm::vec3(-2.0f, 4, -1);
-	//glm::mat4 depthProjectionMat = glm::ortho<float>(-10, 10, -10, 10, 1.0f, 7.5f);
-	//glm::mat4 depthViewMat = glm::lookAt(lightPos, glm::vec3(0.0f), glm::vec3(0, 1, 0));
-	//glm::mat4 depthModelMat = glm::mat4(1.0f);
-
-	//glm::mat4 lightSpaceMatrix = depthProjectionMat * depthViewMat * depthModelMat;
-
-
-
-	//glm::mat4 model2 = glm::mat4(1.0f);
-	//model2 = glm::translate(model2, glm::vec3(0.0, 1.0 , 0.0));
-	//model2 = glm::scale(model2, glm::vec3(1.0f));
-
-
-	// 1. render depth of scene to texture (from light's perspective)
-	// --------------------------------------------------------------
-	//glViewport(0, 0, SHADOW_WIDTH, SHADOW_HEIGHT);
-	//glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
-
-	//// Draw model/mesh with shadowMap shader
-	//depthShader.setUniformMatrix4fv("lightSpaceMatrix", 1, GL_FALSE, lightSpaceMatrix); //depthShader.setUniformMatrix4fv("view", 1, GL_FALSE, lightSpaceMatrix);
-
-	////draw cube depth
-	//depthShader.setUniformMatrix4fv("modelMatrix", 1, GL_FALSE, model2);
-	//pyramid.draw(&cubeShader);
-
-	//depthShader.setUniformMatrix4fv("lightSpaceMatrix", 1, GL_FALSE, lightSpaceMatrix);
-	//glm::mat4 model3 = glm::mat4(1.0f);
-	//model3 = glm::translate(model3, glm::vec3(0.0f, 0.0, 0.0));
-	//depthShader.setUniformMatrix4fv("modelMatrix", 1, GL_FALSE, model3);
-
-
-	// Switch back to the default framebuffer
-	//glBindFramebuffer(GL_FRAMEBUFFER, 0);
-
-	//// reset viewport
-	//glViewport(0, 0, 800, 800);
-	//glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	
-
-
-
-	// 2. render scene as normal using the generated depth/shadow map  
-	// --------------------------------------------------------
-	
-	//debugShader.setUniform1f("near_plane", -10.0f);
-	//debugShader.setUniform1f("far_plane", 20.0f);
-	//debugShader.setUniform1i("depthMap", 0);
-	//glActiveTexture(GL_TEXTURE0);
-	//glBindTexture(GL_TEXTURE_2D, depthMap);
-	//renderDebug();
-	
-	//TERRAIN
 	shader.setUniformMatrix4fv("view", 1, GL_FALSE, viewMatrix);
 	shader.setUniformMatrix4fv("model", 1, GL_FALSE,glm::mat4(1.0f));
 	shader.setUniform3f("eyePos", eyePos.x, eyePos.y, eyePos.z); //y + 10
@@ -176,6 +87,7 @@ void Terrain::render(glm::mat4 viewMatrix, glm::vec3 eyePos, glm::vec3 lightPos,
 	shader.setUniform1i("diffuseTexture", 1);
 	specularTexture.bind(2);
 	shader.setUniform1i("specularTexture", 2);
+	shader.setUniform1i("shadow", 0);
 
 	if (depthMap != -1) {
 		glActiveTexture(GL_TEXTURE0 + 3);
@@ -184,23 +96,6 @@ void Terrain::render(glm::mat4 viewMatrix, glm::vec3 eyePos, glm::vec3 lightPos,
 	}
 	glBindVertexArray(terrainVAO);
 	glDrawArrays(GL_PATCHES, 0, NUM_PATCH_PTS * rez * rez);
-
-
-	////CUBE
-	//cubeShader.setUniformMatrix4fv("viewMatrix", 1, GL_FALSE, viewMatrix);
-	//cubeShader.setUniformMatrix4fv("modelMatrix", 1, GL_FALSE, glm::translate(model2, glm::vec3(0.0, 35.0, 0.0)));
-	//cubeShader.setUniform3f("eyePos", eyePos.x, eyePos.y, eyePos.z);
-	//cubeShader.setUniform3f("lightPos", lightPos.x, lightPos.y, lightPos.z);
-	//cubeShader.setUniformMatrix4fv("lightSpaceMatrix", 1, GL_FALSE, lightSpaceMatrix);
-
-	//glActiveTexture(GL_TEXTURE0 + 2);
-	//glBindTexture(GL_TEXTURE_2D, depthMap);
-	//cubeShader.setUniform1i("shadowMap", 2);
-
-	//pyramid.draw(&cubeShader);
-
-	////cubeShader.setUniformMatrix4fv("modelMatrix", 1, GL_FALSE, model2);
-	////pyramid.draw(&cubeShader);
 }
 
 

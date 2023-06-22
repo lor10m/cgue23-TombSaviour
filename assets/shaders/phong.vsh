@@ -24,6 +24,7 @@ uniform mat4 modelMatrix;
 uniform mat4 lightSpaceMatrix; // added for shadows;
 uniform mat4 bones[200];
 uniform bool isAnimated;
+uniform bool normalMapping;
 
 void main()
 {
@@ -39,12 +40,15 @@ void main()
 
 	fragPos = vec3(vertexPos);
 	//fragNormal = transpose(inverse(mat3(modelMatrix))) * normal;
+
 	mat3 normalModelMatrix = mat3(transpose(inverse(modelMatrix)));
 	fragNormal = normalize(normalModelMatrix * normal);
 
-	vec3 T = normalize(normalModelMatrix * tangent);
-	vec3 B = normalize(normalModelMatrix * bitangent);
-	TBN = mat3(T, B, fragNormal);
+	if (normalMapping) {
+		vec3 T = normalize(normalModelMatrix * tangent);
+		vec3 B = normalize(normalModelMatrix * bitangent);
+		TBN = mat3(T, B, fragNormal);
+	}
 
 	fragTexCoordinate = texCoordinate;
 	fragPosLightSpace = lightSpaceMatrix * vertexPos;

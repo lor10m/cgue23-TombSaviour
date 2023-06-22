@@ -74,10 +74,11 @@ int main()
 	glfwSetKeyCallback(window, keyCallback);
 
 	// TODO illumination multiplier
-	int brightnessIdx = reader.GetReal("global", "brightnessIdx", 10);
+	int brightnessIdx = reader.GetReal("global", "brightnessIdx", 0.5);
+	int diffuseLight = reader.GetReal("global", "diffuseLight", 1.0);
+	int specularLight = reader.GetReal("global", "specularLight", 0.2);
+	int alpha = reader.GetReal("global", "alpha", 64);
 	setIllumination(brightnessIdx);
-	std::cout << "Illumination: " << getIlluminationMultiplier() << "\n";
-	// https://github.com/lor10m/cgue23-TombSaviour/blob/CameraEtc/ECG_Solution/src/GlobalVariables.cpp
 	int lifeNumber = reader.GetReal("global", "maxlifes", 3);
 
 	//glewExperimental = true;
@@ -104,6 +105,10 @@ int main()
 	// OBJECTS
 	PhysxScene physxScene(window, lifeNumber);
 	Objects objects(window, &camera, &physxScene);
+	objects.ambientFactor = brightnessIdx;
+	objects.diffuseFactor = diffuseLight;
+	objects.specularFactor = specularLight;
+	objects.alpha = alpha;
 	
     glfwSetWindowUserPointer(window, &camera);
     glfwSetFramebufferSizeCallback(window, framebufferSizeCallback);
@@ -132,7 +137,7 @@ int main()
 		lastFrame = currentFrame;
 
 		// render
-		glClearColor(0.9f, 0.9f, 0.9f, 1.0f);		// white/grey
+		glClearColor(0.9019f, 0.9529f, 1.0f, 1.0f);		// white/grey
 		//glClearColor(0.7f, 0.7f, 1.0f, 1.0f);		// light blue
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 

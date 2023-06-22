@@ -209,7 +209,7 @@ glm::vec3 Character::getADdirection(GLFWwindow* window) {
 
 void Character::onShapeHit(const PxControllerShapeHit& shapeHit)
 {
-	if (allEnemiesDead && shapeHit.actor->getName() == "pyramid") {		// TODO: treasureChest
+	if (allEnemiesDead && shapeHit.actor->getName() == "treasureChest") {		// TODO: treasureChest
 		treasureChestTouch = true;
 	}
 }

@@ -43,7 +43,7 @@ private:
 	unsigned int quadVAO = 0;
 	unsigned int quadVBO;
 public:
-	void createTerrain(const char* texturePath, const char* heightmapPath);
+	void createTerrain(const char* texturePath, const char* heightmapPath, float ka, float kd, float ks, int alpha);
 	Terrain();
 	void render(glm::mat4 viewMatrix, glm::vec3 eyePos, glm::vec3 lightPos, glm::mat4 lightSpaceMatrix, unsigned int depthMap);
 	void deleteTerrain();

@@ -16,6 +16,10 @@ struct TumbleweedStruct {
 	glm::vec3 translate;
 	glm::vec3 rotate;
 };
+struct PalmStruct {
+	Model* model = NULL;
+	glm::mat4 modelMatrix;
+};
 
 struct CactusStruct {
 	Model* model = NULL;

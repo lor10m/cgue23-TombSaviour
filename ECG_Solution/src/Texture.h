@@ -16,6 +16,7 @@ public:
 	Texture(GLuint textureHandle);
 	//Texture(const char* texturePath);
 	void genTexture(const char* texturePath);
+	void genDDSTexture(const char* texturePath);
 	void bind(int location);
 	std::string type;
 	std::string path;

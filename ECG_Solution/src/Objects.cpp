@@ -13,30 +13,35 @@ Objects::Objects(GLFWwindow* window, Camera* camera, PhysxScene* physxScene)
 
 	createTerrain();
 	createMummy(window);
-	//createPyramid();
-	createPalmTree();
+	createPyramid();
 	//createVideoWall();
-	createPointLightCube();
-	//createTreasureChest();
-	
+	//createPointLightCube();
+	createTreasureChest();
+
 	//createTestCube();
 
-	createShadowMap();
+	//createShadowMap();
 
-	//enemyShader.createPhongShader(glm::mat4(0.0f), 0.1f, 1.0f, 0.2f, 32);
-	//enemyShader.setUniform1i("isAnimated", 1);
+	enemyShader.createPhongShader(glm::mat4(0.0f), ambientFactor, diffuseFactor, specularFactor, alpha);
+	enemyShader.setUniform1i("isAnimated", 1);
+	enemyShader.setUniform1i("withShadow", 0);
 
+
+	//---------------
 	// Create Enemies
+	//---------------
 	for (unsigned int i = 0; i < numEnemies; i++) {
-		createEnemy(glm::vec3(10 + i * 6, 3.0f, 2.0f)); //createEnemy(glm::vec3(165 + i * 6, 24.0f, -95.0f));	
+		createEnemy(glm::vec3(165 + i * 6, 24.0f, -95.0f)); //createEnemy(glm::vec3(165 + i * 6, 24.0f, -95.0f));	
 	}
-
-	//cactusShader.createPhongShader(glm::mat4(0.0f), 0.1f, 1.0f, 0.1f, 2);
-	//cactusShader.setUniform1i("isAnimated", 0);
-	//cactusTexture.genTexture("assets/textures/cactus.jpg");
 
 	std::srand(static_cast<unsigned int>(std::time(nullptr)));
 
+	//------------
+	// Create Cacti
+	//-------------
+	cactusShader.createPhongShader("assets/textures/Cactus.jpg", "assets/textures/Cactus.jpg", "", false, glm::mat4(1.0f), ambientFactor, diffuseFactor, specularFactor, alpha);
+	cactusShader.setUniform1i("isAnimated", 0);
+	cactusShader.setUniform1i("withShadow", 0);
 	for (unsigned int i = 0; i < numCacti; i++) {
 		float randomX = static_cast<float>(std::rand() % 1021 - 510);
 		float randomZ = static_cast<float>(std::rand() % 1021 - 510);
@@ -45,21 +50,44 @@ Objects::Objects(GLFWwindow* window, Camera* camera, PhysxScene* physxScene)
 	}
 	createCactus(glm::vec3(46.0f, 40.0f, -26));	// one fixed cactus
 
-	//spikeShader.createPhongShader(glm::mat4(0.0f), 0.1f, 0.7f, 0.1f, 2);
-	//spikeShader.setUniform1i("isAnimated", 0);
-
-	for (unsigned int i = 0; i < numSpikes; i++) {
-		//createSpike();
+	//------------
+	// Create Palm trees
+	//-------------
+	palmTreeShader.createPhongShader("assets/textures/wood_texture.dds", "assets/textures/wood_texture_specular.dds", "", true, glm::mat4(1.0f), ambientFactor, 0.8f, 0.5f, 1.0f);
+	palmTreeShader.setUniform1i("isAnimated", 0);
+	palmTreeShader.setUniform1i("withShadow", 0);
+	for (unsigned int i = 0; i < numPalms; i++) {
+		createPalmTree(glm::vec3(90.0, 35.8, -100.0));
 	}
 
-	//createHduObject(window);
+	//------------
+	// Create Spikes
+	//------------
+	spikeShader.createPhongShader("assets/textures/Cactus.jpg", "assets/textures/Cactus.jpg", "", false, glm::mat4(1.0f), ambientFactor, diffuseFactor, specularFactor, alpha);
+	spikeShader.setUniform1i("isAnimated", 0);
+	spikeShader.setUniform1i("withShadow", 0);
+	for (unsigned int i = 0; i < numSpikes; i++) {
+		createSpike();
+	}
 
+	//------------
+	// Create Tumbleweed
+	//------------
+	tumbleweedShader.createPhongShader("assets/textures/Cactus.jpg", "assets/textures/Cactus.jpg", "", false, glm::mat4(1.0f), ambientFactor, diffuseFactor, specularFactor, alpha);
+	tumbleweedShader.setUniform1i("isAnimated", 0);
+	tumbleweedShader.setUniform1i("withShadow", 0);
+	for (unsigned int i = 0; i < numTumbleweeds; i++) {
+		createTumbleweed();
+	}
+
+	createHduObject(window);
+	 
 }
 
 void Objects::createTerrain()
 {
 	const char* heightmap_path = "assets/heightmaps/hm7_pyramid.png"; //hm7_pyramid.png
-	terrain.createTerrain("assets/textures/sand.png", heightmap_path);
+	terrain.createTerrain("assets/textures/sand.png", heightmap_path, ambientFactor, 0.3, 0.1, 30);
 
 	physxScene->createTerrain(heightmap_path);
 }
@@ -77,7 +105,7 @@ void Objects::createPointLightCube()
 
 void Objects::createMummy(GLFWwindow* window)
 {
-	mummy.createCharacter(window, camera, controllerManager, physxScene->material, glm::vec3(0.0f, 33.0f, 0.0f));
+	mummy.createCharacter(window, camera, controllerManager, physxScene->material, glm::vec3(103.0f, 100.0f, -63.0f));
 	// Hill:    -16.0f, 97.0f, -114.0f
 	// Pyramid: 17.0f, 32.0f, 76.0f
 	// Outside: 103.0f, 30.0f, -63.0f
@@ -119,32 +147,27 @@ void Objects::createCactus(glm::vec3 position)
 	cactiCounter++;
 }
 
-void Objects::createPalmTree()
+void Objects::createPalmTree(glm::vec3 position)
 {
+	Model* palmTree = new Model();
+	PalmStruct palmStruct;
+	palmStruct.model = palmTree;
+
 	glm::vec3 palmRotate = glm::vec3(glm::radians(-90.0f), glm::radians(0.0f), glm::radians(0.0f));
 	glm::vec3 palmScale = glm::vec3(0.01, 0.01, 0.01);
-	glm::vec3 palmTranslate = glm::vec3(9.0, 35.8, -10.0);
+	glm::vec3 palmTranslate = glm::vec3(position.x, position.y, position.z);
 	Transform palmTransform;
 	palmTransform.translate(palmTranslate);
 	palmTransform.rotate(palmRotate);
 	palmTransform.scale(palmScale);
-	palmMatrix = palmTransform.getMatrix();
+	palmStruct.modelMatrix = palmTransform.getMatrix();
 
-	glm::vec3 palmTranslate2 = glm::vec3(90.0, 35.8 - 33.0, -100.0);
-	Transform palmTransform2;
-	palmTransform2.translate(palmTranslate2);
-	palmTransform2.rotate(palmRotate);
-	palmTransform2.scale(palmScale);
-	palmMatrix2 = palmTransform2.getMatrix();
-	
+	palmTree->generateModel("assets/objects/palm_tree.obj");
+	physxScene->createModel("palm", palmTree->indices, palmTree->vertices, palmTree->vertices, palmScale, palmTranslate, palmRotate);
+	palms[palmCounter] = palmStruct;
+	palmCounter++;
 
-
-	palmTreeShader.createPhongShader("assets/textures/wood_texture.dds", "assets/textures/wood_texture_specular.dds", "",true, palmTransform.getMatrix(), 0.05f, 0.8f, 0.5f, 1.0f);
-	palmTreeShader.setUniform1i("isAnimated", 0);
-
-	palmTree.generateModel("assets/objects/palm_tree.obj");
-
-	physxScene->createModel("palmTree", palmTree.indices, palmTree.vertices, palmTree.normals, palmScale, palmTranslate, palmRotate);
+	physxScene->createModel("palmTree", palmTree->indices, palmTree->vertices, palmTree->normals, palmScale, palmTranslate, palmRotate);
 }
 
 void Objects::createPyramid()
@@ -159,8 +182,9 @@ void Objects::createPyramid()
 	pyramidMatrix = pyramidTransform.getMatrix();
 	pyramid.generateModel("assets/objects/pyramid_final1.obj"); //pyramid1	untitled5.obj
 
-	pyramidShader.createPhongShader("assets/textures/sandklein.dds", "assets/textures/sandklein.dds", "", true, pyramidTransform.getMatrix(), 0.05f, 0.8f, 1.0f, 1.0f);
+	pyramidShader.createPhongShader("assets/textures/ground.png", "assets/textures/ground.png", "", false, pyramidTransform.getMatrix(), ambientFactor, 0.3, 0.1, 30);
 	pyramidShader.setUniform1i("isAnimated", 0);
+	pyramidShader.setUniform1i("withShadow", 0);
 
 	physxScene->createModel("pyramid", pyramid.indices, pyramid.vertices, pyramid.normals, pyramidScale, pyramidTranslate, pyramidRotate);
 }
@@ -181,14 +205,14 @@ void Objects::createSpike()
 
 void Objects::createTumbleweed()
 {
-	//Model* tumbleWeedModel = new Model();
-	//TumbleweedStruct tumbleweedStruct;
-	//tumbleweedStruct.model = tumbleWeedModel;
+	Model* tumbleWeedModel = new Model();
+	TumbleweedStruct tumbleweedStruct;
+	tumbleweedStruct.model = tumbleWeedModel;
 
-	//tumbleWeedModel->generateModel("assets/objects/tumbleweed.glb");
-	//physxScene->createTumbleweed(tumbleweedCounter, tumbleWeedModel->modelSize * glm::vec3(0.1f, 0.1f, 0.1f), glm::vec3(10.0f, 26.64f, 0.0f));
-	//tumbleweeds[tumbleweedCounter] = tumbleWeedModel;		// TODO: why not working??
-	//tumbleweedCounter++;
+	tumbleWeedModel->generateModel("assets/objects/tumbleweed.glb");
+	physxScene->createTumbleweed(tumbleweedCounter, tumbleWeedModel->modelSize * glm::vec3(1.0f, 1.0f, 1.0f), glm::vec3(112.0f, 35.0f, -45));
+	tumbleweeds[tumbleweedCounter] = tumbleweedStruct;
+	tumbleweedCounter++;
 }
 
 void Objects::createHduObject(GLFWwindow* window)
@@ -206,9 +230,11 @@ void Objects::createVideoWall() {
 	videoWallTransform.rotate(videoWallRotate);
 	videoWallTransform.scale(videoWallScale);
 	videoWall.generateModel("assets/objects/screenPanel.obj");
-	
+
 	videoWallShader.createPhongVideoTexShader("assets/videos/video10_lowQuality.mp4", videoWallTransform.getMatrix(), 0.05f, 0.8f, 1.0f, 1.0f);
 	videoWallShader.setUniform1i("isAnimated", 0);
+	videoWallShader.setUniform1i("normalMapping", false);
+	videoWallShader.setUniform1i("withShadow", false);
 
 	physxScene->createModel("videowall", videoWall.indices, videoWall.vertices, videoWall.normals, videoWallScale, videoWallTranslate, videoWallRotate);
 }
@@ -309,12 +335,12 @@ void Objects::render(GLFWwindow* window, float currentTime, float dt, bool norma
 {
 	cubeMat = glm::mat4(1.0f);
 	cubeMat = glm::translate(cubeMat, glm::vec3(0.0f, 1.5f, 0.0));
-	cubeMat = glm::scale(cubeMat, glm::vec3(0.5f));	
-	
+	cubeMat = glm::scale(cubeMat, glm::vec3(0.5f));
+
 	cubeMat2 = glm::mat4(1.0f);
 	cubeMat2 = glm::translate(cubeMat2, glm::vec3(0.0f, 33 + 1.3f, -5.0));
 	cubeMat2 = glm::scale(cubeMat2, glm::vec3(0.2f));
-	
+
 	int screenWidth;
 	int screenHeight;
 	glfwGetWindowSize(window, &screenWidth, &screenHeight);
@@ -336,19 +362,19 @@ void Objects::render(GLFWwindow* window, float currentTime, float dt, bool norma
 	// --------------------------------------------------------------
 	//glEnable(GL_CULL_FACE);
 	//glCullFace(GL_FRONT);
-	glViewport(0, 0, SHADOW_WIDTH, SHADOW_HEIGHT);
-	glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
+	//glViewport(0, 0, SHADOW_WIDTH, SHADOW_HEIGHT);
+	//glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
 
-	// Draw model/mesh with shadowMap shader
-	renderShadowMap(pointLightCube, cubeMat2);
-	//renderShadowMap(pyramid, pyramidMatrix);
-	renderShadowMap(palmTree, palmMatrix);
-	// Switch back to the default framebuffer
-	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+	//// Draw model/mesh with shadowMap shader
+	//renderShadowMap(pointLightCube, cubeMat2);
+	////renderShadowMap(pyramid, pyramidMatrix);
+	//renderShadowMap(palmTree, palmMatrix);
+	//// Switch back to the default framebuffer
+	//glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
-	// reset viewport
-	glViewport(0, 0, screenWidth, screenHeight);
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	//// reset viewport
+	//glViewport(0, 0, screenWidth, screenHeight);
+	//glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	//glCullFace(GL_BACK);
 
 
@@ -356,99 +382,89 @@ void Objects::render(GLFWwindow* window, float currentTime, float dt, bool norma
 	// 2. render scene as normal using the generated depth/shadow map  
 	// --------------------------------------------------------------
 
-	//renderModel(&pointLightCube,cubeMat2, &lightCubeShader, false);
-	//renderModel(&pyramid, pyramidMatrix, &pyramidShader, false);
-	//renderModel(&palmTree, palmMatrix, &palmTreeShader, false);
+	//debugShader.setUniform1f("near_plane", 0.1);
+	//debugShader.setUniform1f("far_plane", 1000);
+	//debugShader.setUniform1i("depthMap", 0);
+	//glActiveTexture(GL_TEXTURE0);
+	//glBindTexture(GL_TEXTURE_2D, depthMap);
+	//renderDebug();
 
-	debugShader.setUniform1f("near_plane", 0.1);
-	debugShader.setUniform1f("far_plane", 1000);
-	debugShader.setUniform1i("depthMap", 0);
-	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, depthMap);
-	renderDebug();
+	//renderModel(&pointLightCube,cubeMat2, &lightCubeShader, false);
+
+	//render pyramid
+	renderModel(&pyramid, pyramidMatrix, &pyramidShader, false, false);
+
+	// render palm
+	for (const auto& pair : palms) {
+		renderModel(pair.second.model, pair.second.modelMatrix, &palmTreeShader, false, false);
+	}
 
 	// render the terrain
-	//terrain.render(viewMatrix,eyePos, lightPos, lightSpaceMatrix, depthMap);
+	terrain.render(viewMatrix, eyePos, lightPos, lightSpaceMatrix, depthMap);
 
-	//renderModel(&treasureChest, treasureChestTransform.getMatrix(), &treasureChestShader, normalMapping);
+	// render treasure
+	turnRadius += 0.0007f;
+	treasureChestTransform.rotate(glm::vec3(glm::radians(0.0f), glm::radians(turnRadius), glm::radians(0.0f)));
+	renderModel(&treasureChest, treasureChestTransform.getMatrix(), &treasureChestShader, normalMapping, true);
 
-	//renderTreasureChest(normalMapping);
+	// render cactus
+	for (const auto& pair : cacti) {
+		renderModel(pair.second.model, pair.second.modelMatrix, &cactusShader, false, false);
+	}
 
-	//treasureChestShader.setUniformMatrix4fv("viewMatrix", 1, GL_FALSE, viewMatrix);
-	//treasureChestShader.setUniformMatrix4fv("modelMatrix", 1, GL_FALSE, treasureChestTransform.getMatrix());
-	//treasureChestShader.setUniform3f("eyePos", eyePos.x, eyePos.y, eyePos.z);
-	//treasureChestShader.setUniform3f("lightPos", lightPos.x, lightPos.y, lightPos.z);
-	//treasureChestShader.setUniformMatrix4fv("lightSpaceMatrix", 1, GL_FALSE, lightSpaceMatrix);
+	//render spikes
+	for (const auto& pair : spikes) {
+		if (pair.second.render) {
+			Transform t;
+			t.translate(pair.second.translate);
+			t.rotate(pair.second.rotate);
+			t.scale(pair.second.scale);
+			renderModel(pair.second.model, t.getMatrix(), &spikeShader, false, false);
+		}
+	}
 
-	//treasureChestShader.setUniform1i("invertNormals", false);
-	//treasureChestShader.setUniform1i("normalMapping", false);
-
-	//treasureChest.draw(&treasureChestShader);
-	//treasureChest.draw(&treasureChestShader);
-
-
-	//renderTestCube(normalMapping);
-
-	//testShadowMap.render(viewMatrix, glm::vec3(camera->cameraPosition.x, camera->cameraPosition.y, camera->cameraPosition.z));
-
+	for (const auto& pair : tumbleweeds) {
+		Transform t;
+		t.translate(pair.second.translate);
+		t.rotate(pair.second.rotate);
+		t.scale(pair.second.scale);
+		renderModel(pair.second.model, t.getMatrix(), &tumbleweedShader, false, false);
+	}
 	//render enemies
-	//std::vector<unsigned int> enemiesToRemove = physxScene->enemiesToRemove; //get enemies that have been hit 
-	//physxScene->enemiesToRemove.clear();
+	std::vector<unsigned int> enemiesToRemove = physxScene->enemiesToRemove; //get enemies that have been hit 
+	physxScene->enemiesToRemove.clear();
 
-	//enemyShader.setUniformMatrix4fv("viewMatrix", 1, GL_FALSE, camera->getTransformMatrix());
-	//enemyShader.setUniform3f("eyePos", camera->cameraPosition.x, camera->cameraPosition.y, camera->cameraPosition.z);
+	enemyShader.setUniformMatrix4fv("viewMatrix", 1, GL_FALSE, camera->getTransformMatrix());
+	enemyShader.setUniform3f("eyePos", camera->cameraPosition.x, camera->cameraPosition.y, camera->cameraPosition.z);
+	enemyShader.setUniform1i("normalMapping", false);
+	enemyShader.setUniform1i("withShadow", false);
 
-	//for (unsigned int i = 0; i < enemies.size(); i++)
-	//{
-	//	if (std::find(enemiesToRemove.begin(), enemiesToRemove.end(), i + 1) != enemiesToRemove.end()) //if enemy was hit by spike
-	//	{
-	//		enemies[i].enemy->isDead = true;
-	//	}
+	for (unsigned int i = 0; i < enemies.size(); i++)
+	{
+		if (std::find(enemiesToRemove.begin(), enemiesToRemove.end(), i + 1) != enemiesToRemove.end()) //if enemy was hit by spike
+		{
+			enemies[i].enemy->isDead = true;
+		}
 
-	//	enemies[i].enemy->move(enemyShader, enemies[i].modelMatrix, currentTime, mummy.getPosition(), 50, dt); //move physx enemy controller & render object
+		enemies[i].enemy->move(enemyShader, enemies[i].modelMatrix, currentTime, mummy.getPosition(), 50, dt); //move physx enemy controller & render object
 
-	//	if (enemies[i].enemy->shouldBeDeleted)
-	//	{
-	//		enemies.erase(enemies.begin() + i); //remove enemy if dying animation is done 
-	//	}
-	//}
+		if (enemies[i].enemy->shouldBeDeleted)
+		{
+			enemies.erase(enemies.begin() + i); //remove enemy if dying animation is done 
+		}
+	}
 
-	// ALL ENEMIES DEAD!! YOU WON
-	//if (enemies.size() == 0 && !physxScene->allEnemiesDead) {
-	//	//hduObject.showBigScreen("winEndscreen");
-	//	physxScene->allEnemiesDead = true;
-	//	std::cout << "All enemies are dead! Get the treasure chest!" << std::endl;
-	//}
-
-	//// render cactus
-	//for (const auto& pair : cacti) {
-	//	cactusTexture.bind(0);
-	//	cactusTexture.bind(1);
-	//	cactusShader.setUniformMatrix4fv("modelMatrix", 1, GL_FALSE, pair.second.modelMatrix);
-	//	cactusShader.setUniformMatrix4fv("viewMatrix", 1, GL_FALSE, camera->getTransformMatrix());
-	//	cactusShader.setUniform3f("eyePos", camera->cameraPosition.x, camera->cameraPosition.y, camera->cameraPosition.z);
-	//	pair.second.model->draw(&cactusShader);
-	//}
-
-
-	////render light cube
-	//lightCubeShader.setUniformMatrix4fv("viewMatrix", 1, GL_FALSE, camera->getTransformMatrix());
-	//lightCubeShader.setUniform3f("eyePos", camera->cameraPosition.x, camera->cameraPosition.y, camera->cameraPosition.z);
-	//pointLightCube.draw(&lightCubeShader);
-
-	////render spikes
-	//for (const auto& pair : spikes) {
-	//	if (pair.second.render) {
-	//		Transform t;
-	//		t.translate(pair.second.translate);
-	//		t.rotate(pair.second.rotate);
-	//		t.scale(pair.second.scale);
-	//		spikeShader.setUniformMatrix4fv("modelMatrix", 1, GL_FALSE, t.getMatrix());
-	//		spikeShader.setUniformMatrix4fv("viewMatrix", 1, GL_FALSE, camera->getTransformMatrix());
-	//		spikeShader.setUniform3f("eyePos", camera->cameraPosition.x, camera->cameraPosition.y, camera->cameraPosition.z);
-	//		pair.second.model->draw(&spikeShader);
-	//	}
-	//}
+	// ALL ENEMIES DEAD => touch treasure chest and you win!
+	if (enemies.size() == 0) {
+		if (!mummy.allEnemiesDead) {
+			mummy.allEnemiesDead = true;
+			std::cout << "All enemies are dead! Get the treasure chest!" << std::endl;
+		}
+		if (mummy.treasureChestTouch && showEndScreenOnce) {
+			showEndScreenOnce = false; // set this so that we don't call this method multiple times at the end
+			hduObject.showBigScreen("winEndscreen");
+		}
+	}
 	// render videowall
 	//videoWallShader.setUniformMatrix4fv("viewMatrix", 1, GL_FALSE, camera->getTransformMatrix());
 	//videoWallShader.setUniform3f("eyePos", camera->cameraPosition.x, camera->cameraPosition.y, camera->cameraPosition.z);
@@ -456,9 +472,15 @@ void Objects::render(GLFWwindow* window, float currentTime, float dt, bool norma
 	//videoWallShader.setCurrentFrame(elapsedTime);
 	//videoWall.draw(&videoWallShader);
 
-	//renderTestCube(normalMapping, testCubeShader);
-	//// Draw HDU last
-	//hduObject.drawHDU(window);
+	if (instructionScreenActive) {
+		if (hduObject.pollInput(window, dt)) {
+			instructionScreenActive = false;
+			//std::cout << "game initialized!" << std::endl;
+		}
+	}
+
+	// Draw HDU last
+	hduObject.drawHDU(window);
 
 }
 
@@ -469,7 +491,7 @@ void Objects::renderShadowMap(Model& model, glm::mat4 modelMatrix)
 	model.draw(nullptr);
 }
 
-void Objects::renderModel(Model* model, glm::mat4 modelMatrix, Shader* shader, bool normalMapping)
+void Objects::renderModel(Model* model, glm::mat4 modelMatrix, Shader* shader, bool normalMapping, bool withShadow)
 {
 
 	shader->setShadowMap(depthMap);
@@ -480,48 +502,33 @@ void Objects::renderModel(Model* model, glm::mat4 modelMatrix, Shader* shader, b
 	shader->setUniform3f("eyePos", eyePos.x, eyePos.y, eyePos.z);
 	shader->setUniform3f("lightPos", lightPos.x, lightPos.y, lightPos.z);
 	shader->setUniformMatrix4fv("lightSpaceMatrix", 1, GL_FALSE, lightSpaceMatrix);
-	glActiveTexture(GL_TEXTURE0 + 3);
-	glBindTexture(GL_TEXTURE_2D, depthMap);
-	shader->setUniform1i("shadowMap", 3);
-
 	shader->setUniform1i("invertNormals", false);
 	shader->setUniform1i("normalMapping", normalMapping);
-	shader->setUniform1i("withShadow", true);
+	shader->setUniform1i("withShadow", withShadow);
+
+	if (withShadow) {
+		glActiveTexture(GL_TEXTURE0 + 3);
+		glBindTexture(GL_TEXTURE_2D, depthMap);
+		shader->setUniform1i("shadowMap", 3);
+	}
 	model->draw(nullptr);
-}
-
-void Objects::renderTreasureChest(bool normalMapping) {
-
-	treasureChestShader.setShadowMap(depthMap);
-	treasureChestShader.setUniformMatrix4fv("viewMatrix", 1, GL_FALSE, viewMatrix);
-	treasureChestShader.setUniformMatrix4fv("modelMatrix", 1, GL_FALSE, treasureChestTransform.getMatrix());
-	treasureChestShader.setUniform3f("eyePos", eyePos.x, eyePos.y, eyePos.z);
-	treasureChestShader.setUniform3f("lightPos", lightPos.x, lightPos.y, lightPos.z);
-	treasureChestShader.setUniformMatrix4fv("lightSpaceMatrix", 1, GL_FALSE, lightSpaceMatrix);
-
-	treasureChestShader.setUniform1i("invertNormals", false);
-	treasureChestShader.setUniform1i("normalMapping", normalMapping);
-
-	treasureChestShader.setUniform1i("withShadow", true);
-
-	treasureChest.draw(&treasureChestShader);
 }
 
 void Objects::createTreasureChest() {
 	glm::vec3 chestRotate = glm::vec3(glm::radians(0.0f), glm::radians(0.0f), glm::radians(0.0f));
-	glm::vec3 chestScale = glm::vec3(0.5, 0.5, 0.5);
-	glm::vec3 chestTranslate = glm::vec3(6.0, 3.3 + 25.64, 2.0); //glm::vec3(108.0, 29, -43.0);
+	glm::vec3 chestScale = glm::vec3(3.0, 3.0, 3.0);
+	glm::vec3 chestTranslate = glm::vec3(-31, 33, 64);
 
 	treasureChestTransform.translate(chestTranslate);
 	treasureChestTransform.rotate(chestRotate);
 	treasureChestTransform.scale(chestScale);
 
 	treasureChestShader.createPhongShader("assets/textures/chest/chest_baseColor.jpg",
-		"assets/textures/chest/chest_specular_metallic.jpg", "assets/textures/chest/chest_normal.jpg", false, treasureChestTransform.getMatrix(), 0,0,0,0);
+		"assets/textures/chest/chest_specular_metallic.jpg", "assets/textures/chest/chest_normal.jpg", false, treasureChestTransform.getMatrix(), ambientFactor, diffuseFactor, specularFactor, alpha);
 
 	treasureChest.generateModel("assets/objects/treasureChest.obj");
 
-	//physxScene->createModel("treasureChest", treasureChest.indices, treasureChest.vertices, treasureChest.normals, chestScale, chestTranslate, chestRotate);
+	physxScene->createModel("treasureChest", treasureChest.indices, treasureChest.vertices, treasureChest.normals, chestScale, chestTranslate, chestRotate);
 }
 
 
@@ -531,177 +538,6 @@ void Objects::deleteObjects()
 	physxScene->deleteScene();
 }
 
-void Objects::renderTestCube(bool normalMapping)
-{
-	//render test cube
-	Transform t;
-	t.translate(glm::vec3(1.0f, 27.0, 0.0));
-
-	testCubeShader.setUniformMatrix4fv("modelMatrix", 1, GL_FALSE, t.getMatrix());
-	testCubeShader.setUniformMatrix4fv("viewMatrix", 1, GL_FALSE, camera->getTransformMatrix());
-	testCubeShader.setUniform3f("eyePos", camera->cameraPosition.x, camera->cameraPosition.y, camera->cameraPosition.z);
-
-
-	glm::vec3 diffuseColor = glm::vec3(1.0f, 1.0f, 1.0f) * 1.5f; // lightColor * diffuseStrength
-	glm::vec3 ambientColor = diffuseColor * 0.3f;//diffuseColor * ambientStrength;
-
-	testCubeShader.setUniform3f("light.position", 1.2f, 28.0f, 2.0f);
-	testCubeShader.setUniform3f("light.ambientIntensity", ambientColor.x, ambientColor.y, ambientColor.z);
-	testCubeShader.setUniform3f("light.diffuseIntensity", diffuseColor.x, diffuseColor.y, diffuseColor.z);
-	testCubeShader.setUniform3f("light.specularIntensity", 1.0f, 1.0f, 1.0f);
-	testCubeShader.setUniform1f("light.constant", 1);
-	testCubeShader.setUniform1f("light.linear", 0.10f);
-	testCubeShader.setUniform1f("light.quadratic", 0.065f);
-
-	testCubeShader.setUniform1i("disableAttenuation", true);
-	testCubeShader.setUniform1i("invertNormals", false);
-	testCubeShader.setUniform1i("normalMapping", normalMapping);
-
-	glBindVertexArray(vao);
-	glDrawArrays(GL_TRIANGLES, 0, 36);
-	glBindVertexArray(0);
-}
-
-//TODO berechnung in drawables verschieben
-void Objects::createTestCube()
-{
-	Transform t;
-	t.translate(glm::vec3(40.0f, 30.0, -13.0));
-	testCubeShader.createNormalShader("assets/textures/brickwall.jpg", "assets/textures/brickwall.jpg", "assets/textures/brickwall_normal.jpg", t.getMatrix());
-
-	float vertices[] = {
-		// back face
-		-1.0f, -1.0f, -1.0f,  0.0f,  0.0f, -1.0f, 0.0f, 0.0f, // bottom-left
-		1.0f,  1.0f, -1.0f,  0.0f,  0.0f, -1.0f, 1.0f, 1.0f, // top-right
-		1.0f, -1.0f, -1.0f,  0.0f,  0.0f, -1.0f, 1.0f, 0.0f, // bottom-right         
-		1.0f,  1.0f, -1.0f,  0.0f,  0.0f, -1.0f, 1.0f, 1.0f, // top-right
-		-1.0f, -1.0f, -1.0f,  0.0f,  0.0f, -1.0f, 0.0f, 0.0f, // bottom-left
-		-1.0f,  1.0f, -1.0f,  0.0f,  0.0f, -1.0f, 0.0f, 1.0f, // top-left
-		// front face
-		-1.0f, -1.0f,  1.0f,  0.0f,  0.0f,  1.0f, 0.0f, 0.0f, // bottom-left
-		1.0f, -1.0f,  1.0f,  0.0f,  0.0f,  1.0f, 1.0f, 0.0f, // bottom-right
-		1.0f,  1.0f,  1.0f,  0.0f,  0.0f,  1.0f, 1.0f, 1.0f, // top-right
-		1.0f,  1.0f,  1.0f,  0.0f,  0.0f,  1.0f, 1.0f, 1.0f, // top-right
-		-1.0f,  1.0f,  1.0f,  0.0f,  0.0f,  1.0f, 0.0f, 1.0f, // top-left
-		-1.0f, -1.0f,  1.0f,  0.0f,  0.0f,  1.0f, 0.0f, 0.0f, // bottom-left
-		// left face
-		-1.0f,  1.0f,  1.0f, -1.0f,  0.0f,  0.0f, 1.0f, 0.0f, // top-right
-		-1.0f,  1.0f, -1.0f, -1.0f,  0.0f,  0.0f, 1.0f, 1.0f, // top-left
-		-1.0f, -1.0f, -1.0f, -1.0f,  0.0f,  0.0f, 0.0f, 1.0f, // bottom-left
-		-1.0f, -1.0f, -1.0f, -1.0f,  0.0f,  0.0f, 0.0f, 1.0f, // bottom-left
-		-1.0f, -1.0f,  1.0f, -1.0f,  0.0f,  0.0f, 0.0f, 0.0f, // bottom-right
-		-1.0f,  1.0f,  1.0f, -1.0f,  0.0f,  0.0f, 1.0f, 0.0f, // top-right
-		// right face
-		 1.0f,  1.0f,  1.0f,  1.0f,  0.0f,  0.0f, 1.0f, 0.0f, // top-left
-		 1.0f, -1.0f, -1.0f,  1.0f,  0.0f,  0.0f, 0.0f, 1.0f, // bottom-right
-		 1.0f,  1.0f, -1.0f,  1.0f,  0.0f,  0.0f, 1.0f, 1.0f, // top-right         
-		 1.0f, -1.0f, -1.0f,  1.0f,  0.0f,  0.0f, 0.0f, 1.0f, // bottom-right
-		 1.0f,  1.0f,  1.0f,  1.0f,  0.0f,  0.0f, 1.0f, 0.0f, // top-left
-		 1.0f, -1.0f,  1.0f,  1.0f,  0.0f,  0.0f, 0.0f, 0.0f, // bottom-left     
-		 // bottom face
-		 -1.0f, -1.0f, -1.0f,  0.0f, -1.0f,  0.0f, 0.0f, 1.0f, // top-right
-		 1.0f, -1.0f, -1.0f,  0.0f, -1.0f,  0.0f, 1.0f, 1.0f, // top-left
-		 1.0f, -1.0f,  1.0f,  0.0f, -1.0f,  0.0f, 1.0f, 0.0f, // bottom-left
-		 1.0f, -1.0f,  1.0f,  0.0f, -1.0f,  0.0f, 1.0f, 0.0f, // bottom-left
-		 -1.0f, -1.0f,  1.0f,  0.0f, -1.0f,  0.0f, 0.0f, 0.0f, // bottom-right
-		 -1.0f, -1.0f, -1.0f,  0.0f, -1.0f,  0.0f, 0.0f, 1.0f, // top-right
-		 // top face
-		 -1.0f,  1.0f, -1.0f,  0.0f,  1.0f,  0.0f, 0.0f, 1.0f, // top-left
-		 1.0f,  1.0f , 1.0f,  0.0f,  1.0f,  0.0f, 1.0f, 0.0f, // bottom-right
-		 1.0f,  1.0f, -1.0f,  0.0f,  1.0f,  0.0f, 1.0f, 1.0f, // top-right     
-		 1.0f,  1.0f,  1.0f,  0.0f,  1.0f,  0.0f, 1.0f, 0.0f, // bottom-right
-		 -1.0f,  1.0f, -1.0f,  0.0f,  1.0f,  0.0f, 0.0f, 1.0f, // top-left
-		 -1.0f,  1.0f,  1.0f,  0.0f,  1.0f,  0.0f, 0.0f, 0.0f  // bottom-left        
-	};
-
-	constexpr int numVertices = sizeof(vertices) / (8 * sizeof(float));
-
-	float tangents[numVertices * 3];
-	float bitangents[sizeof(tangents)];
-
-	for (int vertex = 0; vertex < numVertices; vertex += 3)
-	{
-		glm::vec3 v0 = glm::vec3(vertices[vertex * 8 + 0], vertices[vertex * 8 + 1], vertices[vertex * 8 + 2]);
-		glm::vec3 v1 = glm::vec3(vertices[(vertex + 1) * 8 + 0], vertices[(vertex + 1) * 8 + 1], vertices[(vertex + 1) * 8 + 2]);
-		glm::vec3 v2 = glm::vec3(vertices[(vertex + 2) * 8 + 0], vertices[(vertex + 2) * 8 + 1], vertices[(vertex + 2) * 8 + 2]);
-
-		const uint32_t st_offset = 6;
-		glm::vec2 st0 = glm::vec2(vertices[vertex * 8 + st_offset + 0], vertices[vertex * 8 + st_offset + 1]);
-		glm::vec2 st1 = glm::vec2(vertices[(vertex + 1) * 8 + st_offset + 0], vertices[(vertex + 1) * 8 + st_offset + 1]);
-		glm::vec2 st2 = glm::vec2(vertices[(vertex + 2) * 8 + st_offset + 0], vertices[(vertex + 2) * 8 + st_offset + 1]);
-
-		glm::vec3 edge1_xyz = v1 - v0;
-		glm::vec3 edge2_xyz = v2 - v0;
-
-		glm::vec2 edge1_st = st1 - st0;
-		glm::vec2 edge2_st = st2 - st0;
-
-
-		float determinant = 1 / ((edge1_st.x * edge2_st.y) - (edge2_st.x * edge1_st.y));
-		glm::mat2 adjugate(1.0f);
-
-		adjugate[0][0] = determinant * edge2_st.y;  //column0
-		adjugate[0][1] = determinant * -edge2_st.x; //column0
-		adjugate[1][0] = determinant * -edge1_st.y; //column1
-		adjugate[1][1] = determinant * edge1_st.x;  //column1
-
-		glm::mat2& inverseMatrix = adjugate;
-
-		glm::vec3 tangent;
-		tangent.x = inverseMatrix[0][0] * edge1_xyz.x + inverseMatrix[1][0] * edge2_xyz.x;
-		tangent.y = inverseMatrix[0][0] * edge1_xyz.y + inverseMatrix[1][0] * edge2_xyz.y;
-		tangent.z = inverseMatrix[0][0] * edge1_xyz.z + inverseMatrix[1][0] * edge2_xyz.z;
-		tangent = glm::normalize(tangent);
-
-		glm::vec3 bitangent;
-		bitangent.x = inverseMatrix[0][1] * edge1_xyz.x + inverseMatrix[1][1] * edge2_xyz.x;
-		bitangent.y = inverseMatrix[0][1] * edge1_xyz.y + inverseMatrix[1][1] * edge2_xyz.y;
-		bitangent.z = inverseMatrix[0][1] * edge1_xyz.z + inverseMatrix[1][1] * edge2_xyz.z;
-		bitangent = glm::normalize(bitangent);
-
-		for (int adjacent = 0; adjacent < 3; ++adjacent)
-		{
-			tangents[vertex * 3 + adjacent * 3 + 0] = tangent.x;
-			tangents[vertex * 3 + adjacent * 3 + 1] = tangent.y;
-			tangents[vertex * 3 + adjacent * 3 + 2] = tangent.z;
-
-			bitangents[vertex * 3 + adjacent * 3 + 0] = bitangent.x;
-			bitangents[vertex * 3 + adjacent * 3 + 1] = bitangent.y;
-			bitangents[vertex * 3 + adjacent * 3 + 2] = bitangent.z;
-		}
-	}
-
-	glGenVertexArrays(1, &vao);
-	glBindVertexArray(vao);
-
-	glGenBuffers(1, &vbo);
-	glBindBuffer(GL_ARRAY_BUFFER, vbo);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), reinterpret_cast<void*>(0));
-	glEnableVertexAttribArray(0);
-
-	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), reinterpret_cast<void*>(3 * sizeof(float)));
-	glEnableVertexAttribArray(1);
-
-	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), reinterpret_cast<void*>(6 * sizeof(float)));
-	glEnableVertexAttribArray(2);
-
-	glGenBuffers(1, &tangentsVBO);
-	glBindBuffer(GL_ARRAY_BUFFER, tangentsVBO);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(tangents), tangents, GL_STATIC_DRAW);
-	glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), reinterpret_cast<void*>(0));
-	glEnableVertexAttribArray(3);
-
-	glGenBuffers(1, &bitangentsVBO);
-	glBindBuffer(GL_ARRAY_BUFFER, bitangentsVBO);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(bitangents), bitangents, GL_STATIC_DRAW);
-	glVertexAttribPointer(4, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), reinterpret_cast<void*>(0));
-	glEnableVertexAttribArray(4);
-
-	glBindVertexArray(0);
-
-}
 
 void Objects::renderDebug()
 {

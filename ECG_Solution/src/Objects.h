@@ -39,7 +39,6 @@ private:
 
 	Shader depthShader;
 	Terrain terrain;
-	Model palmTree;
 	Model pyramid;
 	Model videoWall;
 	Model pointLightCube;
@@ -57,6 +56,7 @@ private:
 	Shader terrainDepthMapShader;
 	Shader terrainShader;
 	Shader palmTreeShader;
+	Shader enemyShader;
 	Shader pyramidShader;
 	Shader cactusShader;
 	Shader spikeShader;
@@ -70,40 +70,37 @@ private:
 	Texture cactusTexture;
 	Shader hduShader;
 
-	Shader enemyShader;
-	//std::shared_ptr<Model> enemyModel = nullptr;
-	//std::shared_ptr<Enemy> enemy = nullptr;
-	//Enemy enemy;
-
 	unsigned int spikeCounter = 0;
 	unsigned int tumbleweedCounter = 0;
+	unsigned int palmCounter = 0;
 	unsigned int cactiCounter = 0;
 	unsigned int enemyCounter = 1; // has to start at 1 because 0 can't be used for enemy's pxChar userData
 
 	std::vector<unsigned int> deadEnemyIndices;
-
 	std::vector<EnemyStruct> enemies;
 
-	//std::map<unsigned int, EnemyStruct> enemies;
 	std::map<unsigned int, SpikeStruct> spikes;
 	std::map<unsigned int, TumbleweedStruct> tumbleweeds;
 	std::map<unsigned int, CactusStruct> cacti;
+	std::map<unsigned int, PalmStruct> palms;
 	
+
 	unsigned int numEnemies = 1;
 	unsigned int numCacti = 3;
 	unsigned int numSpikes = 10 * numCacti;	// TODO: shouldn't this be 5?
 	unsigned int numTumbleweeds = 1;
+	unsigned int numPalms = 1;
 	void createSpike();
 	void createTumbleweed();
 
 	double physxDeltaTime = 0.0;
 	float elapsedTime = 0.0f;
-
-	void renderTestCube(bool normalMapping);
+	
+	float turnRadius = 0.0f;
 	void renderTreasureChest(bool normalMapping);
 
 	void renderShadowMap(Model& model, glm::mat4 modelMatrix);
-	void renderModel(Model* model, glm::mat4 modelMatrix, Shader* shader, bool normalMapping);
+	void renderModel(Model* model, glm::mat4 modelMatrix, Shader* shader, bool normalMapping, bool withShadow);
 
 	glm::mat4 viewMatrix;
 	glm::vec3 eyePos;
@@ -122,15 +119,20 @@ private:
 	
 public:
 
+	int alpha = 64;
+	float diffuseFactor = 0.8;
+	float specularFactor = 0.4;
+	float ambientFactor = 0.8;
+
+
 	Objects(GLFWwindow* window, Camera* camera, PhysxScene* physxScene);
 	void render(GLFWwindow* window, float currentTime, float dt, bool normalMapping);
 	void createMummy(GLFWwindow* window);
 	void createTerrain();
 	void createEnemy(glm::vec3 position);
 	void createPyramid();
-	void createPalmTree();
+	void createPalmTree(glm::vec3 position);
 	void createPointLightCube();
-	void createTestCube();
 	void createHduObject(GLFWwindow* window);
 	void createVideoWall();
 	void createTreasureChest();

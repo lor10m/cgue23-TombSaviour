@@ -37,11 +37,11 @@ public:
     ~Shader();
 
     void createPhongShader(const std::string& diffuseTexture, const std::string& specularTexture, const std::string& normalTexture, bool isDDS, glm::mat4 modelMatrix, float ka, float kd, float ks, int alpha);
-    void createNormalShader(const char* diffuseTexture, const char* specularTexture, const char* normalTexture, glm::mat4 modelMatrix);
+    void createNormalShader(const char* diffuseTexture, const char* specularTexture, const char* normalTexture, glm::mat4 modelMatrix, float ka, float kd, float ks, int alpha);
     void createPhongShader(glm::mat4 modelMatrix, float ka, float kd, float ks, int alpha);
     void createPhongVideoTexShader(const std::string& videoPath, glm::mat4 modelMatrix, float ka, float kd, float ks, int alpha);
     void loadVideoTexture(const std::string& videoTexturePath, int unit);
-    void createTerrainShader(const char* fragmentShaderPath, const char* tessEvalShaderPath);
+    void createTerrainShader(const char* fragmentShaderPath, const char* tessEvalShaderPath, float ka, float kd, float ks, int alpha);
     void createDepthMapShader();
     void createTerrainDepthMapShader();
     void createSimpleShader(glm::vec3 color, glm::mat4 modelMatrix);

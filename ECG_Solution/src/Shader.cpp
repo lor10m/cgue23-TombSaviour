@@ -45,10 +45,10 @@ void Shader::createPhongShader(const std::string& diffuseTexture, const std::str
 			loadTexture(normalTexture.c_str(), 2);
 		}
 	}
-	setUniform1f("ka", 0.0);
-	setUniform1f("kd", 0.3);
-	setUniform1f("ks", 0.3);
-	setUniform1i("alpha", 64);
+	setUniform1f("ka", ka);
+	setUniform1f("kd", kd);
+	setUniform1f("ks", ks);
+	setUniform1i("alpha", alpha);
 	setUniformMatrix4fv("modelMatrix", 1, GL_FALSE, modelMatrix);
 
 	//TODO: lights
@@ -72,10 +72,10 @@ void Shader::createPhongShader(glm::mat4 modelMatrix, float ka, float kd, float 
 	glDeleteShader(vertexShader);
 	glDeleteShader(fragmentShader);
 
-	setUniform1f("ka", 0.3);
-	setUniform1f("kd", 1.0);
-	setUniform1f("ks", 0.3);
-	setUniform1i("alpha", 64);
+	setUniform1f("ka", ka);
+	setUniform1f("kd", kd);
+	setUniform1f("ks", ks);
+	setUniform1i("alpha", alpha);
 	setUniformMatrix4fv("modelMatrix", 1, GL_FALSE, modelMatrix);
 
 	//TODO: lights
@@ -85,7 +85,7 @@ void Shader::createPhongShader(glm::mat4 modelMatrix, float ka, float kd, float 
 	addUniformDirectionalLight("directionalLight", directionalLight1);
 }
 
-void Shader::createNormalShader(const char* diffuseTexturePath, const char* specularTexturePath, const char* normalTexturePath, glm::mat4 modelMatrix)
+void Shader::createNormalShader(const char* diffuseTexturePath, const char* specularTexturePath, const char* normalTexturePath, glm::mat4 modelMatrix, float ka, float kd, float ks, int alpha)
 {
 	shader = glCreateProgram();
 
@@ -109,10 +109,10 @@ void Shader::createNormalShader(const char* diffuseTexturePath, const char* spec
 	glDeleteShader(vertexShader);
 	glDeleteShader(fragmentShader);
 
-	setUniform1f("ka", 0.2);
-	setUniform1f("kd", 2.5);
-	setUniform1f("ks", 0.3);
-	setUniform1i("alpha", 64);
+	setUniform1f("ka", ka);
+	setUniform1f("kd", kd);
+	setUniform1f("ks", ks);
+	setUniform1i("alpha", alpha);
 	setUniformMatrix4fv("modelMatrix", 1, GL_FALSE, modelMatrix);
 
 	//TODO: lights
@@ -264,7 +264,7 @@ void Shader::loadVideoTexture(const std::string& videoTexturePath, int unit) {
 	videoFrameCount = videoTextures.size();
 }
 
-void Shader::createTerrainShader(const char* fragmentShaderPath, const char* tessEvalShaderPath)
+void Shader::createTerrainShader(const char* fragmentShaderPath, const char* tessEvalShaderPath, float ka, float kd, float ks, int alpha)
 {
 	shader = glCreateProgram();
 	GLuint vertexShader = compileShader(GL_VERTEX_SHADER, "assets/shaders/terrainVertex.vs");
@@ -284,10 +284,10 @@ void Shader::createTerrainShader(const char* fragmentShaderPath, const char* tes
 	glDeleteShader(tessControlShader);
 	glDeleteShader(tessEvalShader);
 
-	setUniform1f("ka", 0.0);
-	setUniform1f("kd", 0.3);
-	setUniform1f("ks", 0.3);
-	setUniform1i("alpha", 64);
+	setUniform1f("ka", ka);
+	setUniform1f("kd", kd);
+	setUniform1f("ks", ks);
+	setUniform1i("alpha", alpha);
 
 	//TODO: lights
 	DirectionalLight directionalLight1({ -0.2f, -1.0f, -0.3f }, { 0.8f, 0.8f, 0.8f });

@@ -28,6 +28,7 @@ uniform float ks; //0.5
 uniform int alpha; // 16
 
 uniform vec3 lightDir;
+uniform bool shadow;
 
 uniform mat4 lightModelMatrix;
 uniform mat4 lightSpaceMatrix; //shadow
@@ -63,7 +64,9 @@ void main()
     for (int i = 0; i < 1; i++) {
         diffuse += calculateDiffuseFromDirectionalLight(directionalLight[i]);
         specular += calculateSpecularFromDirectionalLight(directionalLight[i]);
-        shadow += calculateShadowFromDirectionalLight(directionalLight[i]);
+        if(shadow){
+            shadow += calculateShadowFromDirectionalLight(directionalLight[i]);
+        }
     }
 
     float ambient = ka;
