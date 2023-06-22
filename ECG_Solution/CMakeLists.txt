@@ -66,28 +66,54 @@ file(COPY "assimp/assimp-vc143-mt.dll"
 
 file(COPY "assimp/assimp-vc143-mtd.dll"
     DESTINATION ${EXECUTABLE_OUTPUT_PATH})
+
+file(COPY "sfml/openal32.dll"
+    DESTINATION ${EXECUTABLE_OUTPUT_PATH})
+
  
-    if(CMAKE_BUILD_TYPE MATCHES "Release")
-        file(COPY "opencv/opencv_world470.dll"
-            DESTINATION ${EXECUTABLE_OUTPUT_PATH})
+if(CMAKE_BUILD_TYPE MATCHES "Release")
+    file(COPY "opencv/opencv_world470.dll"
+        DESTINATION ${EXECUTABLE_OUTPUT_PATH})
 
-        file(COPY "opencv/opencv_videoio_ffmpeg470_64.dll"
-            DESTINATION ${EXECUTABLE_OUTPUT_PATH})
+    file(COPY "opencv/opencv_videoio_ffmpeg470_64.dll"
+        DESTINATION ${EXECUTABLE_OUTPUT_PATH})
 
-        file(COPY "opencv/opencv_videoio_msmf470_64.dll"
-            DESTINATION ${EXECUTABLE_OUTPUT_PATH})
-    endif()
+    file(COPY "opencv/opencv_videoio_msmf470_64.dll"
+        DESTINATION ${EXECUTABLE_OUTPUT_PATH})
+
+    file(COPY "sfml/sfml-audio-2.dll"
+        DESTINATION ${EXECUTABLE_OUTPUT_PATH})
+    file(COPY "sfml/sfml-graphics-2.dll"
+        DESTINATION ${EXECUTABLE_OUTPUT_PATH})
+    file(COPY "sfml/sfml-network-2.dll"
+        DESTINATION ${EXECUTABLE_OUTPUT_PATH})
+    file(COPY "sfml/sfml-system-2.dll"
+        DESTINATION ${EXECUTABLE_OUTPUT_PATH})
+    file(COPY "sfml/sfml-window-2.dll"
+        DESTINATION ${EXECUTABLE_OUTPUT_PATH})
+endif()
     
-    if(CMAKE_BUILD_TYPE MATCHES "Debug")
-        file(COPY "opencv/opencv_world470d.dll"
-            DESTINATION ${EXECUTABLE_OUTPUT_PATH})
+if(CMAKE_BUILD_TYPE MATCHES "Debug")
+    file(COPY "opencv/opencv_world470d.dll"
+        DESTINATION ${EXECUTABLE_OUTPUT_PATH})
 
-        file(COPY "opencv/opencv_world470d.dll"
-            DESTINATION ${EXECUTABLE_OUTPUT_PATH})
+    file(COPY "opencv/opencv_world470d.dll"
+        DESTINATION ${EXECUTABLE_OUTPUT_PATH})
 
-        file(COPY "opencv/opencv_videoio_msmf470_64d.dll"
-            DESTINATION ${EXECUTABLE_OUTPUT_PATH})
-    endif()
+    file(COPY "opencv/opencv_videoio_msmf470_64d.dll"
+        DESTINATION ${EXECUTABLE_OUTPUT_PATH})
+
+    file(COPY "sfml/sfml-audio-d-2.dll"
+        DESTINATION ${EXECUTABLE_OUTPUT_PATH})
+    file(COPY "sfml/sfml-graphics-d-2.dll"
+        DESTINATION ${EXECUTABLE_OUTPUT_PATH})
+    file(COPY "sfml/sfml-network-d-2.dll"
+        DESTINATION ${EXECUTABLE_OUTPUT_PATH})
+    file(COPY "sfml/sfml-system-d-2.dll"
+        DESTINATION ${EXECUTABLE_OUTPUT_PATH})
+    file(COPY "sfml/sfml-window-d-2.dll"
+        DESTINATION ${EXECUTABLE_OUTPUT_PATH})
+endif()
       
 set_target_properties(${PROJECT_NAME} PROPERTIES
     VS_GLOBAL_KEYWORD "Win32Proj"
@@ -129,6 +155,11 @@ target_include_directories(${PROJECT_NAME} PRIVATE
 target_include_directories(${PROJECT_NAME} PRIVATE
     "../external/include/opencv2"
 )
+target_include_directories(${PROJECT_NAME} PRIVATE
+    "../external/include/SFML"
+)
+
+include_directories(${CMAKE_SOURCE_DIR}/include)
 
 ################################################################################
 # Compile definitions
@@ -225,6 +256,10 @@ if(WIN32)
         "PhysXCooking_64.lib"
         "assimp-vc143-mt.lib"
         "PhysXCharacterKinematic_static_64.lib"
+        "openal32.lib"
+        "sfml-audio-d.lib"
+        "sfml-audio.lib"
+
     )
     if(CMAKE_BUILD_TYPE MATCHES "Release")
         list(APPEND ADDITIONAL_LIBRARY_DEPENDENCIES
@@ -280,6 +315,7 @@ if(CMAKE_BUILD_TYPE MATCHES "Debug")
     target_link_directories(${PROJECT_NAME} PRIVATE "../external/lib/PhysxDebug")
     target_link_directories(${PROJECT_NAME} PRIVATE "../external/lib/AssimpDebug")
     target_link_directories(${PROJECT_NAME} PRIVATE "../external/lib/opencvDebug")
+    target_link_directories(${PROJECT_NAME} PRIVATE "../external/lib/SFML")
 
     file(COPY "assimp/assimp-vc143-mtd.dll"
         DESTINATION ${EXECUTABLE_OUTPUT_PATH})
@@ -290,6 +326,7 @@ if(CMAKE_BUILD_TYPE MATCHES "Release")
     target_link_directories(${PROJECT_NAME} PRIVATE "../external/lib/PhysxRelease")
     target_link_directories(${PROJECT_NAME} PRIVATE "../external/lib/AssimpRelease")
     target_link_directories(${PROJECT_NAME} PRIVATE "../external/lib/opencvRelease")
+    target_link_directories(${PROJECT_NAME} PRIVATE "../external/lib/SFML")
 
     file(COPY "assimp/assimp-vc143-mt.dll"
         DESTINATION ${EXECUTABLE_OUTPUT_PATH})

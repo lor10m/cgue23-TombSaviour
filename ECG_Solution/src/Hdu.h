@@ -25,7 +25,7 @@ public:
 
 	Camera hduCamera;
 	std::unordered_map<std::string, HduData> hduDataMap;
-	const Transform emptyTransform;			// ugly but functional
+	const Transform emptyTransform;		// ugly but functional
 	float widthScale, heightScale;		// Scale
 	int screenWidth, screenHeight;
 	int currentLifeNr;
@@ -34,12 +34,13 @@ public:
 	void createHdu(GLFWwindow* window, Camera* threeDCamera, int lifeStartNumber);
 	void drawHDU(GLFWwindow* window);
 	void generateStartHDU();
-	void initGameHDU(int lifeStartNumber);
+	void initGameHDU();
 	void calculateScale();
 	void calculatePosition();
 	void updateSpikeCount(int newNumber);
 	void updateLifeCount(int newLifeNumber);
 	void showBigScreen(string screenKey);
 	float getFullscreenHDUScale();
+	bool pollInput(GLFWwindow* window, float dt);
 
 };

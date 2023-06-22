@@ -6,7 +6,8 @@
 using namespace physx;
 
 
-class Character {
+class Character : public PxUserControllerHitReport
+{
 
 private:
 	Camera* playerCamera;
@@ -19,6 +20,8 @@ public:
 	double mummyHeight;
 	float  charSpeed = 10;
 	bool superSpeed = false;
+	bool allEnemiesDead = false;
+	bool treasureChestTouch = false;
 
 	Character();
 	void createCharacter(GLFWwindow* window, Camera* camera, PxControllerManager* gManager, PxMaterial* material, glm::vec3 position);
@@ -56,4 +59,8 @@ public:
 
 	glm::vec3 getWSdirection(GLFWwindow* window);
 	glm::vec3 getADdirection(GLFWwindow* window);
+
+	virtual void onShapeHit(const PxControllerShapeHit& shapeHit);
+	virtual void onControllerHit(const PxControllersHit&);
+	virtual void onObstacleHit(const PxControllerObstacleHit&) { }
 };

@@ -120,11 +120,10 @@ void Enemy::onControllerHit(const physx::PxControllersHit&)
 	colliding = true;
 	model->animation = punchingScene->mAnimations[0];
 
-	if (hitCounter == 300) {
+	if (hitCounter == 100) {		// change hitCounter
 		// Leben abziehen
 		scene->decreaseMummyLive();
 		hitCounter = 0;
 		std::cout << "controller hit " << std::endl;
 	}
-
 }

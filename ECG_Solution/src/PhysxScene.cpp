@@ -4,6 +4,7 @@
 #include <assimp/scene.h>
 #include "Utils/Transform.h"
 #include "Utils/PhysxCallbacks.h"
+#include "Utils/Music.h"
 
 PxFilterFlags CollisionFilterShader(
 	PxFilterObjectAttributes attributes0, PxFilterData filterData0,
@@ -214,14 +215,12 @@ void PhysxScene::createCactus(unsigned int index, glm::vec3 size, glm::vec3 posi
 	cacti[index] = cactus;
 }
 
-void PhysxScene::createSpike(unsigned int index, glm::vec3 size, glm::vec3 position)
-{
+void PhysxScene::createSpike(unsigned int index, glm::vec3 size, glm::vec3 position) {
 	//TODO calculate rotation
 
 	PxBoxGeometry boxGeometry(PxVec3(size.x, size.y, size.z));
 	PxMaterial* material = physics->createMaterial(0.5f, 0.5f, 0.1f);
 	PxShape* shape = physics->createShape(boxGeometry, *material);
-
 
 	PxRigidDynamic* dynamicActor = physics->createRigidDynamic(PxTransform(PxIdentity));
 
@@ -241,10 +240,7 @@ void PhysxScene::createSpike(unsigned int index, glm::vec3 size, glm::vec3 posit
 
 }
 
-void PhysxScene::createTumbleweed(unsigned int index, glm::vec3 size, glm::vec3 position)
-{
-	//TODO calculate rotation
-
+void PhysxScene::createTumbleweed(unsigned int index, glm::vec3 size, glm::vec3 position) {
 	PxBoxGeometry boxGeometry(PxVec3(size.x, size.y, size.z));
 	PxMaterial* material = physics->createMaterial(0.5f, 0.5f, 0.1f);
 	PxShape* shape = physics->createShape(boxGeometry, *material);
@@ -257,9 +253,63 @@ void PhysxScene::createTumbleweed(unsigned int index, glm::vec3 size, glm::vec3 
 
 	dynamicActor->attachShape(*shape);
 
+	PxTransform transform(PxVec3(position.x, position.y, position.z), PxIdentity);
 	dynamicActor->setGlobalPose(PxTransform(PxIdentity));
 	dynamicActor->setName("tumbleweed");
+
+	scene->addActor(*dynamicActor);
 }
+
+void PhysxScene::createTreasureChest(const char* name, std::vector<unsigned int> indices, std::vector<glm::vec3> vertices, std::vector<glm::vec3> normals, glm::vec3 scale, glm::vec3 translate, glm::vec3 rotate)
+{
+	// Erzeuge das TriangleMesh für die Kollisionsgeometrie
+	PxTriangleMeshDesc meshDesc;
+
+	meshDesc.points.count = vertices.size();
+	meshDesc.points.stride = sizeof(glm::vec3);
+	meshDesc.points.data = vertices.data();
+	meshDesc.triangles.count = indices.size() / 3;
+	meshDesc.triangles.stride = sizeof(unsigned int) * 3;
+	meshDesc.triangles.data = indices.data();
+
+	PxDefaultMemoryOutputStream writeBuffer;
+	PxTriangleMeshCookingResult::Enum result;
+	bool status = cooking->cookTriangleMesh(meshDesc, writeBuffer, &result);
+	if (!status)
+	{
+		std::cout << "Cooking error" << std::endl;
+		return;
+	}
+
+	PxDefaultMemoryInputData readBuffer(writeBuffer.getData(), writeBuffer.getSize());
+	PxTriangleMesh* triangleMesh = physics->createTriangleMesh(readBuffer);
+
+	// Skalierung und Rotation des TriangleMeshs
+	PxMeshScale pxMeshScale;
+	pxMeshScale.scale = PxVec3(scale.x, scale.y, scale.z);
+	pxMeshScale.rotation = PxQuat(PxIdentity);
+
+	// Erzeuge die Geometrie für die Kollisionsform
+	PxTriangleMeshGeometry geometry(triangleMesh, pxMeshScale);
+
+	// Material für die Kollisionsform
+	PxMaterial* material = physics->createMaterial(0.5f, 0.5f, 0.1f);
+
+	// Erzeuge die Shape-Instanz
+	PxShape* shape = physics->createShape(geometry, *material);
+
+	// Erzeuge den Rigid Dynamic Actor
+	PxRigidDynamic* dynamicActor = physics->createRigidDynamic(PxTransform(PxVec3(translate.x, translate.y, translate.z), PxIdentity));
+	dynamicActor->attachShape(*shape);
+	dynamicActor->setGlobalPose(PxTransform(PxIdentity));
+
+	// Setze den Namen des Actors
+	dynamicActor->setName(name);
+
+	// Füge den Actor der Szene hinzu
+	scene->addActor(*dynamicActor);
+}
+
 
 void PhysxScene::simulate(GLFWwindow* window, Camera* camera, float timeStep, std::map<unsigned int, SpikeStruct>& spikeStruct, std::map<unsigned int, CactusStruct>& cactusStruct)
 {
@@ -267,7 +317,6 @@ void PhysxScene::simulate(GLFWwindow* window, Camera* camera, float timeStep, st
 	scene->fetchResults(true);
 
 	mouseButtonCallback(window, camera);
-
 
 	for (int i = 0; i < spikes.size(); i++) {
 		PxRigidDynamic* spike = spikes[i].actor;
@@ -303,41 +352,56 @@ void PhysxScene::simulate(GLFWwindow* window, Camera* camera, float timeStep, st
 			break;
 		}
 	}
-
 }
 
+PxRigidDynamic* PhysxScene::getDynamicActor(const std::string& name)
+{
+	PxU32 nbActiveActors;
+	PxActor** activeActors = scene->getActiveActors(nbActiveActors);
 
-//TODO make mouseButtonCallback instead
+	for (PxU32 i = 0; i < nbActiveActors; ++i)
+	{
+		PxActor* actor = activeActors[i];
+
+		if (actor->getName() == "name")
+		{
+			return static_cast<PxRigidDynamic*>(actor);
+		}
+	}
+}
+
 void PhysxScene::mouseButtonCallback(GLFWwindow* window, Camera* camera)
 {
 	// PICK UP CACTUS
-	if (glfwGetKey(window, GLFW_KEY_9) == GLFW_PRESS)
-	{
-		if (mouse_left_released) {
-			std::cout << "pick up object" << std::endl;
-			pickUpNearestObject(camera);
-			mouse_left_pressed = true;
-			mouse_left_released = false;
-		}
-
-	}
-	// THROW SPIKE
-	if (glfwGetKey(window, GLFW_KEY_0) == GLFW_PRESS)
+	if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_RIGHT) == GLFW_PRESS)
 	{
 		if (mouse_right_released) {
-			std::cout << "throw object" << std::endl;
+			std::cout << "pick up object" << std::endl;
+			pickUpNearestObject(camera);
 			mouse_right_pressed = true;
 			mouse_right_released = false;
-			if (pickedUpSpikes > 0) {
-				throwSpike(camera);
+		}
+	}
+	// THROW SPIKE
+	if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS)
+	{
+		if (mouse_left_released) {
+			if ((glfwGetTime() - lastThrowTime) >= throwCooldown) {
+				std::cout << "throw object" << std::endl;
+				mouse_left_pressed = true;
+				mouse_left_released = false;
+				if (pickedUpSpikes > 0) {
+					throwSpike(camera);
+				}
+				lastThrowTime = glfwGetTime();
 			}
 		}
 	}
-	if (glfwGetKey(window, GLFW_KEY_0) == GLFW_RELEASE) {
+	if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_RIGHT) == GLFW_RELEASE) {
 		mouse_right_released = true;
 		mouse_right_pressed = false;
 	}
-	if (glfwGetKey(window, GLFW_KEY_9) == GLFW_RELEASE) {
+	if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_RELEASE) {
 		mouse_left_released = true;
 		mouse_left_pressed = false;
 	}
@@ -364,6 +428,7 @@ void PhysxScene::pickUpNearestObject(Camera* camera)
 			// TODO move into callback/crash class:
 			// lifeCnt = lifeCnt = maxLifeNr ? lifeCnt : lifeCnt++;	// WICHTIG: checken ob eh nicht über max ist!
 			// hdu->updateLifeCount(lifeCnt);
+			playCollectSound();
 
 			break;
 		}
@@ -374,6 +439,7 @@ void PhysxScene::throwSpike(Camera* camera)
 {
 	pickedUpSpikes--;
 	hdu->updateSpikeCount(int(pickedUpSpikes));
+	playShootSound();
 
 	// Get one of the spikes
 	spikes[thrownSpikes].isThrownOrPickedUp = true;
@@ -439,28 +505,6 @@ void PhysxScene::onContact(const PxContactPairHeader& pairHeader, const PxContac
 					std::cout << "hit enemy" << std::endl;
 					enemiesToRemove.push_back((unsigned int)actor1->userData);
 				}
-			}
-			else if ((actor2->getName() == "treasureChest" && actor1->getName() == "mummy")
-				|| (actor1->getName() == "treasureChest" && actor2->getName() == "mummy")) {
-				// ALL ENEMIES DEAD + touching treasure chest:
-				if (allEnemiesDead) {
-					hdu->showBigScreen("winEndscreen");
-				}
-				std::cout << "touched treasure chest!";
-			}
-			else if ((actor2->getName() == "treasureChest" && actor1->getName() == "mummy")) {
-				// ALL ENEMIES DEAD + touching treasure chest:
-				if (allEnemiesDead) {
-					hdu->showBigScreen("winEndscreen");
-				}
-				std::cout << "touched treasure chest! 2";
-			}
-			else if ((actor1->getName() == "treasureChest" && actor2->getName() == "mummy")) {
-				// ALL ENEMIES DEAD + touching treasure chest:
-				if (allEnemiesDead) {
-					hdu->showBigScreen("winEndscreen");
-				}
-				std::cout << "touched treasure chest! 3";
 			}
 		}
 	}

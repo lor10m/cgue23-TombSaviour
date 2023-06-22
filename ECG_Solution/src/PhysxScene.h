@@ -65,11 +65,12 @@ private:
 
 	std::vector<PxActor*> actorsToRemove;
 
+	double lastThrowTime = 0.0;
+	const double throwCooldown = 2.0;
 
 public:
 	PxMaterial* material = NULL;
 	PxScene* scene = NULL;
-	bool allEnemiesDead = false;
 
 	unsigned int pickedUpSpikes = 0;
 	unsigned int thrownSpikes = 0;
@@ -81,6 +82,7 @@ public:
 
 	PhysxScene(GLFWwindow* window, int lifeNumber);
 	void simulate(GLFWwindow* window, Camera* camera, float timeStep, std::map<unsigned int, SpikeStruct>& spikeStruct, std::map<unsigned int, CactusStruct>& cactusStruct);
+	PxRigidDynamic* getDynamicActor(const std::string& name);
 	void createTerrain(const char* heightmapPath);
 	void createModel(const char* name, std::vector<unsigned int> indices, std::vector<glm::vec3> vertices, std::vector<glm::vec3> normals, glm::vec3 scale, glm::vec3 translate, glm::vec3 rotate);
 
@@ -89,6 +91,8 @@ public:
 	void createCactus(unsigned int index, glm::vec3 size, glm::vec3 position);
 	void createSpike(unsigned int index, glm::vec3 size, glm::vec3 position);
 	void createTumbleweed(unsigned int index, glm::vec3 size, glm::vec3 position);
+
+	void createTreasureChest(const char* name, std::vector<unsigned int> indices, std::vector<glm::vec3> vertices, std::vector<glm::vec3> normals, glm::vec3 scale, glm::vec3 translate, glm::vec3 rotate);
 
 	void throwSpike(Camera* camera);
 	void pickUpObject(Camera* camera, PxRigidDynamic* object);

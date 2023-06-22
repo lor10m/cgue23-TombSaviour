@@ -14,6 +14,8 @@ void Character::createCharacter(GLFWwindow* window, Camera* camera, PxController
 	cDesc.slopeLimit = 0.2f;
 	cDesc.upDirection = PxVec3(0.0f, 1.0f, 0.0f);
 	cDesc.material = material;
+	cDesc.reportCallback = this;
+
 	pxChar = gManager->createController(cDesc);
 	pxChar->getActor()->setName("mummy");
 
@@ -203,4 +205,18 @@ glm::vec3 Character::getADdirection(GLFWwindow* window) {
 	}
 	return dirRight;
 }
+
+
+void Character::onShapeHit(const PxControllerShapeHit& shapeHit)
+{
+	if (allEnemiesDead && shapeHit.actor->getName() == "pyramid") {		// TODO: treasureChest
+		treasureChestTouch = true;
+	}
+}
+
+void Character::onControllerHit(const PxControllersHit&)
+{
+}
+
+
 
