@@ -21,6 +21,7 @@ private:
 
 	unsigned int hitCounter = 0;
 
+	bool difficulty = 2;
 	bool colliding = false;
 
 	glm::vec3 scale;
