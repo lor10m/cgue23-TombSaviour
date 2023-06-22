@@ -474,25 +474,25 @@ void Objects::render(GLFWwindow* window, float currentTime, float dt, bool norma
 		}
 	}
 
-	////render videowall
-	//if (withVideoWall && (mummy.getFootPosition().x >= -60 && mummy.getFootPosition().x <= 90 && mummy.getFootPosition().z <= 105 && mummy.getFootPosition().z >= 25)) {
-	//	videoWallShader.setUniformMatrix4fv("viewMatrix", 1, GL_FALSE, camera->getTransformMatrix());
-	//	videoWallShader.setUniform3f("eyePos", camera->cameraPosition.x, camera->cameraPosition.y, camera->cameraPosition.z);
-	//	videoWallShader.setUniform1i("videoWall", true);
-	//	elapsedTime += dt;
-	//	videoWallShader.setCurrentFrame(elapsedTime);
-	//	videoWall.draw(&videoWallShader);
-	//}
+	//render videowall
+	if (withVideoWall && (mummy.getFootPosition().x >= -60 && mummy.getFootPosition().x <= 90 && mummy.getFootPosition().z <= 105 && mummy.getFootPosition().z >= 25)) {
+		videoWallShader.setUniformMatrix4fv("viewMatrix", 1, GL_FALSE, camera->getTransformMatrix());
+		videoWallShader.setUniform3f("eyePos", camera->cameraPosition.x, camera->cameraPosition.y, camera->cameraPosition.z);
+		videoWallShader.setUniform1i("videoWall", true);
+		elapsedTime += dt;
+		videoWallShader.setCurrentFrame(elapsedTime);
+		videoWall.draw(&videoWallShader);
+	}
 
-	//if (instructionScreenActive) {
-	//	if (hduObject.pollInput(window, dt)) {
-	//		instructionScreenActive = false;
-	//		//std::cout << "game initialized!" << std::endl;
-	//	}
-	//}
+	if (instructionScreenActive) {
+		if (hduObject.pollInput(window, dt)) {
+			instructionScreenActive = false;
+			//std::cout << "game initialized!" << std::endl;
+		}
+	}
 
-	//// Draw HDU last
-	//hduObject.drawHDU(window);
+	// Draw HDU last
+	hduObject.drawHDU(window);
 
 }
 
