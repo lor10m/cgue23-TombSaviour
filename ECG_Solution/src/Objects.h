@@ -86,7 +86,7 @@ private:
 	
 
 	unsigned int numEnemies = 1;
-	unsigned int numCacti = 4;
+	unsigned int numCacti = 9;
 	unsigned int numSpikes = 5 * numCacti;
 	unsigned int numTumbleweeds = 0;
 	unsigned int numPalms = 1;

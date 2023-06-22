@@ -45,11 +45,13 @@ Objects::Objects(GLFWwindow* window, Camera* camera, PhysxScene* physxScene, boo
 
 	createCactus(glm::vec3(46.0f, 40.0f, -26));	// one fixed cactus
 	createCactus(glm::vec3(50.0f, 40.0f, -30));	// one fixed cactus
-	createCactus(glm::vec3(185.0, 60.0, 36.5));
+	createCactus(glm::vec3(185.0, 55.0, 36.5));
 	createCactus(glm::vec3(450.0, 0.0, -142.0));
 	createCactus(glm::vec3(423.0, 0.0, -380.0));
 	createCactus(glm::vec3(-108.0, 28.0, 304.0));
-	createCactus(glm::vec3(122.0, 50.0, 248.0));
+	createCactus(glm::vec3(122.0, 51.0, 248.0));
+	createCactus(glm::vec3(116.472, 37.1818, 10.7676));
+	createCactus(glm::vec3(107.325, 32, -17.2375));
 
 	//------------
 	// Create Palm trees
@@ -59,14 +61,16 @@ Objects::Objects(GLFWwindow* window, Camera* camera, PhysxScene* physxScene, boo
 	palmTreeShader.setUniform1i("withShadow", 0);
 	palmTreeShader.setUniform1i("videoWall", 0);
 
-	createPalmTree(glm::vec3(10.5, 98.0, -126.5));
-	createPalmTree(glm::vec3(204.0, 24.0, -53.0));
+	createPalmTree(glm::vec3(10.5, 93.0, -126.5));
+	createPalmTree(glm::vec3(204.0, 28.0, -53.0));
+	createPalmTree(glm::vec3(104.0, 28.0, -53.0));
 	createPalmTree(glm::vec3(192.0, 69.0, 168.5));
+	createPalmTree(glm::vec3(104.53, 48, 73.1072));
 	//createPalmTree(glm::vec3(-295.0, 48.0, -92.0));
 	//createPalmTree(glm::vec3(303.0, 29.0, 132.0));
 	//createPalmTree(glm::vec3(70.0, 40.8, -100.0));
 	//createPalmTree(glm::vec3(90.0, 39.8, -80.0));
-	createPalmTree(glm::vec3(45.0, 41.0, -18.0));
+	createPalmTree(glm::vec3(45.0, 31.0, -18.0));
 	//-20.0, 31.6, 65.0
 	//------------
 	// Create Spikes
@@ -178,7 +182,7 @@ void Objects::createPalmTree(glm::vec3 position)
 	palms[palmCounter] = palmStruct;
 	palmCounter++;
 
-	physxScene->createModel("palmTree", palmTree->indices, palmTree->vertices, palmTree->normals, palmScale, palmTranslate, palmRotate);
+	//physxScene->createModel("palmTree", palmTree->indices, palmTree->vertices, palmTree->normals, palmScale, palmTranslate, palmRotate);
 }
 
 void Objects::createPyramid()
@@ -399,12 +403,12 @@ void Objects::render(GLFWwindow* window, float currentTime, float dt, bool norma
 	// render the terrain
 	terrain.render(viewMatrix, eyePos, lightPos, lightSpaceMatrix, -1);
 
-	//// render treasure
-	//if (turnRadius == 360.0f) {
-	//	turnRadius = 0.0f;
-	//}
-	//turnRadius += 0.0002f;
-	//treasureChestTransform.rotate(glm::vec3(glm::radians(0.0f), glm::radians(turnRadius), glm::radians(0.0f)));
+	// render treasure
+	if (turnRadius == 360.0f) {
+		turnRadius = 0.0f;
+	}
+	turnRadius += 0.0002f;
+	treasureChestTransform.rotate(glm::vec3(glm::radians(0.0f), glm::radians(turnRadius), glm::radians(0.0f)));
 	renderModel(&treasureChest, treasureChestTransform.getMatrix(), &treasureChestShader, normalMapping, false);
 
 	//renderModel(&pointLightCube, cubeMat2, &lightCubeShader, false, true);

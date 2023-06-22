@@ -257,19 +257,19 @@ if(WIN32)
         "assimp-vc143-mt.lib"
         "PhysXCharacterKinematic_static_64.lib"
         "openal32.lib"
-        "sfml-audio-d.lib"
-        "sfml-audio.lib"
 
     )
     if(CMAKE_BUILD_TYPE MATCHES "Release")
         list(APPEND ADDITIONAL_LIBRARY_DEPENDENCIES
             "opencv_world470.lib"
+             "sfml-audio.lib"
         )
     endif()
 
     if(CMAKE_BUILD_TYPE MATCHES "Debug")
         list(APPEND ADDITIONAL_LIBRARY_DEPENDENCIES
             "opencv_world470d.lib"
+            "sfml-audio-d.lib"
         )
     endif()
 
