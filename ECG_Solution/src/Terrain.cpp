@@ -74,7 +74,7 @@ void Terrain::createTerrain(const char* texturePath, const char* heightmapPath, 
 
 void Terrain::render(glm::mat4 viewMatrix, glm::vec3 eyePos, glm::vec3 lightPos, glm::mat4 lightSpaceMatrix, unsigned int depthMap)
 {
-	
+	//
 	shader.setUniformMatrix4fv("view", 1, GL_FALSE, viewMatrix);
 	shader.setUniformMatrix4fv("model", 1, GL_FALSE,glm::mat4(1.0f));
 	shader.setUniform3f("eyePos", eyePos.x, eyePos.y, eyePos.z); //y + 10
