@@ -26,7 +26,7 @@ Objects::Objects(GLFWwindow* window, Camera* camera, PhysxScene* physxScene, boo
 	//---------------
 	// Create Enemies
 	//---------------
-	enemyShader.createPhongShader(glm::mat4(0.0f), ambientFactor - 3.0f, diffuseFactor, specularFactor, alpha);
+	enemyShader.createPhongShader(glm::mat4(0.0f), ambientFactor, diffuseFactor, specularFactor, alpha);
 	enemyShader.setUniform1i("isAnimated", 1);
 	enemyShader.setUniform1i("withShadow", 0);
 	enemyShader.setUniform1i("videoWall", 0);
@@ -38,7 +38,7 @@ Objects::Objects(GLFWwindow* window, Camera* camera, PhysxScene* physxScene, boo
 	// Create Cacti
 	//-------------
 	std::srand(static_cast<unsigned int>(std::time(nullptr)));
-	cactusShader.createPhongShader("assets/textures/Cactus.jpg", "assets/textures/Cactus.jpg", "", false, glm::mat4(1.0f), ambientFactor, diffuseFactor, specularFactor, alpha);
+	cactusShader.createPhongShader("assets/textures/Cactus.jpg", "assets/textures/Cactus.jpg", "", false, glm::mat4(1.0f), ambientFactor + 3.0f, diffuseFactor, specularFactor, alpha);
 	cactusShader.setUniform1i("isAnimated", 0);
 	cactusShader.setUniform1i("withShadow", 0);
 	cactusShader.setUniform1i("videoWall", 0);
@@ -54,7 +54,7 @@ Objects::Objects(GLFWwindow* window, Camera* camera, PhysxScene* physxScene, boo
 	//------------
 	// Create Palm trees
 	//-------------
-	palmTreeShader.createPhongShader("assets/textures/Cactus.jpg", "assets/textures/Cactus.jpg", "", false, glm::mat4(1.0f), ambientFactor, 0.8f, 0.5f, 1.0f);
+	palmTreeShader.createPhongShader("assets/textures/Cactus.jpg", "assets/textures/Cactus.jpg", "", false, glm::mat4(1.0f), ambientFactor + 2.0f, 0.8f, 0.5f, 1.0f);
 	palmTreeShader.setUniform1i("isAnimated", 0);
 	palmTreeShader.setUniform1i("withShadow", 0);
 	palmTreeShader.setUniform1i("videoWall", 0);
@@ -97,7 +97,7 @@ Objects::Objects(GLFWwindow* window, Camera* camera, PhysxScene* physxScene, boo
 void Objects::createTerrain()
 {
 	const char* heightmap_path = "assets/heightmaps/hm7_pyramid.png"; //hm7_pyramid.png
-	terrain.createTerrain("assets/textures/sand.png", heightmap_path, ambientFactor - 3.0, 0.3, 0.1, 30);
+	terrain.createTerrain("assets/textures/sand.png", heightmap_path, ambientFactor, 0.3, 0.1, 30);
 
 	physxScene->createTerrain(heightmap_path);
 }
@@ -531,7 +531,7 @@ void Objects::createTreasureChest() {
 	treasureChestTransform.scale(chestScale);
 
 	treasureChestShader.createPhongShader("assets/textures/chest/chest_baseColor.jpg",
-		"assets/textures/chest/chest_specular_metallic.jpg", "assets/textures/chest/chest_normal.jpg", false, treasureChestTransform.getMatrix(),ambientFactor , 1.8, 0.2, alpha);
+		"assets/textures/chest/chest_specular_metallic.jpg", "assets/textures/chest/chest_normal.jpg", false, treasureChestTransform.getMatrix(),ambientFactor + 3.0f, 1.8, 0.2, alpha);
 
 	treasureChest.generateModel("assets/objects/treasureChest.obj");
 	treasureChestShader.setUniform1i("isAnimated", 0);
