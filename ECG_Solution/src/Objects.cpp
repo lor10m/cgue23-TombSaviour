@@ -205,14 +205,21 @@ void Objects::createSpike()
 
 void Objects::createTumbleweed()
 {
-	Model* tumbleWeedModel = new Model();
-	TumbleweedStruct tumbleweedStruct;
-	tumbleweedStruct.model = tumbleWeedModel;
-
-	tumbleWeedModel->generateModel("assets/objects/tumbleweed.glb");
-	physxScene->createTumbleweed(tumbleweedCounter, tumbleWeedModel->modelSize * glm::vec3(1.0f, 1.0f, 1.0f), glm::vec3(112.0f, 35.0f, -45));
-	tumbleweeds[tumbleweedCounter] = tumbleweedStruct;
-	tumbleweedCounter++;
+//	Model* tumbleWeedModel = new Model();
+//	TumbleweedStruct tumbleweedStruct;
+//	tumbleweedStruct.model = tumbleWeedModel;
+//	glm::vec3 r = glm::vec3(glm::radians(-90.0f), glm::radians(0.0f), glm::radians(0.0f));
+//	glm::vec3 s = glm::vec3(0.01, 0.01, 0.01);
+//	glm::vec3 t = glm::vec3(10,10,10);
+//	Transform tran;
+//	tran.translate(t);
+//	tran.rotate(r);
+//	tran.scale(s);
+//
+//	tumbleWeedModel->generateModel("assets/objects/tumbleweed.glb");
+//	physxScene->createTumbleweed(tumbleweedCounter, tumbleWeedModel->modelSize * glm::vec3(1.0f, 1.0f, 1.0f), glm::vec3(112.0f, 35.0f, -45));
+//	tumbleweeds[tumbleweedCounter] = tumbleweedStruct;
+//	tumbleweedCounter++;
 }
 
 void Objects::createHduObject(GLFWwindow* window)
