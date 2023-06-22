@@ -18,8 +18,6 @@ Objects::Objects(GLFWwindow* window, Camera* camera, PhysxScene* physxScene)
 	createPointLightCube();
 	createTreasureChest();
 
-	//createTestCube();
-
 	createShadowMap();
 
 	enemyShader.createPhongShader(glm::mat4(0.0f), ambientFactor, diffuseFactor, specularFactor, alpha);
@@ -119,8 +117,10 @@ void Objects::createPointLightCube()
 	cubeMat = glm::scale(cubeMat, glm::vec3(0.5f));
 	pointLightCube.generateModel("assets/objects/cube2.obj");
 
-	lightCubeShader.createPhongShader("assets/textures/tiles_diffuse.dds", "assets/textures/tiles_specular.dds", "", true, cubeMat, 1, 1, 1, 1);
+	lightCubeShader.createPhongShader("assets/textures/ground.pnd", "assets/textures/ground.png", "", false, cubeMat, ambientFactor, diffuseFactor, 0, 64);
 	lightCubeShader.setUniform1i("isAnimated", 0);
+	lightCubeShader.setUniform1i("videoWall", 0);
+	lightCubeShader.setUniform1i("withShadow", 0);
 }
 
 void Objects::createMummy(GLFWwindow* window)
@@ -293,31 +293,7 @@ void Objects::createShadowMap()
 	glReadBuffer(GL_NONE);
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
-
-	//glm::vec3 lightPosi = glm::vec3(0.01f, 4.0f, 0.0f);
-	//glm::vec3 cubePosi = glm::vec3(0.0f, 1.5f, 0.0f);
-	//glm::vec3 objectPosi = glm::vec3(90.0f, 3.0f, -100.0f);
-
-	//// Calculate the bounding box that encompasses both objects
-	//glm::vec3 minBounds = glm::min(cubePosi, objectPosi);
-	//glm::vec3 maxBounds = glm::max(cubePosi, objectPosi);
-
-	//// Expand the bounding box to ensure both objects are fully visible
-	//float expandFactor = 1.1f;  // Adjust this value as needed
-	//minBounds -= expandFactor;
-	//maxBounds += expandFactor;
-
-	//lightPos = glm::vec3(0.01f, 30.0f, 0.0f);
-	////lightPos = glm::vec3 ( -2.0f, 4.0f, -1.0f);
-	//glm::mat4 orthgonalProjection = glm::ortho(-10.0f, 10.0f, -10.0f, 10.0f, 1.0f, 7.5f);
-	//glm::mat4 lightView = glm::lookAt(lightPos, glm::vec3(0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
-	//glm::mat4 lightModelMat = glm::mat4(1.0f);
-	//glm::translate(lightModelMat, glm::vec3(0.0, 0.0, 0.0));
-	//lightSpaceMatrix = orthgonalProjection * lightView * lightModelMat;
-
-	// Cameraposition ist am anfang die position von mummy (0.0, 33.0, 0.0) und schaut runter also -y richtung
-	// pitch: -89 yaw: -90 um runter zu schauen
-	glm::vec3 cameraPosition = glm::vec3(-31.0f, 33 + 10.3f, 64.0);
+	glm::vec3 lightPosition = glm::vec3(-31.0f, 33 + 10.3f, 64.0);
 	// pitch 0 yaw -90 am anfang
 	double pitch = -90;
 	double yaw = -90;
@@ -332,7 +308,7 @@ void Objects::createShadowMap()
 	glm::vec3 up = normalize(cross(right, direction));
 
 	glm::vec3 g = direction;
-	glm::vec3 e = cameraPosition;
+	glm::vec3 e = lightPosition;
 	glm::vec3 t = up;
 
 	glm::vec3 w = -glm::normalize(g);
@@ -398,6 +374,7 @@ void Objects::render(GLFWwindow* window, float currentTime, float dt, bool norma
 	renderShadowMap(treasureChest, treasureChestTransform.getMatrix());
 	//renderShadowMap(pyramid, pyramidMatrix);
 	//renderShadowMap(palmTree, palmMatrix);
+	
 	// Switch back to the default framebuffer
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
@@ -421,21 +398,21 @@ void Objects::render(GLFWwindow* window, float currentTime, float dt, bool norma
 	//renderModel(&pointLightCube,cubeMat2, &lightCubeShader, false , true);
 
 	//render pyramid
-	renderModel(&pyramid, pyramidMatrix, &pyramidShader, false, false);
+	//renderModel(&pyramid, pyramidMatrix, &pyramidShader, false, false);
 
-	// render palm
-	for (const auto& pair : palms) {
-		renderModel(pair.second.model, pair.second.modelMatrix, &palmTreeShader, false, false);
-	}
+	//// render palm
+	//for (const auto& pair : palms) {
+	//	renderModel(pair.second.model, pair.second.modelMatrix, &palmTreeShader, false, false);
+	//}
 
 	// render the terrain
-	terrain.render(viewMatrix, eyePos, lightPos, lightSpaceMatrix, -1);
+	terrain.render(viewMatrix, eyePos, lightPos, lightSpaceMatrix, depthMap);
 
-	// render treasure
-	if (turnRadius == 360.0f) {
-		turnRadius = 0.0f;
-	}
-	turnRadius += 0.0002f;
+	//// render treasure
+	//if (turnRadius == 360.0f) {
+	//	turnRadius = 0.0f;
+	//}
+	//turnRadius += 0.0002f;
 	treasureChestTransform.rotate(glm::vec3(glm::radians(0.0f), glm::radians(turnRadius), glm::radians(0.0f)));
 	renderModel(&treasureChest, treasureChestTransform.getMatrix(), &treasureChestShader, normalMapping, false);
 
@@ -504,15 +481,15 @@ void Objects::render(GLFWwindow* window, float currentTime, float dt, bool norma
 	videoWallShader.setCurrentFrame(elapsedTime);
 	videoWall.draw(&videoWallShader);
 
-	//if (instructionScreenActive) {
-	//	if (hduObject.pollInput(window, dt)) {
-	//		instructionScreenActive = false;
-	//		//std::cout << "game initialized!" << std::endl;
-	//	}
-	//}
+	if (instructionScreenActive) {
+		if (hduObject.pollInput(window, dt)) {
+			instructionScreenActive = false;
+			//std::cout << "game initialized!" << std::endl;
+		}
+	}
 
-	//// Draw HDU last
-	//hduObject.drawHDU(window);
+	// Draw HDU last
+	hduObject.drawHDU(window);
 
 }
 

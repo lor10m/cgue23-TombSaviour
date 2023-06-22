@@ -108,11 +108,11 @@ float calculateShadowFromDirectionalLight(DirectionalLight directionalLight)
     // Convert fragment's light space position to normalized device coordinates (NDC)
     vec3 lightCoords = fragPosLightSpace.xyz / fragPosLightSpace.w;
 
-    if(Height/254.0f <= 1.0f){
+    if(lightCoords.z <= 1.0f){
         // Transform NDC coordinates to texture coordinates
         lightCoords =  (lightCoords + 1.0f) / 2.0f;
 
-        float currentDepth = Height/254.0f;
+        float currentDepth = lightCoords.z;
 
         vec3 lightDir =  lightDir;
         float bias = max(0.05 * (1.0 - dot(normal, lightDir)), 0.005);
