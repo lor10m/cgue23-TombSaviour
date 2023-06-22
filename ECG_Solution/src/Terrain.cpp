@@ -87,7 +87,7 @@ void Terrain::render(glm::mat4 viewMatrix, glm::vec3 eyePos, glm::vec3 lightPos,
 	shader.setUniform1i("diffuseTexture", 1);
 	specularTexture.bind(2);
 	shader.setUniform1i("specularTexture", 2);
-	shader.setUniform1i("withShadow", false);
+	shader.setUniform1i("withShadow", true);
 
 	if (depthMap != -1) {
 		shader.setUniform1i("shadow", 1);

@@ -9,7 +9,7 @@ Objects::Objects(GLFWwindow* window, Camera* camera, PhysxScene* physxScene, boo
 	controllerManager = PxCreateControllerManager(*physxScene->scene);
 
 	this->withVideoWall = withVideoWall;
-	//debugShader.createDebugShadowShader();
+	debugShader.createDebugShadowShader();
 	
 	createTerrain();
 	createMummy(window);
@@ -23,7 +23,7 @@ Objects::Objects(GLFWwindow* window, Camera* camera, PhysxScene* physxScene, boo
 	//createPointLightCube();
 	createTreasureChest();
 
-	//createShadowMap();
+	createShadowMap();
 
 	//---------------
 	// Create Enemies
@@ -290,7 +290,7 @@ void Objects::createShadowMap()
 	glReadBuffer(GL_NONE);
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
-	glm::vec3 lightPosition = glm::vec3(-31.0f, 33 + 10.3f, 64.0);
+	glm::vec3 lightPosition = glm::vec3(-31.0f, 33 + 15.3f, 64.0);
 	// pitch 0 yaw -90 am anfang
 	double pitch = -90;
 	double yaw = -90;
@@ -315,7 +315,8 @@ void Objects::createShadowMap()
 	double fov = 20 * M_PI / 180.0;
 	double near = 0.5;
 	double far = 100;
-	double aspect_ratio = 1;
+	double aspect_ratio = camera->aspect_ratio;
+	std::cout << aspect_ratio << std::endl;
 	glm::mat4 perspectiveMatrix = (glm::mat4)glm::perspective(fov, aspect_ratio, near, far);
 	lightSpaceMatrix = perspectiveMatrix * glm::inverse(glm::mat4(glm::vec4(u, 0), glm::vec4(v, 0), glm::vec4(w, 0), glm::vec4(e, 1)));
 
@@ -363,21 +364,21 @@ void Objects::render(GLFWwindow* window, float currentTime, float dt, bool norma
 	// --------------------------------------------------------------
 	//glEnable(GL_CULL_FACE);
 	//glCullFace(GL_FRONT);
-	//glViewport(0, 0, SHADOW_WIDTH, SHADOW_HEIGHT);
-	//glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
+	glViewport(0, 0, SHADOW_WIDTH, SHADOW_HEIGHT);
+	glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
 
 	// Draw model/mesh with shadowMap shader
 	//renderShadowMap(pointLightCube, cubeMat2);
-	//renderShadowMap(treasureChest, treasureChestTransform.getMatrix());
+	renderShadowMap(treasureChest, treasureChestTransform.getMatrix());
 	//renderShadowMap(pyramid, pyramidMatrix);
 	//renderShadowMap(palmTree, palmMatrix);
 	
 	// Switch back to the default framebuffer
-	//glBindFramebuffer(GL_FRAMEBUFFER, 0);
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
 	// reset viewport
-	//glViewport(0, 0, screenWidth, screenHeight);
-	//glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	glViewport(0, 0, screenWidth, screenHeight);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	//glCullFace(GL_BACK);
 
 
@@ -402,7 +403,7 @@ void Objects::render(GLFWwindow* window, float currentTime, float dt, bool norma
 	}
 
 	// render the terrain
-	terrain.render(viewMatrix, eyePos, lightPos, lightSpaceMatrix, -1);
+	terrain.render(viewMatrix, eyePos, lightPos, lightSpaceMatrix, depthMap);
 
 	// render treasure
 	if (turnRadius == 360.0f) {
@@ -473,25 +474,25 @@ void Objects::render(GLFWwindow* window, float currentTime, float dt, bool norma
 		}
 	}
 
-	//render videowall
-	if (withVideoWall && (mummy.getFootPosition().x >= -60 && mummy.getFootPosition().x <= 90 && mummy.getFootPosition().z <= 105 && mummy.getFootPosition().z >= 25)) {
-		videoWallShader.setUniformMatrix4fv("viewMatrix", 1, GL_FALSE, camera->getTransformMatrix());
-		videoWallShader.setUniform3f("eyePos", camera->cameraPosition.x, camera->cameraPosition.y, camera->cameraPosition.z);
-		videoWallShader.setUniform1i("videoWall", true);
-		elapsedTime += dt;
-		videoWallShader.setCurrentFrame(elapsedTime);
-		videoWall.draw(&videoWallShader);
-	}
+	////render videowall
+	//if (withVideoWall && (mummy.getFootPosition().x >= -60 && mummy.getFootPosition().x <= 90 && mummy.getFootPosition().z <= 105 && mummy.getFootPosition().z >= 25)) {
+	//	videoWallShader.setUniformMatrix4fv("viewMatrix", 1, GL_FALSE, camera->getTransformMatrix());
+	//	videoWallShader.setUniform3f("eyePos", camera->cameraPosition.x, camera->cameraPosition.y, camera->cameraPosition.z);
+	//	videoWallShader.setUniform1i("videoWall", true);
+	//	elapsedTime += dt;
+	//	videoWallShader.setCurrentFrame(elapsedTime);
+	//	videoWall.draw(&videoWallShader);
+	//}
 
-	if (instructionScreenActive) {
-		if (hduObject.pollInput(window, dt)) {
-			instructionScreenActive = false;
-			//std::cout << "game initialized!" << std::endl;
-		}
-	}
+	//if (instructionScreenActive) {
+	//	if (hduObject.pollInput(window, dt)) {
+	//		instructionScreenActive = false;
+	//		//std::cout << "game initialized!" << std::endl;
+	//	}
+	//}
 
-	// Draw HDU last
-	hduObject.drawHDU(window);
+	//// Draw HDU last
+	//hduObject.drawHDU(window);
 
 }
 
