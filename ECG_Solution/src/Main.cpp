@@ -78,6 +78,7 @@ int main()
 	int diffuseLight = reader.GetReal("global", "diffuseLight", 1.0);
 	int specularLight = reader.GetReal("global", "specularLight", 0.2);
 	int alpha = reader.GetReal("global", "alpha", 64);
+	bool withVideoWall = reader.GetBoolean("global", "videoWall", 1);
 	setIllumination(brightnessIdx);
 	int lifeNumber = reader.GetReal("global", "maxlifes", 3);
 
@@ -104,7 +105,7 @@ int main()
 	
 	// OBJECTS
 	PhysxScene physxScene(window, lifeNumber);
-	Objects objects(window, &camera, &physxScene);
+	Objects objects(window, &camera, &physxScene, withVideoWall);
 	objects.ambientFactor = brightnessIdx;
 	objects.diffuseFactor = diffuseLight;
 	objects.specularFactor = specularLight;

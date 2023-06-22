@@ -215,7 +215,8 @@ void Shader::createPhongVideoTexShader(const std::string& videoPath, glm::mat4 m
 
 	//TODO: lights
 	setUniform1i("amountOfDirectionalLights", 0);
-	setUniform1i("videoWall", 1);
+	setUniform1i("videoWall", true);
+	setUniform1i("withShadow", false);
 }
 
 void Shader::loadVideoTexture(const std::string& videoTexturePath, int unit) {
@@ -338,6 +339,14 @@ void Shader::changeTexture(const std::string& newTexturePath)
 
 void Shader::activate() {
 	glUseProgram(shader);
+
+	if (videoTextures.size() > 0) {
+		glActiveTexture(GL_TEXTURE0 + 0);
+		glBindTexture(GL_TEXTURE_2D, videoTextures[getcurrentFrameIndex()]);
+		glUniform1i(getUniformLocation("diffuseTexture"), 0);
+		return;
+	}
+
 	if (diffuseTexture != 0) {
 		glActiveTexture(GL_TEXTURE0 + 0);
 		glBindTexture(GL_TEXTURE_2D, diffuseTexture);
@@ -357,12 +366,6 @@ void Shader::activate() {
 		glActiveTexture(GL_TEXTURE0 + 3);
 		glBindTexture(GL_TEXTURE_2D, shadowMap);
 		glUniform1i(getUniformLocation("shadowMap"), 3);
-	}
-
-	if (videoTextures.size() > 0) {
-		glActiveTexture(GL_TEXTURE0 + 0);
-		glBindTexture(GL_TEXTURE_2D, videoTextures[getcurrentFrameIndex()]);
-		glUniform1i(getUniformLocation("diffuseTexture"), 0);
 	}
 }
 

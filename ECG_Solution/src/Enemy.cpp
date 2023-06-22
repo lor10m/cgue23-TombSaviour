@@ -46,6 +46,8 @@ void Enemy::move(Shader& enemyShader,glm::mat4 modelMatrix, float currentTime, g
 	}
 
 	enemyShader.setUniformMatrix4fv("modelMatrix", 1, GL_FALSE, modelMatrix);
+	enemyShader.setUniform1i("withShadow", false);
+	enemyShader.setUniform1i("videoWall", false);
 
 	std::vector<glm::mat4> transformationMatrices;
 	model->getBoneTransforms(currentTime, glm::mat4(1.0f), transformationMatrices);

@@ -108,6 +108,7 @@ private:
 	glm::mat4 palmMatrix;
 	glm::mat4 palmMatrix2;
 	
+	bool withVideoWall;
 
 	glm::mat4 cubeMat;
 	glm::mat4 cubeMat2;
@@ -124,7 +125,7 @@ public:
 	float ambientFactor = 0.8;
 
 
-	Objects(GLFWwindow* window, Camera* camera, PhysxScene* physxScene);
+	Objects(GLFWwindow* window, Camera* camera, PhysxScene* physxScene, bool withVideoWall);
 	void render(GLFWwindow* window, float currentTime, float dt, bool normalMapping);
 	void createMummy(GLFWwindow* window);
 	void createTerrain();

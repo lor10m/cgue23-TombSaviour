@@ -2,7 +2,7 @@
 #include <cstdlib>
 #include <ctime>
 
-Objects::Objects(GLFWwindow* window, Camera* camera, PhysxScene* physxScene)
+Objects::Objects(GLFWwindow* window, Camera* camera, PhysxScene* physxScene, bool withVideoWall)
 {
 	this->camera = camera;
 	this->physxScene = physxScene;
@@ -13,8 +13,12 @@ Objects::Objects(GLFWwindow* window, Camera* camera, PhysxScene* physxScene)
 	createTerrain();
 	createMummy(window);
 	createPyramid();
-	createVideoWall();
-	createPointLightCube();
+	
+	if (withVideoWall) {
+		createVideoWall();
+	}
+
+	//createPointLightCube();
 	createTreasureChest();
 
 	//createShadowMap();
@@ -22,12 +26,12 @@ Objects::Objects(GLFWwindow* window, Camera* camera, PhysxScene* physxScene)
 	//---------------
 	// Create Enemies
 	//---------------
-	enemyShader.createPhongShader(glm::mat4(0.0f), ambientFactor, diffuseFactor, specularFactor, alpha);
+	enemyShader.createPhongShader(glm::mat4(0.0f), ambientFactor - 3.0f, diffuseFactor, specularFactor, alpha);
 	enemyShader.setUniform1i("isAnimated", 1);
 	enemyShader.setUniform1i("withShadow", 0);
 	enemyShader.setUniform1i("videoWall", 0);
 	for (unsigned int i = 0; i < numEnemies; i++) {
-		createEnemy(glm::vec3(165 + i * 6, 24.0f, -95.0f)); //createEnemy(glm::vec3(165 + i * 6, 24.0f, -95.0f));	
+		createEnemy(glm::vec3(165 + i * 6, 34.0f, -95.0f)); //createEnemy(glm::vec3(165 + i * 6, 24.0f, -95.0f));	
 	}
 
 	//------------
@@ -40,28 +44,29 @@ Objects::Objects(GLFWwindow* window, Camera* camera, PhysxScene* physxScene)
 	cactusShader.setUniform1i("videoWall", 0);
 
 	createCactus(glm::vec3(46.0f, 40.0f, -26));	// one fixed cactus
+	createCactus(glm::vec3(50.0f, 40.0f, -30));	// one fixed cactus
 	createCactus(glm::vec3(185.0, 60.0, 36.5));
 	createCactus(glm::vec3(450.0, 0.0, -142.0));
 	createCactus(glm::vec3(423.0, 0.0, -380.0));
-	//createCactus(glm::vec3(-108.0, 28.0, 304.0));
-	//createCactus(glm::vec3(122.0, 50.0, 248.0));
+	createCactus(glm::vec3(-108.0, 28.0, 304.0));
+	createCactus(glm::vec3(122.0, 50.0, 248.0));
 
 	//------------
 	// Create Palm trees
 	//-------------
-	palmTreeShader.createPhongShader("assets/textures/wood_texture.dds", "assets/textures/wood_texture_specular.dds", "", true, glm::mat4(1.0f), ambientFactor, 0.8f, 0.5f, 1.0f);
+	palmTreeShader.createPhongShader("assets/textures/Cactus.jpg", "assets/textures/Cactus.jpg", "", false, glm::mat4(1.0f), ambientFactor, 0.8f, 0.5f, 1.0f);
 	palmTreeShader.setUniform1i("isAnimated", 0);
 	palmTreeShader.setUniform1i("withShadow", 0);
 	palmTreeShader.setUniform1i("videoWall", 0);
 
-	//createPalmTree(glm::vec3(10.5, 98.0, -126.5));
-	//createPalmTree(glm::vec3(204.0, 24.0, -53.0));
-	//createPalmTree(glm::vec3(192.0, 70.0, 168.5));
+	createPalmTree(glm::vec3(10.5, 98.0, -126.5));
+	createPalmTree(glm::vec3(204.0, 24.0, -53.0));
+	createPalmTree(glm::vec3(192.0, 69.0, 168.5));
 	//createPalmTree(glm::vec3(-295.0, 48.0, -92.0));
 	//createPalmTree(glm::vec3(303.0, 29.0, 132.0));
 	//createPalmTree(glm::vec3(70.0, 40.8, -100.0));
 	//createPalmTree(glm::vec3(90.0, 39.8, -80.0));
-	createPalmTree(glm::vec3(45.0, 43.0, -18.0));
+	createPalmTree(glm::vec3(45.0, 41.0, -18.0));
 	//-20.0, 31.6, 65.0
 	//------------
 	// Create Spikes
@@ -77,13 +82,13 @@ Objects::Objects(GLFWwindow* window, Camera* camera, PhysxScene* physxScene)
 	//------------
 	// Create Tumbleweed
 	//------------
-	tumbleweedShader.createPhongShader("assets/textures/Cactus.jpg", "assets/textures/Cactus.jpg", "", false, glm::mat4(1.0f), ambientFactor, diffuseFactor, specularFactor, alpha);
-	tumbleweedShader.setUniform1i("isAnimated", 0);
-	tumbleweedShader.setUniform1i("withShadow", 0);
-	tumbleweedShader.setUniform1i("videoWall", 0);
-	for (unsigned int i = 0; i < numTumbleweeds; i++) {
-		createTumbleweed();
-	}
+	//tumbleweedShader.createPhongShader("assets/textures/Cactus.jpg", "assets/textures/Cactus.jpg", "", false, glm::mat4(1.0f), ambientFactor, diffuseFactor, specularFactor, alpha);
+	//tumbleweedShader.setUniform1i("isAnimated", 0);
+	//tumbleweedShader.setUniform1i("withShadow", 0);
+	//tumbleweedShader.setUniform1i("videoWall", 0);
+	//for (unsigned int i = 0; i < numTumbleweeds; i++) {
+	//	createTumbleweed();
+	//}
 
 	createHduObject(window);
 	 
@@ -92,7 +97,7 @@ Objects::Objects(GLFWwindow* window, Camera* camera, PhysxScene* physxScene)
 void Objects::createTerrain()
 {
 	const char* heightmap_path = "assets/heightmaps/hm7_pyramid.png"; //hm7_pyramid.png
-	terrain.createTerrain("assets/textures/sand.png", heightmap_path, ambientFactor, 0.3, 0.1, 30);
+	terrain.createTerrain("assets/textures/sand.png", heightmap_path, ambientFactor - 3.0, 0.3, 0.1, 30);
 
 	physxScene->createTerrain(heightmap_path);
 }
@@ -251,7 +256,7 @@ void Objects::createVideoWall() {
 	videoWallShader.setUniform1i("normalMapping", false);
 	videoWallShader.setUniform1i("withShadow", false);
 
-	physxScene->createModel("videowall", videoWall.indices, videoWall.vertices, videoWall.normals, videoWallScale, videoWallTranslate, videoWallRotate);
+	//physxScene->createModel("videowall", videoWall.indices, videoWall.vertices, videoWall.normals, videoWallScale, videoWallTranslate, videoWallRotate);
 }
 
 void Objects::createShadowMap()
@@ -463,11 +468,16 @@ void Objects::render(GLFWwindow* window, float currentTime, float dt, bool norma
 		}
 	}
 	//render videowall
-	videoWallShader.setUniformMatrix4fv("viewMatrix", 1, GL_FALSE, camera->getTransformMatrix());
-	videoWallShader.setUniform3f("eyePos", camera->cameraPosition.x, camera->cameraPosition.y, camera->cameraPosition.z);
-	elapsedTime += dt;
-	videoWallShader.setCurrentFrame(elapsedTime);
-	videoWall.draw(&videoWallShader);
+
+	//z >= 10, z <= 120, x <= 38, x>= -75
+	if (withVideoWall && ((mummy.getFootPosition().x <= 38 || mummy.getFootPosition().x >= -75) && (mummy.getFootPosition().z <= 120 || mummy.getFootPosition().z >= 10))) {
+		videoWallShader.setUniformMatrix4fv("viewMatrix", 1, GL_FALSE, camera->getTransformMatrix());
+		videoWallShader.setUniform3f("eyePos", camera->cameraPosition.x, camera->cameraPosition.y, camera->cameraPosition.z);
+		videoWallShader.setUniform1i("videoWall", true);
+		elapsedTime += dt;
+		videoWallShader.setCurrentFrame(elapsedTime);
+		videoWall.draw(&videoWallShader);
+	}
 
 	if (instructionScreenActive) {
 		if (hduObject.pollInput(window, dt)) {
@@ -521,7 +531,7 @@ void Objects::createTreasureChest() {
 	treasureChestTransform.scale(chestScale);
 
 	treasureChestShader.createPhongShader("assets/textures/chest/chest_baseColor.jpg",
-		"assets/textures/chest/chest_specular_metallic.jpg", "assets/textures/chest/chest_normal.jpg", false, treasureChestTransform.getMatrix(), 0.4f, diffuseFactor, specularFactor, alpha);
+		"assets/textures/chest/chest_specular_metallic.jpg", "assets/textures/chest/chest_normal.jpg", false, treasureChestTransform.getMatrix(),ambientFactor , 1.8, 0.2, alpha);
 
 	treasureChest.generateModel("assets/objects/treasureChest.obj");
 	treasureChestShader.setUniform1i("isAnimated", 0);
