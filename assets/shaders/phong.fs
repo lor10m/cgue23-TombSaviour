@@ -40,6 +40,7 @@ uniform sampler2D shadowMap; // added for shadows
 
 uniform bool normalMapping = false;
 uniform bool withShadow = true;
+uniform bool videoWall = false;
 
 // ambient lighting factor
 uniform float ka; //0.3
@@ -104,28 +105,23 @@ void main()
         }
     }
 
-    float ambient = ka;
-    vec3 ambientLight = ambient * vec3(texture(diffuseTexture, fragTexCoordinate));
-    vec3 diffuseLight = diffuse * vec3(texture(diffuseTexture, fragTexCoordinate));
-    vec3 specularLight = specular * vec3(texture(specularTexture, fragTexCoordinate));
-    // das da noch mal lightColor wenn man will; vlt intensity?
-    //FragColor = texture(diffuseTexture, fragTexCoordinate) * vec4(diffuse,1.0f) + texture(specularTexture, fragTexCoordinate) * vec4(specular,1.0f);
-    //FragColor = texture(diffuseTexture, fragTexCoordinate) * (diffuse + ka) + texture(specularTexture, fragTexCoordinate) * specular;
+    vec3 lightContribution;
 
-    vec3 lightContribution = ambientLight + (1.0 - shadow) * (diffuseLight + specularLight);
+    if(!videoWall)
+    {
+        float ambient = ka;
+        vec3 ambientLight = ambient * vec3(texture(diffuseTexture, fragTexCoordinate));
+        vec3 diffuseLight = diffuse * vec3(texture(diffuseTexture, fragTexCoordinate));
+        vec3 specularLight = specular * vec3(texture(specularTexture, fragTexCoordinate));
+
+        lightContribution = ambientLight + (1.0 - shadow) * (diffuseLight + specularLight);
+    }else{
+        lightContribution = vec3(texture(diffuseTexture, fragTexCoordinate));
+    }
+
+
     FragColor = vec4(lightContribution, 1.0);
-    
-    // Point lights
-    //for (int i = 0; i < amountOfPointLights; i++) {
-    //    float shadow = calculateShadowFromDirectionalLight(directionalLight[i]);
-    //    ambientIntensity += calculateDiffuseFromPointLight(pointLight[i]) * shadow;
-    //    specularIntensity += calculateSpecularFromPointLight(pointLight[i]) * shadow;
-    //}
-    // Spot lights
-    //for (int i = 0; i < amountOfSpotLights; i++) {
-    //    ambientIntensity += calculateDiffuseFromSpotLight(spotLight[i]);
-    //    specularIntensity += calculateSpecularFromSpotLight(spotLight[i]);
-    //}
+   
 }
 
 float calculateShadowFromDirectionalLight(DirectionalLight directionalLight) 

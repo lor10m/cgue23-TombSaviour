@@ -90,6 +90,7 @@ void Terrain::render(glm::mat4 viewMatrix, glm::vec3 eyePos, glm::vec3 lightPos,
 	shader.setUniform1i("shadow", 0);
 
 	if (depthMap != -1) {
+		shader.setUniform1i("shadow", 1);
 		glActiveTexture(GL_TEXTURE0 + 3);
 		glBindTexture(GL_TEXTURE_2D, depthMap);
 		shader.setUniform1i("shadowMap", 3);

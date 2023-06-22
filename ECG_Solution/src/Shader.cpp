@@ -214,10 +214,8 @@ void Shader::createPhongVideoTexShader(const std::string& videoPath, glm::mat4 m
 	setUniformMatrix4fv("modelMatrix", 1, GL_FALSE, modelMatrix);
 
 	//TODO: lights
-	PointLight pointLight1({ 0, 50, 0 }, { 100, 100, 100 }, { 1.0f, 0.4f, 0.1f });
-	DirectionalLight directionalLight1({ 0, -1, -1 }, { 0.8f, 0.8f, 0.8f });
-	addUniformPointLight("pointLight", pointLight1);
-	addUniformDirectionalLight("directionalLight", directionalLight1);
+	setUniform1i("amountOfDirectionalLights", 0);
+	setUniform1i("videoWall", 1);
 }
 
 void Shader::loadVideoTexture(const std::string& videoTexturePath, int unit) {

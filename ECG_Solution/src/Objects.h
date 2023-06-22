@@ -86,7 +86,7 @@ private:
 	
 
 	unsigned int numEnemies = 1;
-	unsigned int numCacti = 3;
+	unsigned int numCacti = 7;
 	unsigned int numSpikes = 10 * numCacti;	// TODO: shouldn't this be 5?
 	unsigned int numTumbleweeds = 1;
 	unsigned int numPalms = 1;
@@ -97,7 +97,6 @@ private:
 	float elapsedTime = 0.0f;
 	
 	float turnRadius = 0.0f;
-	void renderTreasureChest(bool normalMapping);
 
 	void renderShadowMap(Model& model, glm::mat4 modelMatrix);
 	void renderModel(Model* model, glm::mat4 modelMatrix, Shader* shader, bool normalMapping, bool withShadow);
