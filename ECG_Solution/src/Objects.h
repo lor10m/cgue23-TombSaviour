@@ -123,6 +123,7 @@ public:
 	float diffuseFactor = 0.8;
 	float specularFactor = 0.4;
 	float ambientFactor = 0.8;
+	int difficulty = 2;
 
 
 	Objects(GLFWwindow* window, Camera* camera, PhysxScene* physxScene, bool withVideoWall);

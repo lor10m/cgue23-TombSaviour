@@ -81,6 +81,7 @@ int main()
 	bool withVideoWall = reader.GetBoolean("global", "videoWall", 1);
 	setIllumination(brightnessIdx);
 	int lifeNumber = reader.GetReal("global", "maxlifes", 3);
+	int difficulty = reader.GetInteger("global", "difficulty", 2);
 
 	//glewExperimental = true;
 	if (GLEW_OK != glewInit()) {
@@ -110,6 +111,7 @@ int main()
 	objects.diffuseFactor = diffuseLight;
 	objects.specularFactor = specularLight;
 	objects.alpha = alpha;
+	objects.difficulty = difficulty;
 	
     glfwSetWindowUserPointer(window, &camera);
     glfwSetFramebufferSizeCallback(window, framebufferSizeCallback);

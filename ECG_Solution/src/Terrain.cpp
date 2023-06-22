@@ -7,7 +7,7 @@ void Terrain::createTerrain(const char* texturePath, const char* heightmapPath, 
 	shader.createTerrainShader("", "", ka, kd, ks, alpha);
 	shader.activate();
 	diffuseTexture.genTexture("assets/textures/terrain.jpg");
-	specularTexture.genTexture("assets/textures/terrain_specular.jpg");
+	specularTexture.genTexture("assets/textures/terrain_spec.jpg");
 	heightmapTexture.genDDSTexture(heightmapPath);
 
 	//depthShader.createDepthMapShader();

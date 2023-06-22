@@ -21,7 +21,6 @@ private:
 
 	unsigned int hitCounter = 0;
 
-	bool difficulty = 2;
 	bool colliding = false;
 
 	glm::vec3 scale;
@@ -39,6 +38,8 @@ public:
 
 	bool isDead = false;
 	bool shouldBeDeleted = false;
+	
+	int difficulty = 3;
 
 	Enemy() {};
 	Enemy(unsigned int id, std::shared_ptr<Model> model, PhysxScene* physxScene, PxControllerManager* enegManager, glm::vec3 scale, glm::vec3 position);

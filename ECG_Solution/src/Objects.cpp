@@ -8,12 +8,14 @@ Objects::Objects(GLFWwindow* window, Camera* camera, PhysxScene* physxScene, boo
 	this->physxScene = physxScene;
 	controllerManager = PxCreateControllerManager(*physxScene->scene);
 
+	this->withVideoWall = withVideoWall;
 	//debugShader.createDebugShadowShader();
 	
 	createTerrain();
 	createMummy(window);
 	createPyramid();
 	
+	std::cout << withVideoWall << std::endl;
 	if (withVideoWall) {
 		createVideoWall();
 	}
@@ -140,7 +142,7 @@ void Objects::createEnemy(glm::vec3 position)
 	enemyStruct.modelMatrix = modelTransform.getMatrix();
 	enemyStruct.enemyModel = std::make_shared<Model>("assets/models/eve.dae");
 	enemyStruct.enemy = std::make_shared<Enemy>(enemyCounter, enemyStruct.enemyModel, physxScene, controllerManager, modelScale, glm::vec3(position.x, position.y, position.z));
-
+	enemyStruct.enemy->difficulty = difficulty;
 	enemies.push_back(enemyStruct);
 	enemyCounter++;
 }
@@ -260,7 +262,6 @@ void Objects::createVideoWall() {
 	videoWallShader.setUniform1i("normalMapping", false);
 	videoWallShader.setUniform1i("withShadow", false);
 
-	//physxScene->createModel("videowall", videoWall.indices, videoWall.vertices, videoWall.normals, videoWallScale, videoWallTranslate, videoWallRotate);
 }
 
 void Objects::createShadowMap()
@@ -471,10 +472,9 @@ void Objects::render(GLFWwindow* window, float currentTime, float dt, bool norma
 			hduObject.showBigScreen("winEndscreen");
 		}
 	}
-	//render videowall
 
-	//z >= 10, z <= 120, x <= 38, x>= -75
-	if (withVideoWall && ((mummy.getFootPosition().x <= 38 || mummy.getFootPosition().x >= -75) && (mummy.getFootPosition().z <= 120 || mummy.getFootPosition().z >= 10))) {
+	//render videowall
+	if (withVideoWall && (mummy.getFootPosition().x >= -60 && mummy.getFootPosition().x <= 90 && mummy.getFootPosition().z <= 105 && mummy.getFootPosition().z >= 25)) {
 		videoWallShader.setUniformMatrix4fv("viewMatrix", 1, GL_FALSE, camera->getTransformMatrix());
 		videoWallShader.setUniform3f("eyePos", camera->cameraPosition.x, camera->cameraPosition.y, camera->cameraPosition.z);
 		videoWallShader.setUniform1i("videoWall", true);

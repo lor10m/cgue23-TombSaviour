@@ -22,13 +22,19 @@ Enemy::Enemy(unsigned int id, std::shared_ptr<Model> model2, PhysxScene* physxSc
 	model = model2;
 	scale = scalingFactor;
 
+	if (difficulty >= 3) {
+		difficulty = 3;
+	}else if (difficulty < 1) {
+		difficulty = 1;
+	}
+
 	punchingScene = punchingImporter.ReadFile("assets/models/Punching.dae", NULL);
 	killedScene = killedImporter.ReadFile("assets/models/Dying.dae", NULL);
 
 	setPosition();
 }
 
-void Enemy::move(Shader& enemyShader,glm::mat4 modelMatrix, float currentTime, glm::vec3 dir, float speed, float dt)
+void Enemy::move(Shader& enemyShader, glm::mat4 modelMatrix, float currentTime, glm::vec3 dir, float speed, float dt)
 {
 	if (shouldBeDeleted) { return; }
 	if (isDead) {
@@ -95,7 +101,7 @@ void Enemy::setPosition() {
 	charPosition.y = pos.y;
 	charPosition.z = pos.z;
 
-	model->physxTransform = glm::vec3(charPosition.x/ scale.x, charPosition.y/ scale.y, charPosition.z/ scale.z);
+	model->physxTransform = glm::vec3(charPosition.x / scale.x, charPosition.y / scale.y, charPosition.z / scale.z);
 	model->physxRotate = glmRotationMatrix;
 
 	//printPosition();
@@ -105,12 +111,12 @@ glm::vec3 Enemy::getPosition() {
 	return charPosition;
 }
 
-void Enemy::printPosition() { 
-	
+void Enemy::printPosition() {
+
 	//<< "\nCharPos: " << charPosition.x << " " << charPosition.y << " " << charPosition.z << std::endl;
 }
 
-void Enemy::killEnemy() 
+void Enemy::killEnemy()
 {
 	std::cout << "enemy dead" << std::endl;
 	shouldBeDeleted = true;
@@ -122,7 +128,7 @@ void Enemy::onControllerHit(const physx::PxControllersHit&)
 	colliding = true;
 	model->animation = punchingScene->mAnimations[0];
 
-	if (hitCounter == 30) {		// change hitCounter
+	if (hitCounter == 330 - difficulty * 100) {		// change hitCounter
 		// Leben abziehen
 		scene->decreaseMummyLive();
 		hitCounter = 0;
