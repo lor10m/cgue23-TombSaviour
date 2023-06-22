@@ -22,8 +22,8 @@ void playBackgroundMusic(std::string musicKey) {
 	}
 
 	backgroundmusic.setLoop(true);
-	backgroundmusic.setVolume(80);
-	//backgroundmusic.play();
+	backgroundmusic.setVolume(70);
+	backgroundmusic.play();
 
 	std::cout << "play music" << std::endl;
 }

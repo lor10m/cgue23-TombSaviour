@@ -86,9 +86,9 @@ private:
 	
 
 	unsigned int numEnemies = 1;
-	unsigned int numCacti = 7;
-	unsigned int numSpikes = 10 * numCacti;	// TODO: shouldn't this be 5?
-	unsigned int numTumbleweeds = 1;
+	unsigned int numCacti = 4;
+	unsigned int numSpikes = 5 * numCacti;
+	unsigned int numTumbleweeds = 0;
 	unsigned int numPalms = 1;
 	void createSpike();
 	void createTumbleweed();

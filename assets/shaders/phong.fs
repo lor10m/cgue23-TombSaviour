@@ -110,8 +110,9 @@ void main()
     if(!videoWall)
     {
         float ambient = ka;
-        vec3 ambientLight = ambient * vec3(texture(diffuseTexture, fragTexCoordinate));
-        vec3 diffuseLight = diffuse * vec3(texture(diffuseTexture, fragTexCoordinate));
+        vec3 diffText = vec3(texture(diffuseTexture, fragTexCoordinate));
+        vec3 ambientLight = ambient * diffText;
+        vec3 diffuseLight = diffuse * diffText;
         vec3 specularLight = specular * vec3(texture(specularTexture, fragTexCoordinate));
 
         lightContribution = ambientLight + (1.0 - shadow) * (diffuseLight + specularLight);

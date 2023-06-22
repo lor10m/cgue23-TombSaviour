@@ -174,12 +174,12 @@ void PhysxScene::createModel(const char* name, std::vector<unsigned int> indices
 	}
 
 	PxTransform transform(PxVec3(translate.x, translate.y, translate.z), PxIdentity);		// PxIdentity combinedQuat
-	shape->setLocalPose(transform);
+	shape->setLocalPose(PxTransform(PxIdentity));
 
 	PxRigidStatic* staticActor = physics->createRigidStatic(PxTransform(PxIdentity));
 
 	staticActor->attachShape(*shape);
-	staticActor->setGlobalPose(PxTransform(PxIdentity));
+	staticActor->setGlobalPose(transform);
 
 	staticActor->setName(name);
 
