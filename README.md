@@ -1,3 +1,3 @@
 # cg-2023
 
-Framework for Computer Graphic Course
+C++ Game for Computer Graphic Course
